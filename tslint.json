@@ -1,0 +1,8 @@
+{
+    "rules": {
+      "no-any": true,
+      "no-magic-numbers": true,
+      "no-consecutive-blank-lines": true,
+      "class-name": true
+    }
+  }

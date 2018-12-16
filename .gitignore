@@ -1,0 +1,4 @@
+app/assets
+app/dist
+app/index.html
+node_modules
