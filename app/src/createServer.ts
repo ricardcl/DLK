@@ -1,31 +1,26 @@
-import {vol} from './Modele/vol';
-import {mixInfos} from './Parseur/MixInfos';
-var app = require('http').createServer(handler)
-var io = require('socket.io')(app);
-var fs = require('fs');
+export class Server {
 
+  private app = require('http').createServer();
+  private io = require('socket.io')(this.app);
 
-app.listen(3000);
+  // TODO : à supprimer
+  private cpt : number = 0;
 
-function handler (req, res) {
-  fs.readFile('./app/index.html',
-  function (err, data) {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html !');
-    }
+  constructor () {
+    console.log("hello");
+    this.app.listen(4000);
+    this.initSocket();
+  }
 
-    res.writeHead(200);
-    res.end(data);
-  });
+  private initSocket () {
+    this.io.on('connection', (socket) => {
+      console.log("Connected and init client socket !");
+      socket.emit('cptUpdate', this.cpt);
+      this.cpt += 1;
+      socket.on('incrCpt', (incr : number) => {
+        this.cpt += incr;
+        socket.emit('cptUpdate', this.cpt);
+      });
+    });
+  }
 }
-
-io.on('connection', function (socket) {
-  console.log("connected");
-  socket.on('traitementFichierCPDLC', function (data) {
-    console.log(data);
-    let volResult : vol = mixInfos(data.arcid, data.plnid, data.fichierSourceLpln, data.fichierSourceVemgsa);
-    console.log(volResult);
-    //socket.emit('volResult', volResult);
-  });
-});

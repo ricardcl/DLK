@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.ts",
   "dependencies": {
+    "express": "^4.16.4",
     "fs": "0.0.1-security",
     "shelljs": "^0.8.2",
     "socket.io": "^2.2.0",
     "typescript-map": "^0.0.6"
   },
   "scripts": {
-    "build": "cd app && webpack -w --mode development --devtool source-map"
   },
   "keywords": [],
   "author": "",
