@@ -1,4 +1,6 @@
-import { Server } from "./createServer";
+//import { Server } from "./createServer";
+import { Formulaire } from "./createFormulaire";
 
 console.log("hello2");
-new Server ();
+//new Server ();
+new Formulaire();

@@ -8,10 +8,10 @@
     "fs": "0.0.1-security",
     "shelljs": "^0.8.2",
     "socket.io": "^2.2.0",
+    "socketio-file-upload": "^0.7.0",
     "typescript-map": "^0.0.6"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
