@@ -196,7 +196,7 @@ function orderVemgsa(list : string[]):string[] {
     if (f1.match(motif) !== null ){
       d1_supp = Number(f1.replace(motif, "$9"));
     }
-    if (f2.match(motif) !== null ){
+    if (f2.match(motif) !== undefined ){
       d2_supp = Number(f2.replace(motif, "$9"));
     }
     if (d1_supp < d2_supp){
@@ -219,7 +219,7 @@ function orderVemgsa(list : string[]):string[] {
 }
 
 
-export function appelMixInfos(){
+/** export function appelMixInfos(){
   let fichierSourceLpln = "./Input/LPLN_8474";
   let fichierSourceVemgsa = "./Input/VEMGSA2.OPP.stpv3_260918_0742_270918_0721";
   let fichierSourceVemgsaNext = "./Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
@@ -231,7 +231,7 @@ export function appelMixInfos(){
   mixInfos("CFG6TH",0,fichierSourceLpln,orderVemgsa(list));
   //main("",8474,fichierSourceLpln,fichierSourceVemgsa );
 
-}
+}*/
 
 
 

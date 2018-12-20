@@ -13,12 +13,21 @@ let fsplit = new split();
 
 let readline = require("../scripts/node-readline/node-readline");
 import * as grep from "./grepLPLN";
+const path_dir = "./app/assets/";
+const path_dir_input = path_dir+"Input/";
+const path_dir_input_user = path_dir_input+"user/";
+const path_dir_input_system = path_dir_input+"system/";
+const path_dir_output = path_dir+"Output/";
+const fichierGbdi = path_dir_input_system+"STPV_G2910_CA20180816_13082018__1156";
+const source = path_dir_output+"resultLPLN.htm"; //Fichier en entree a analyser
+
 
 export class parseurLpln {
 
 
   parseur = function (arcid:string, plnid:number, fichierSourceLpln:string):vol {
 
+    var fichierSourceLpln= path_dir_input_user+fichierSourceLpln;
 
     if ((arcid == "") && (plnid !== 0)){
       arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
@@ -31,14 +40,14 @@ export class parseurLpln {
     grep.grepLogLPLN(arcid,plnid, fichierSourceLpln);
 
     //TODO : partie a mettre en commun avec l'autre parseur
-    let frequences = require("./frequences.ts");
-    let fichierGbdi = "./Input/STPV_G2910_CA20180816_13082018__1156";
+    let frequences = require("./frequences");
+
     //let fichierDest = "../Output/freq.htm";
     frequences.GbdiToFreq(fichierGbdi);
 
 
     /* Ouverture du fichier à analyser*/
-    let source = "./Input/resultLPLN.htm"; //Fichier en entree a analyser
+
     let r = readline.fopen(source, "r");
     if (r === false) {    // Test de l ouverture du fichier
       console.log("Error, can't open ", source);

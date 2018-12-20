@@ -10,9 +10,11 @@ const fs = require('fs');
 
 var readline = require("../scripts/node-readline/node-readline");
 
-
-var fichierGbdi = "./Input/STPV_G2910_CA20180816_13082018__1156";
-var fichierDest = "./Output/freq.htm";
+const path_dir = "./app/assets/";
+const path_dir_input = path_dir+"Input/";
+const path_dir_output = path_dir+"Output/";
+const fichierGbdi = path_dir_input+"STPV_G2910_CA20180816_13082018__1156";
+const fichierFreq =  path_dir_output+"freq.htm";
 
 /*
 objectif : Fonction qui prend en entree le fichier gbdi STPV
@@ -31,9 +33,9 @@ exports.GbdiToFreq = function(fichierSource) {
 
   //Test de la date du fichier gbdi pour vérifier s'il y a besoin de mettre à jour la liste des fréquences
   var r = readline.fopen(fichierSource, "r");
-  var w = readline.fopen(fichierDest, "r");
+  var w = readline.fopen(fichierFreq, "r");
   if (w === false) {
-    console.log("Error, can't open ", fichierDest);
+    console.log("Error, can't open ", fichierFreq);
     process.exit(1);
   }
   else {
@@ -53,7 +55,7 @@ exports.GbdiToFreq = function(fichierSource) {
 
 
 
-      var w2 = fs.openSync(fichierDest, "w");
+      var w2 = fs.openSync(fichierFreq, "w");
       fs.writeSync(w2, dateFichierDest+"\n", null, 'utf8') ;
 
 
@@ -101,7 +103,7 @@ Parametres en entrée :
 freq : une frequence de transfert
 */
 exports.freqToSecteur = function( freq) {
-  var fichierFreq =  "./Output/freq.htm";
+  
   var r = readline.fopen(fichierFreq, "r");
   if (r === false) {
     console.log("Error, can't open ", fichierFreq);

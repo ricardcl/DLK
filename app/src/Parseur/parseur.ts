@@ -12,7 +12,13 @@ let fsplit = new split();
 let readline = require("../scripts/node-readline/node-readline");
 //let grep = require("./grep.ts");
 import * as grep from "./grep";
-
+const path_dir = "./app/assets/";
+const path_dir_input = path_dir+"Input/";
+const path_dir_input_user = path_dir_input+"user/";
+const path_dir_input_system = path_dir_input+"system/";
+const path_dir_output = path_dir+"Output/";
+const fichierGbdi = path_dir_input_system+"STPV_G2910_CA20180816_13082018__1156";
+const source = path_dir_output+"result.htm"; //Fichier en entree a analyser
 
 export class parseurVemgsa {
 
@@ -50,14 +56,16 @@ export class parseurVemgsa {
 
     //grep.grepPlnId(7183);
 
-    let frequences = require("./frequences.ts");
-    let fichierGbdi = "./Input/STPV_G2910_CA20180816_13082018__1156";
+
+
+    let frequences = require("./frequences");
+   
     //let fichierDest = "../Output/freq.htm";
     frequences.GbdiToFreq(fichierGbdi);
 
 
     /* Ouverture du fichier à analyser*/
-    let source = "./Input/result.htm"; //Fichier en entree a analyser
+   
     let r = readline.fopen(source, "r");
     if (r === false) {    // Test de l ouverture du fichier
       console.log("Error, can't open ", source);
