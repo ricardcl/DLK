@@ -4,8 +4,9 @@ let filePtr = {};
 let fileBuffer = {};
 let buffer =   Buffer.alloc(4096);
 
-export function fopen (path:string, mode:string) {
-  let handle = fs.openSync(path, mode);
+
+export function fopen (path:string, mode:string):number {
+  let handle = fs.openSync(path, mode); //Returns an integer representing the file descriptor.
   filePtr[handle] = 0;
   fileBuffer[handle]= [];
   return handle;

@@ -5,14 +5,19 @@ import {etatCpdlc} from '../Modele/etatCpdlc';
 
 
 
-export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : string, fichierSourceVemgsa : string[] ):vol {
 
+export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : string, fichierSourceVemgsa : string[] ):vol[] {
+  let monvolFinal:vol; 
+  let monvolVemgsa:vol; 
+  let monvolLpln:vol; 
+  let pl = new parseurLpln();
   //let arcid = "EWG6LB";
   //let plnid = 6461;
-
+  console.log(pl.grepListeVolFromLpln(fichierSourceLpln));
+  return pl.grepListeVolFromLpln(fichierSourceLpln);
 
   //Initialisation du vol issu des donnees VEMGSA
-  let monvolVemgsa = new vol(arcid,plnid);
+  /** let monvolVemgsa = new vol(arcid,plnid);
   let pv = new parseurVemgsa();
   monvolVemgsa = pv.parseur(arcid,plnid,fichierSourceVemgsa );
 
@@ -107,12 +112,16 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
     //  console.log("key2 : "+key2);
     console.log("info Lpln supp: "  +monvolLpln.listeLogs.get(key2).title);
     key2=key2+1;
+    */
   }
 
 
+/** 
   function addElt(elt : etatCpdlc):void {
     monvolFinal.listeLogs.set(compteur,elt )
   }
+*/
+
 
   function cmpHeureElt(hV : string, hL : string):boolean {
     //h1 : heure VEMGSA précise
@@ -145,7 +154,8 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
   }
 
-  let hV = monvolVemgsa.listeLogs.get(1).heure;
+  
+  /**let hV = monvolVemgsa.listeLogs.get(1).heure;
   console.log("heure HV : "+hV);
   let hL = monvolLpln.listeLogs.get(10).heure;
   console.log("heure HL : "+hL);
@@ -153,7 +163,7 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
   let result1 = cmpHeureElt(hV,hL);
 
 
-
+*/
 
   /*monvolLpln.listeLogs.forEach((value, key, map) => {
 
@@ -168,8 +178,8 @@ monvolLpln.listeLogs.forEach((value, key, map) => {
 console.log(monvolLpln.etat);
 console.log(key, ':', value);
 })*/
-return monvolFinal;
-}
+//return monvolFinal;
+//}
 
 /* Fonction qui prend en entrée deux fichiers Vemgsa et renvoie les deux fichiers en les classant par date */
 function orderVemgsa(list : string[]):string[] {

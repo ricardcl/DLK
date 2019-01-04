@@ -22,6 +22,16 @@ export class Formulaire {
             console.log('2');
            
 
+
+            uploader.on("complete", function(event){
+                console.log("upload complete", event.file.name);
+                //mixInfos("",0, event.file.name, null);
+            });
+
+            socket.on('analysing', function (file) {
+                socket.emit("analysed",mixInfos("",0, file, null));
+            });
+
             // Quand le serveur reçoit un signal de type "chargement Fichier" du client    
             socket.on('chargement_des_fichiers', function (arcid, plnid, fichierLpln, fichierVemgsa) {
                 console.log("demande chargement fichiers ");

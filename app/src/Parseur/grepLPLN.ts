@@ -1,4 +1,3 @@
-
 /*
 OBJECTIF DE CETTE FONCTION :
 Lire le contenu d un fichier LPLN donne en entree

@@ -113,7 +113,7 @@ export class parseurVemgsa {
       log.title = myMap.get('TITLE');
       log.infoMap = myMap;
 
-      monvol.listeLogs.set(numeroLigne,log);
+      monvol.getListeVol().set(numeroLigne,log);
 
       //automate a etat sur la letiable etat
       switch(log.title) {

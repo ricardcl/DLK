@@ -99,7 +99,7 @@ export class parseurLpln {
       log.title = myMap.get('TITLE');
       log.infoMap = myMap;
 
-      monvol.listeLogs.set(numeroLigne,log);
+      monvol.getListeVol().set(numeroLigne,log);
 
 
 
@@ -459,6 +459,59 @@ recuperationCPC = function(infoLog:string):TSMap<string,string> {
   }
 
   return mymap;
+}
+
+grepListeVolFromLpln =function( fichierSourceLpln:string):vol[] {
+console.log("coucou");
+  let fichierSource = path_dir_input_user+fichierSourceLpln;
+  let fd = this.isFichierLisible(fichierSource); //Test de l'ouverture du fichier et recuperation du file descriptor
+
+  //let motif = /(-)(.*)(\/)(.*)(H)(.*)(MN)(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL:)(.*)(RANG SL:)(.*)(PLN)(.*)(-)/;
+  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL:)(.*)(RANG SL:)(.*)/;
+ // - 23/AOUT       06H00MN     NUMERO PLN: 9352   INDICATIF: DLH37F    NOM SL: AIX      RANG SL:   2 PLN TERMINE                      
+  let plnid:number =0;
+  let indicatif:string="";
+  let nomSL:string="";
+  let listeVols :vol[]= [];
+//Traitement du fichier
+do {
+//Test de la fin de fichier
+var mylogCpdlc = readline.fgets(fd);
+if (mylogCpdlc === false) { break;}
+//Recuperation des lignes contenant le motif
+let info1Lpln = mylogCpdlc.match(motif);
+if  (info1Lpln !== null){
+  //console.log(info1Lpln);
+  plnid =  mylogCpdlc.toString().replace(motif, "$3").trim();
+  //console.log("plnid : "+plnid);
+  indicatif =  mylogCpdlc.toString().replace(motif, "$5").trim();
+  //console.log("arcid : "+indicatif);
+  nomSL =  mylogCpdlc.toString().replace(motif, "$7").trim();
+  //console.log("nomSL : "+nomSL);
+  let monvol = new vol(indicatif,plnid);
+  monvol.setSL(nomSL);
+  listeVols.push(monvol);
+  
+}
+
+}while (!readline.eof(fd));
+readline.fclose(fd);
+
+//console.log(listeVols);
+
+return listeVols;
+}
+
+ isFichierLisible = function ( fichier:string):number {
+  let fd = readline.fopen(fichier, "r");
+  //Test de l'ouverture du fichier
+  if (fd === false) {
+    console.log("Error, can't open ", fichier);
+    process.exit(1);
+  }
+  else {
+    return fd;
+  }
 }
 
 }
