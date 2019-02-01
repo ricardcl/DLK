@@ -28,7 +28,9 @@ export class Formulaire {
                 //mixInfos("",0, event.file.name, null);
             });
 
-            socket.on('analysing', function (file) {
+            socket.on('analysing', (file) => {
+                console.log("analysing");
+                console.log(mixInfos("",0, file, null));
                 socket.emit("analysed",mixInfos("",0, file, null));
             });
 
