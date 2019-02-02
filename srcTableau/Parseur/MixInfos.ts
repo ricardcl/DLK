@@ -5,7 +5,6 @@ import {etatCpdlc} from '../Modele/etatCpdlc';
 
 
 
-
 export  function getListeVols( arcid : string, plnid : number,fichierSourceLpln : string, fichierSourceVemgsa : string[] ):vol[] {
   let monvolFinal:vol; 
   let monvolVemgsa:vol; 
@@ -18,122 +17,127 @@ export  function getListeVols( arcid : string, plnid : number,fichierSourceLpln 
 }
 
 export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : string, fichierSourceVemgsa : string[] ):vol {
-  let monvolFinal:vol; 
-  
-  let monvolLpln:vol; 
-  let pl = new parseurLpln();
+
+
   //let arcid = "EWG6LB";
   //let plnid = 6461;
-  let monvolVemgsa = new vol(arcid,plnid);
-  let pv = new parseurVemgsa();
-  monvolVemgsa = pv.parseur(arcid,plnid,fichierSourceVemgsa );
-return monvolVemgsa;
+
 
   //Initialisation du vol issu des donnees VEMGSA
-  /** let monvolVemgsa = new vol(arcid,plnid);
+   let monvolVemgsa = new vol(arcid,plnid);
   let pv = new parseurVemgsa();
   monvolVemgsa = pv.parseur(arcid,plnid,fichierSourceVemgsa );
+  console.log("monvolVemgsa: ",monvolVemgsa);
+
 
   //Initialisation du vol issu des donnees LPLN
   let monvolLpln = new vol(arcid,plnid);
   let pl = new parseurLpln();
   monvolLpln = pl.parseur(arcid,plnid, fichierSourceLpln);
-
+  console.log("monvolLpln: ",monvolLpln);
 
 
 
 
   let monvolFinal = new vol(arcid,plnid);
-  let compteur=0;
 
 
 
 
-  monvolVemgsa.listeLogs.forEach((value, key, map) => {
-    console.log(" heure : " + monvolVemgsa.listeLogs.get(key).heure +" info Vemgsa : "  +monvolVemgsa.listeLogs.get(key).title);
+  monvolVemgsa.getListeVol().forEach((elt) => {
+    console.log(" heure : " +elt.heure +" info Vemgsa : "  +elt.title);
 
   })
-  monvolLpln.listeLogs.forEach((value, key, map) => {
+  monvolLpln.getListeVol().forEach((elt) => {
     //  console.log("key : "+key);
-    console.log(" heure : " + monvolLpln.listeLogs.get(key).heure +" info Lpln : "  +monvolLpln.listeLogs.get(key).title);
+    console.log(" heure : " + elt.heure +" info Lpln : "  +elt.title);
   })
 
 
 
   let key3=0;
   let key2=0;
-  monvolVemgsa.listeLogs.forEach((value, key, map) => {
-    //console.log(monvolLpln.listeLogs.get(key).title);
-
-    //if ((monvolLpln.listeLogs.get(key).title == "CPCASREQ") && (monvolLpln.listeLogs.get(key+1).title == "CPCASRES") ){
+  monvolVemgsa.getListeVol().forEach((elt, key) => {
+    //console.log(monvolLpln.getListeVol().get(key).title);
+    //if ((monvolLpln.getListeVol().get(key).title == "CPCASREQ") && (monvolLpln.getListeVol().get(key+1).title == "CPCASRES") ){
     key2 = key+7 +key3;
     //  console.log("key2 : " + key2);
     //console.log("key2 : "+key2);
-    if ( monvolLpln.listeLogs.has(key2) == true ){
 
-      console.log("\nComparaison :\ninfo Vemgsa : "  +monvolVemgsa.listeLogs.get(key).title);
-      console.log("info Lpln : "  +monvolLpln.listeLogs.get(key2).title);
+//{(0,CPCA),
+//(1,CPCB)
+//(2,CPCD)}
+
+//(value, key,map)
+
+    if ( monvolLpln.getListeVol().length <= key2 ){
+
+      console.log("\nComparaison :\ninfo Vemgsa : "  + elt.title);
+      console.log("info Lpln : " , monvolLpln.getListeVol()[key2].title);
 
 
-      while (monvolVemgsa.listeLogs.get(key).title !== monvolLpln.listeLogs.get(key2).title )  {
+      while (elt.title !==  monvolLpln.getListeVol()[key2].title )  {
 
 
-        if ( (monvolVemgsa.listeLogs.get(key).title == 'CPCMSGDOWN' ) && (monvolVemgsa.listeLogs.get(key-1).title == 'CPCCLOSLNK' )){
-          console.log("cpccloselink suivi de cpcmsgdown  : "  +"info Vemgsa : "  +monvolVemgsa.listeLogs.get(key).title);
-
-          key3 = key3-1;
-          break;
-        }
-        if ( (monvolVemgsa.listeLogs.get(key).title == 'CPCMSGDOWN' ) && (monvolVemgsa.listeLogs.get(key-1).title == 'CPCMSGUP' )){
-          console.log("cpcmsgup suivi de cpcmsgdown  : "  +"info Vemgsa : "  +monvolVemgsa.listeLogs.get(key).title);
-
-          key3 = key3-1;
-          break;
-        }
-        if ( (monvolVemgsa.listeLogs.get(key).title == 'CPCMSGDOWN' ) && (monvolVemgsa.listeLogs.get(key-1).title == 'CPCFREQ')){
-          console.log("cpcfreq suivi de cpcmsgdown  : "  +"info Vemgsa : "  +monvolVemgsa.listeLogs.get(key).title);
+        if ( (elt.title == 'CPCMSGDOWN' ) && (monvolLpln.getListeVol()[key-1].title == 'CPCCLOSLNK' )){
+          console.log("cpccloselink suivi de cpcmsgdown  : "  +"info Vemgsa : "  +elt.title);
 
           key3 = key3-1;
           break;
         }
-        // if (cmpHeureElt(monvolVemgsa.listeLogs.get(key).heure ,  monvolLpln.listeLogs.get(key2).heure) == false )
-        console.log("info Lpln unique : "  +monvolLpln.listeLogs.get(key2).title)
+        if (( elt.title == 'CPCMSGDOWN' ) && (monvolLpln.getListeVol()[key-1].title == 'CPCMSGUP' )){
+          console.log("cpcmsgup suivi de cpcmsgdown  : "  +"info Vemgsa : "  + elt.title);
+
+          key3 = key3-1;
+          break;
+        }
+        if ( (elt.title == 'CPCMSGDOWN' ) && (monvolLpln.getListeVol()[key-1].title == 'CPCFREQ')){
+          console.log("cpcfreq suivi de cpcmsgdown  : "  +"info Vemgsa : "  +elt.title);
+
+          key3 = key3-1;
+          break;
+        }
+        // if (cmpHeureElt(monvolVemgsa.getListeVol().get(key).heure ,  monvolLpln.getListeVol().get(key2).heure) == false )
+        console.log("info Lpln unique : "  +monvolLpln.getListeVol()[key2].title)
+        addElt(monvolLpln.getListeVol()[key2]  );
         //console.log("ca match pas");
         key2 = key2+1;
         key3 = key3+1;
 
-        if ( monvolLpln.listeLogs.has(key2) == false ){
+        if ( monvolLpln.getListeVol().length < key2){
           key2 = key2-1;
           break;
         }
 
       }
-      if (monvolVemgsa.listeLogs.get(key).title ==monvolLpln.listeLogs.get(key2).title ){
-        console.log("Couple trouvé : \ninfo Vemgsa : "  +monvolVemgsa.listeLogs.get(key).title);
+      if (elt.title ==monvolLpln.getListeVol()[key2].title ){
+        console.log("Couple trouvé : \ninfo Vemgsa : "  +elt.title);
+        addElt(elt);
         //  console.log("key2 : "+key2);
-        console.log("info Lpln : "  +monvolLpln.listeLogs.get(key2).title);
+        console.log("info Lpln : "  +monvolLpln.getListeVol()[key2].title);
       }
 
     }
     else {
-      console.log("info Vemgsa unique : "  +monvolVemgsa.listeLogs.get(key).title)
+      console.log("info Vemgsa unique : "  +elt.title);
+      addElt(elt);
     }
   })
 
   key2=key2+1;
-  while ( monvolLpln.listeLogs.has(key2) == true ){
+  while ( monvolLpln.getListeVol().length == key2 ){
     //  console.log("key2 : "+key2);
-    console.log("info Lpln supp: "  +monvolLpln.listeLogs.get(key2).title);
+    console.log("info Lpln supp: "  +monvolLpln.getListeVol()[key2].title);
     key2=key2+1;
-    */
+  
   }
 
 
-/** 
+
   function addElt(elt : etatCpdlc):void {
-    monvolFinal.listeLogs.set(compteur,elt )
+    monvolFinal.getListeVol().push(elt);
   }
-*/
+
 
 
   function cmpHeureElt(hV : string, hL : string):boolean {
@@ -168,9 +172,9 @@ return monvolVemgsa;
   }
 
   
-  /**let hV = monvolVemgsa.listeLogs.get(1).heure;
+  /**let hV = monvolVemgsa.getListeVol().get(1).heure;
   console.log("heure HV : "+hV);
-  let hL = monvolLpln.listeLogs.get(10).heure;
+  let hL = monvolLpln.getListeVol().get(10).heure;
   console.log("heure HL : "+hL);
   //let result1 = cmpHeureElt("04H25\'01\"","04H26" );
   let result1 = cmpHeureElt(hV,hL);
@@ -178,21 +182,21 @@ return monvolVemgsa;
 
 */
 
-  /*monvolLpln.listeLogs.forEach((value, key, map) => {
+  /*monvolLpln.getListeVol().forEach((value, key, map) => {
 
-  if (monvolLpln.listeLogs.get(key).etat)
-  console.log(monvolLpln.listeLogs.get(key).etat);
+  if (monvolLpln.getListeVol().get(key).etat)
+  console.log(monvolLpln.getListeVol().get(key).etat);
 
 })
-console.log(monvolVemgsa.listeLogs.get(0).heure);
+console.log(monvolVemgsa.getListeVol().get(0).heure);
 */
 /*
-monvolLpln.listeLogs.forEach((value, key, map) => {
+monvolLpln.getListeVol().forEach((value, key, map) => {
 console.log(monvolLpln.etat);
 console.log(key, ':', value);
 })*/
-//return monvolFinal;
-//}
+return monvolFinal;
+}
 
 /* Fonction qui prend en entrée deux fichiers Vemgsa et renvoie les deux fichiers en les classant par date */
 function orderVemgsa(list : string[]):string[] {

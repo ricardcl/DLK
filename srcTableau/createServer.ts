@@ -1,4 +1,4 @@
-export class Server {
+/**export class Server {
 
   private app = require('http').createServer();
   private io = require('socket.io')(this.app);
@@ -42,3 +42,4 @@ export class Server {
     });
   }
 }
+*/
