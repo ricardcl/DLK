@@ -105,6 +105,15 @@ export function grepArcidFromPlnid (plnid:number,fichierSourceVemgsa:string ):st
   let reqid=0;
   let arcid = "";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
+  console.log("debug");
+  console.log('fichierSourceVemgsa : ',fichierSourceVemgsa);
+  console.log('fichierSource : ',fichierSource);
+  
+  console.log('path_dir_input_user : ',path_dir_input_user);
+
+  console.log('path_complet : ',path_dir_input_user+fichierSource);
+  
+  
   let r = readline.fopen(path_dir_input_user+fichierSource, "r");
   let motifVemgsa =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
   let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;

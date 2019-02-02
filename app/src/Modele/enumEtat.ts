@@ -1,6 +1,3 @@
-
-
-
 export enum Etat {
     NonLogue = "NON_LOGUE",
     DemandeLogon = "DEMANDE_LOGON",

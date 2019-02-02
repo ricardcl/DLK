@@ -13,6 +13,7 @@ let fsplit = new split();
 
 let readline = require("../scripts/node-readline/node-readline");
 import * as grep from "./grepLPLN";
+import { isUndefined } from 'util';
 const path_dir = "./app/assets/";
 const path_dir_input = path_dir+"Input/";
 const path_dir_input_user = path_dir_input+"user/";
@@ -96,10 +97,10 @@ export class parseurLpln {
 
       //Stockage des infos générales
       let myMap=this.recuperationCPC(infoLog);
-      log.title = myMap.get('TITLE');
+      log.title = myMap['TITLE'];
       log.infoMap = myMap;
 
-      monvol.getListeVol().set(numeroLigne,log);
+      monvol.getListeVol().push(log);
 
 
 
@@ -117,10 +118,10 @@ export class parseurLpln {
     }
     case 'CPCASRES': {
       //console.log('CPCASRES');
-      if ((log.infoMap.get("ATNASSOC") == "S") || (log.infoMap.get("ATNASSOC") == "L") ) {
+      if ((log.infoMap["ATNASSOC"] == "S") || (log.infoMap["ATNASSOC"] == "L") ) {
       monEtat = Etat.DemandeLogonAutorisee;
     }
-    else if (log.infoMap.get("ATNASSOC") == "F"){
+    else if (log.infoMap["ATNASSOC"] == "F"){
       monEtat = Etat.NonLogue;
     }
     else {
@@ -130,10 +131,10 @@ export class parseurLpln {
   }
   case 'CPCVNRES': {
     //console.log('CPCVNRES');
-    if (log.infoMap.get("GAPPSTATUS") == "A") {
+    if (log.infoMap["GAPPSTATUS"] == "A") {
     monEtat = Etat.Logue;
   }
-  else if (log.infoMap.get("GAPPSTATUS") == "F"){
+  else if (log.infoMap["GAPPSTATUS"] == "F"){
     monEtat = Etat.NonLogue;
   }
   else {
@@ -155,10 +156,10 @@ case 'CPCCOMSTAT': {
   //console.log('CPCCOMSTAT');
   if (monEtat == Etat.DemandeConnexion) {
 
-  if (log.infoMap.get("CPDLCCOMSTATUS") == "A"){
+  if (log.infoMap["CPDLCCOMSTATUS"] == "A"){
     monEtat = Etat.Associe;
   }
-  else if (log.infoMap.get("CPDLCCOMSTATUS") == "N"){
+  else if (log.infoMap["CPDLCCOMSTATUS"] == "N"){
     monEtat = Etat.Logue;
     let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air";
   }
@@ -177,12 +178,12 @@ case 'CPCEND': {
 }
 case 'CPCCLOSLNK': {
   //console.log('CPCCLOSLNK');
-  if ((monEtat == Etat.Associe) &&  log.infoMap.has("FREQ")){
+  if ((monEtat == Etat.Associe) &&  log.infoMap["FREQ"] !== isUndefined){
   monEtat = Etat.TransfertEnCours;
 }
-if ((monEtat == Etat.TransfertEnCours) && log.infoMap.has("FREQ")){
+if ((monEtat == Etat.TransfertEnCours) && log.infoMap["FREQ"] !== undefined){
   let freq = frequences.conversionFreq(log.getFrequence());
-  log.infoMap.set("FREQ",freq);
+  log.infoMap["FREQ"] = freq;
   monEtat = Etat.TransfertEnCours;
 }
 else {
@@ -193,10 +194,10 @@ break;
 case 'CPCMSGDOWN': {
   //console.log('CPCMSGDOWN');
   if (monEtat == Etat.TransfertEnCours)  {
-  if ((log.infoMap.get("CPDLCMSGDOWN") == "WIL") || (log.infoMap.get("CPDLCMSGDOWN") == "LCK")){
+  if ((log.infoMap["CPDLCMSGDOWN"] == "WIL") || (log.infoMap["CPDLCMSGDOWN"] == "LCK")){
     monEtat = Etat.Transfere;
   }
-  else if ((log.infoMap.get("CPDLCMSGDOWN") == "UNA") || (log.infoMap.get("CPDLCMSGDOWN") == "STB")) {
+  else if ((log.infoMap["CPDLCMSGDOWN"] == "UNA") || (log.infoMap["CPDLCMSGDOWN"] == "STB")) {
     monEtat = Etat.RetourALaVoix;
   }
 
@@ -276,25 +277,25 @@ return monvol;
 }
 
 
-recuperationCPC = function(infoLog:string):TSMap<string,string> {
-  let mymap = new TSMap<string,string>();
+recuperationCPC = function(infoLog:string):string[] {
+  let mymap : string[] = []; 
 
   if (infoLog.match("ENVOI MSG") !== null){
     let motif = /(ENVOI MSG )(.*)(AU SERVEUR AIR)/;
-    mymap.set('ORIGINE_MSG','STPV');
+    mymap['ORIGINE_MSG']='STPV';
     if (infoLog.match(motif) !== null ){
       let cpcInfo = infoLog.replace(motif, "$2").trim();
       cpcInfo=cpcInfo.replace(/\s+/g," ");
       let etatCpc = fsplit.splitString(cpcInfo, " ");
       let title=etatCpc[0];
-      mymap.set('TITLE',title);
+      mymap['TITLE']= title;
       switch (title) {
         case 'CPCASRES': {
           if (etatCpc[1].trim() == "(S)"){
-            mymap.set('ATNASSOC','S');
+            mymap['ATNASSOC']='S';
           }
           else {
-            mymap.set('ATNASSOC','F');
+            mymap['ATNASSOC']='F';
             //TODO verifier quil ny a pas dautres valeurs possibles
           }
           break;
@@ -308,20 +309,20 @@ recuperationCPC = function(infoLog:string):TSMap<string,string> {
           break;
         }
         case 'CPCCLOSELNK': {
-          mymap.set('TITLE','CPCCLOSLNK');
-          //Rien a faire
+          mymap['TITLE']='CPCCLOSLNK';
+          //Rien a f]aire
           break;
         }
         case 'CPCFREQ': {
-          mymap.set('FREQ',etatCpc[2]);
+          mymap['FREQ']=etatCpc[2];
           break;
         }
         case 'CPCNXTCNTR': {
           if (etatCpc[1].trim() == "(G)"){
-            mymap.set('TFLOGONMODE','G');
+            mymap['TFLOGONMODE']='G';
           }
           if (etatCpc[1].trim() == "(A)"){
-            mymap.set('TFLOGONMODE','A');
+            mymap['TFLOGONMODE']='A';
           }
           break;
         }
@@ -339,19 +340,19 @@ recuperationCPC = function(infoLog:string):TSMap<string,string> {
       cpcInfo=cpcInfo.replace(/\s+/g," ");
       let etatCpc = fsplit.splitString(cpcInfo, " ");
       let title=etatCpc[0];
-      mymap.set('TITLE',title);
-      mymap.set('EVT',etatCpc[2]);
+      mymap['TITLE']=title;
+      mymap['EVT']=etatCpc[2];
       cpcInfo = infoLog.replace(motif, "$4").trim();
       cpcInfo=cpcInfo.replace(/\s+/g," ");
 
-      mymap.set('POSITIONS',cpcInfo);
+      mymap['POSITIONS']=cpcInfo;
 
 
     }
   }
 
   if (infoLog.match("RECEPTION MSG") !== null){
-    mymap.set('ORIGINE_MSG','SA');
+    mymap['ORIGINE_MSG']='SA';
     let motif = /(RECEPTION MSG )(.*)(DU SERVEUR AIR)/;
     let cpcInfo = infoLog.replace(motif, "$2").trim();
 
@@ -359,7 +360,7 @@ recuperationCPC = function(infoLog:string):TSMap<string,string> {
     let etatCpc = fsplit.splitString(cpcInfo, " ");
     let title=etatCpc[0];
     //let mymap = new TSMap<string,string>();
-    mymap.set('TITLE',title);
+    mymap['TITLE']=title;
 
 
     switch (title) {
@@ -369,35 +370,35 @@ recuperationCPC = function(infoLog:string):TSMap<string,string> {
       }
       case 'CPCVNRES': {
         if (etatCpc[1].trim() == "(A)"){
-          mymap.set('GAPPSTATUS','A');
+          mymap['GAPPSTATUS']='A';
         }
         if (etatCpc[1].trim() == "(F)"){
-          mymap.set('GAPPSTATUS','F');
+          mymap['GAPPSTATUS']='F';
         }
         break;
       }
 
       case 'CPCCOMSTAT': {
         if (etatCpc[1].trim() == "(A)"){
-          mymap.set('CPDLCCOMSTATUS','A');
+          mymap['CPDLCCOMSTATUS']='A';
         }
         if (etatCpc[1].trim() == "(N)"){
-          mymap.set('CPDLCCOMSTATUS','N');
+          mymap['CPDLCCOMSTATUS']='N';
         }
         break;
       }
       case 'CPCMSGDOWN': {
         if (etatCpc[1].trim() == "(WIL)"){
-          mymap.set('CPDLCMSGDOWN','WIL');
+          mymap['CPDLCMSGDOWN']='WIL';
         }
         if (etatCpc[1].trim() == "(LCK)"){
-          mymap.set('CPDLCMSGDOWN','LCK');
+          mymap['CPDLCMSGDOWN']='LCK';
         }
         if (etatCpc[1].trim() == "(UNA)"){
-          mymap.set('CPDLCMSGDOWN','UNA');
+          mymap['CPDLCMSGDOWN']='UNA';
         }
         if (etatCpc[1].trim() == "(STB)"){
-          mymap.set('CPDLCMSGDOWN','STB');
+          mymap['CPDLCMSGDOWN']='STB';
         }
         break;
       }
@@ -415,46 +416,46 @@ recuperationCPC = function(infoLog:string):TSMap<string,string> {
   }
 
   if (infoLog.match("EVENEMENT DATE: FIN TRFDL") !== null){
-    mymap.set('TITLE','FIN TRFDL');
-    mymap.set('ORIGINE_MSG','INTERNE');
+    mymap['TITLE']='FIN TRFDL';
+    mymap['ORIGINE_MSG']='INTERNE';
     let motif = /(.*)(HEURE:)(.*)/;
     let heure = infoLog.replace(motif, "$3").trim();
 
-    mymap.set('HEURE',heure);
+    mymap['HEURE']=heure;
   }
 
   if (infoLog.match("EVENEMENT DATE: FIN VOL") !== null){
-    mymap.set('TITLE','FIN VOL');
-    mymap.set('ORIGINE_MSG','INTERNE');
+    mymap['TITLE']='FIN VOL';
+    mymap['ORIGINE_MSG']='INTERNE';
     let motif = /(.*)(HEURE:)(.*)(AVEC)(.*)/;
     let heure = infoLog.replace(motif, "$3").trim();
 
-    mymap.set('HEURE',heure);
+    mymap['HEURE']=heure;
   }
 
   if (infoLog.match("EVENEMENT DATE: TRANSFERT") !== null){
-    mymap.set('TITLE','TRANSFERT');
-    mymap.set('ORIGINE_MSG','INTERNE');
+    mymap['TITLE']='TRANSFERT';
+    mymap['ORIGINE_MSG']='INTERNE';
     let motif = /(.*)(HEURE:)(.*)(ETAT :)(.*)(SECTEUR:)(.*)(BALISE :)(.*)(RANG.*)/;
     let heure = infoLog.replace(motif, "$3");
-    mymap.set('HEURE',heure);
+    mymap['HEURE']=heure;
     let etat = infoLog.replace(motif, "$5");
-    mymap.set('ETAT',etat);
+    mymap['ETAT']=etat;
     let secteur = infoLog.replace(motif, "$7");
-    mymap.set('SECTEUR',secteur);
+    mymap['SECTEUR']=secteur;
     let balise = infoLog.replace(motif, "$9");
-    mymap.set('BALISE',balise);
+    mymap['BALISE']=balise;
 
   }
 
 
   if (infoLog.match("TRAITEMENT TRANSACTION") !== null){
-    mymap.set('TYPE_MSG','INTERNE');
+    mymap['TYPE_MSG']='INTERNE';
     let motif = /(TRAITEMENT TRANSACTION )(.*)(POSITION ORIGINE)(.*)/;
     let transaction = infoLog.replace(motif, "$2").trim();
-    mymap.set('TITLE',transaction);
+    mymap['TITLE']=transaction;
     let position = infoLog.replace(motif, "$4");
-    mymap.set('POSITION',position);
+    mymap['POSITION']=position;
 
   }
 
