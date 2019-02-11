@@ -1,21 +1,16 @@
-
-
-
-//process.exit(1) : pour sortir de la fonctionet
-// break pour sortir du test en restant dans la fonction
-
-/**
 const fs = require('fs');
 
 
 var readline = require("../scripts/node-readline/node-readline");
+import {path}  from '../main'
 
- const path_dir = "./app/assets/";
-const path_dir_input = path_dir+"Input/";
-const path_dir_output = path_dir+"Output/";
-const fichierGbdi = path_dir_input+"STPV_G2910_CA20180816_13082018__1156";
-const fichierFreq =  path_dir_output+"freq.htm";
-*/
+
+const fichierGbdi = path.inputPath+"STPV_G2910_CA20180816_13082018__1156";
+const fichierFreq =  path.outputPath+"freq.htm";
+
+//process.exit(1) : pour sortir de la fonctionet
+// break pour sortir du test en restant dans la fonction
+
 /*
 objectif : Fonction qui prend en entree le fichier gbdi STPV
 et cree a partir de celui un fichier ne contenant que les frequences de transfert avec le secteur associe

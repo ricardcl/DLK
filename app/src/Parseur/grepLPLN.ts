@@ -7,15 +7,16 @@ copier le resultat dans un fichier texte
 
 const fs = require('fs');
 let readline = require("../scripts/node-readline/node-readline");
-const path_dir = "./app/assets/";
-const path_dir_input = path_dir+"Input/";
-const path_dir_input_user = path_dir_input+"user/";
-const path_dir_input_system = path_dir_input+"system/";
-const path_dir_output = path_dir+"Output/";
-const fichierDestination = path_dir_output+"resultLPLN.htm";
+
+import {path}  from '../main'
+//console.log('path: '+path);
+
+//console.log("path.outputPath: "+path.outputPath);
+
 
 
 export function grepLogLPLN (arcid:string, plnid:number, fichierSourceLpln:string):void {
+  let fichierDestination = path.outputPath+"resultLPLN.htm";
   let fichierSource = fichierSourceLpln;
   //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";

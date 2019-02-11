@@ -32,7 +32,8 @@ export class split {
   stringToTuple = function (stringToSplit){
 
     //declaration d'une table de hashage
-    let mymap : string[] = [];
+    //let mymap : string[] = [];
+    let mymap : TSMap<string, string> = new TSMap();
 
     //Remplissage de la table de hashage
     let infosDecomposees = this.splitString(stringToSplit, '-');
@@ -63,3 +64,11 @@ export class split {
     // Tests
     //var result = this.splitString("-A 1 -B 2 -C 3", '-');
     //console.log(result[1]);
+
+    /**
+     * 
+     * const E = new split;
+const result = E.stringToTuple("-A 1 -B 2 -C 3");
+console.log("result: "+result);
+console.log("A: "+result["A"]);  -> renvoie 1
+     */

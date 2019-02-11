@@ -1,11 +1,17 @@
 import { mixInfos } from './Parseur/MixInfos';
 import { getListeVols } from './Parseur/MixInfos';
-
+import {path}  from './main'
 
 
 var SocketIOFileUpload = require("socketio-file-upload");
-const path_dir_input_user = "./app/assets/Input/user/";
+
 let readline = require("./scripts/node-readline/node-readline");
+
+
+
+
+
+
 export class Formulaire {
 
     private app = require('http').createServer();
@@ -15,16 +21,21 @@ export class Formulaire {
         console.log("hello");
         this.app.listen(4000);
         this.initSocket();
+
+        
     }
 
     private initSocket() {
         this.io.on("connection", (socket) => {
-            console.log('1');
+            console.log('connexion d un client, ouverture d une socket pour la recuperation de fichier');
             var uploader = new SocketIOFileUpload();
-            uploader.dir = path_dir_input_user;
+            uploader.dir = path.userPath;
             uploader.listen(socket);
-            console.log('2');
+            console.log('socket pour la recuperation de fichier cree');
            
+
+
+     
 
 
             uploader.on("complete", function(event){
@@ -53,13 +64,13 @@ export class Formulaire {
                 console.log("vemgsa 1: " + fichierVemgsa[0]);
 
                   //Test de l'ouverture du fichier              
-                let r = readline.fopen(path_dir_input_user+fichierLpln, "r")
+                let r = readline.fopen(path.userPath+fichierLpln, "r")
                 if (r === false) {
                 console.log("Error, can't open ", fichierLpln);
               }else {
                 console.log("ok lpln");
               }
-              let r2 = readline.fopen(path_dir_input_user+fichierVemgsa, "r")
+              let r2 = readline.fopen(path.userPath+fichierVemgsa, "r")
               if (r2 === false) {
               console.log("Error, can't open ", fichierVemgsa);
             }else {

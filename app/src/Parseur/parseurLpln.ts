@@ -1,9 +1,8 @@
 
-import {vol} from '../Modele/vol';
-import {etatCpdlc} from '../Modele/etatCpdlc';
-import {Etat} from './enumEtat';
+import {Vol} from '../Modele/vol';
+import {EtatCpdlc} from '../Modele/etatCpdlc';
+import {Etat} from '../Modele/enumEtat';
 import { TSMap } from "typescript-map";
-
 import {split} from './split';
 let fsplit = new split();
 
@@ -14,21 +13,29 @@ let fsplit = new split();
 let readline = require("../scripts/node-readline/node-readline");
 import * as grep from "./grepLPLN";
 import { isUndefined } from 'util';
-const path_dir = "./app/assets/";
-const path_dir_input = path_dir+"Input/";
-const path_dir_input_user = path_dir_input+"user/";
-const path_dir_input_system = path_dir_input+"system/";
-const path_dir_output = path_dir+"Output/";
-const fichierGbdi = path_dir_input_system+"STPV_G2910_CA20180816_13082018__1156";
-const source = path_dir_output+"resultLPLN.htm"; //Fichier en entree a analyser
+
+
+import {path}  from '../main'
+
+
+
+
+
+
+
+
+
+
 
 
 export class parseurLpln {
+  
 
+  parseur = function (arcid:string, plnid:number, fichierSourceLpln:string):Vol {
+    const fichierGbdi = path.systemPath+"STPV_G2910_CA20180816_13082018__1156";
+    const source = path.outputPath+"resultLPLN.htm"; //Fichier en entree a analyser
 
-  parseur = function (arcid:string, plnid:number, fichierSourceLpln:string):vol {
-
-    var fichierSourceLpln= path_dir_input_user+fichierSourceLpln;
+    var fichierSourceLpln= path.userPath+fichierSourceLpln;
 
     if ((arcid == "") && (plnid !== 0)){
       arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
@@ -60,7 +67,7 @@ export class parseurLpln {
     let monEtat = Etat.NonLogue; // Etat CPDLC par defaut
     let mylisteLogsCpdlc = new Array(); //Liste des lignes lues
 
-    let monvol = new vol(arcid,plnid);
+    let monvol = new Vol(arcid,plnid);
 
 
     /* CREATION DU GRAPHE D ETAT */
@@ -87,25 +94,25 @@ export class parseurLpln {
 
 
       //Creation de l objet logCpdlc et etatCpdlc
-      let  log = new etatCpdlc(numeroLigne);
+      let  log = new EtatCpdlc(numeroLigne);
 
       //Stockage de la date/heure
       let dateHeure = fsplit.splitString(ingoGen, " ");
       //log.date=dateHeure[0];
-      log.heure=dateHeure[1];
+      log.setHeure(dateHeure[1]);
       //log.associable=dateHeure[2];
 
       //Stockage des infos générales
       let myMap=this.recuperationCPC(infoLog);
-      log.title = myMap['TITLE'];
-      log.infoMap = myMap;
+      log.setTitle(myMap['TITLE']);
+      log.setInfoMap( myMap);
 
       monvol.getListeVol().push(log);
 
 
 
       //automate a etat sur la letiable etat
-      switch(log.title) {
+      switch(log.getTitle()) {
       case 'CPCASREQ': {
         //console.log('CPCASREQ');
         if (monEtat == Etat.NonLogue) {
@@ -118,10 +125,10 @@ export class parseurLpln {
     }
     case 'CPCASRES': {
       //console.log('CPCASRES');
-      if ((log.infoMap["ATNASSOC"] == "S") || (log.infoMap["ATNASSOC"] == "L") ) {
+      if ((log.getInfoMap()["ATNASSOC"] == "S") || (log.getInfoMap()["ATNASSOC"] == "L") ) {
       monEtat = Etat.DemandeLogonAutorisee;
     }
-    else if (log.infoMap["ATNASSOC"] == "F"){
+    else if (log.getInfoMap()["ATNASSOC"] == "F"){
       monEtat = Etat.NonLogue;
     }
     else {
@@ -131,10 +138,10 @@ export class parseurLpln {
   }
   case 'CPCVNRES': {
     //console.log('CPCVNRES');
-    if (log.infoMap["GAPPSTATUS"] == "A") {
+    if (log.getInfoMap()["GAPPSTATUS"] == "A") {
     monEtat = Etat.Logue;
   }
-  else if (log.infoMap["GAPPSTATUS"] == "F"){
+  else if (log.getInfoMap()["GAPPSTATUS"] == "F"){
     monEtat = Etat.NonLogue;
   }
   else {
@@ -156,10 +163,10 @@ case 'CPCCOMSTAT': {
   //console.log('CPCCOMSTAT');
   if (monEtat == Etat.DemandeConnexion) {
 
-  if (log.infoMap["CPDLCCOMSTATUS"] == "A"){
+  if (log.getInfoMap()["CPDLCCOMSTATUS"] == "A"){
     monEtat = Etat.Associe;
   }
-  else if (log.infoMap["CPDLCCOMSTATUS"] == "N"){
+  else if (log.getInfoMap()["CPDLCCOMSTATUS"] == "N"){
     monEtat = Etat.Logue;
     let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air";
   }
@@ -178,12 +185,12 @@ case 'CPCEND': {
 }
 case 'CPCCLOSLNK': {
   //console.log('CPCCLOSLNK');
-  if ((monEtat == Etat.Associe) &&  log.infoMap["FREQ"] !== isUndefined){
+  if ((monEtat == Etat.Associe) &&  log.getInfoMap()["FREQ"] !== isUndefined){
   monEtat = Etat.TransfertEnCours;
 }
-if ((monEtat == Etat.TransfertEnCours) && log.infoMap["FREQ"] !== undefined){
+if ((monEtat == Etat.TransfertEnCours) && log.getInfoMap()["FREQ"] !== undefined){
   let freq = frequences.conversionFreq(log.getFrequence());
-  log.infoMap["FREQ"] = freq;
+  log.getInfoMap()["FREQ"] = freq;
   monEtat = Etat.TransfertEnCours;
 }
 else {
@@ -194,10 +201,10 @@ break;
 case 'CPCMSGDOWN': {
   //console.log('CPCMSGDOWN');
   if (monEtat == Etat.TransfertEnCours)  {
-  if ((log.infoMap["CPDLCMSGDOWN"] == "WIL") || (log.infoMap["CPDLCMSGDOWN"] == "LCK")){
+  if ((log.getInfoMap()["CPDLCMSGDOWN"] == "WIL") || (log.getInfoMap()["CPDLCMSGDOWN"] == "LCK")){
     monEtat = Etat.Transfere;
   }
-  else if ((log.infoMap["CPDLCMSGDOWN"] == "UNA") || (log.infoMap["CPDLCMSGDOWN"] == "STB")) {
+  else if ((log.getInfoMap()["CPDLCMSGDOWN"] == "UNA") || (log.getInfoMap()["CPDLCMSGDOWN"] == "STB")) {
     monEtat = Etat.RetourALaVoix;
   }
 
@@ -251,7 +258,7 @@ default: {
 
 //console.log("HEURE:"+log.heure);
 //console.log(log.getMapCpdlc());
-log.etat=monEtat;
+log.setEtat(monEtat);
 //console.log("a:"+log.etat);
 
 /*console.log(log.getHeureLogCpdlc()+ " --> "+log.title + " Etat calcule : "+monEtat);
@@ -462,9 +469,9 @@ recuperationCPC = function(infoLog:string):string[] {
   return mymap;
 }
 
-grepListeVolFromLpln =function( fichierSourceLpln:string):vol[] {
+grepListeVolFromLpln =function( fichierSourceLpln:string):Vol[] {
 console.log("coucou");
-  let fichierSource = path_dir_input_user+fichierSourceLpln;
+  let fichierSource = path.userPath+fichierSourceLpln;
   let fd = this.isFichierLisible(fichierSource); //Test de l'ouverture du fichier et recuperation du file descriptor
 
   //let motif = /(-)(.*)(\/)(.*)(H)(.*)(MN)(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL:)(.*)(RANG SL:)(.*)(PLN)(.*)(-)/;
@@ -473,7 +480,7 @@ console.log("coucou");
   let plnid:number =0;
   let indicatif:string="";
   let nomSL:string="";
-  let listeVols :vol[]= [];
+  let listeVols :Vol[]= [];
 //Traitement du fichier
 do {
 //Test de la fin de fichier
@@ -489,7 +496,7 @@ if  (info1Lpln !== null){
   //console.log("arcid : "+indicatif);
   nomSL =  mylogCpdlc.toString().replace(motif, "$7").trim();
   //console.log("nomSL : "+nomSL);
-  let monvol = new vol(indicatif,plnid);
+  let monvol = new Vol(indicatif,plnid);
   monvol.setSL(nomSL);
   listeVols.push(monvol);
   

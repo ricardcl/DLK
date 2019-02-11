@@ -13,13 +13,8 @@ export class EtatCpdlc {
 
 
 
-  constructor(id: number, title: string, date: string, heure: string, etat: Etat, associable: boolean) {
+  constructor(id: number) {
     this.id = id;
-    this.title = title;
-    this.date = date;
-    this.heure = heure;
-    this.etat = etat;
-    this.associable = associable;
     this.infoMap = new TSMap();
   }
 
@@ -60,11 +55,6 @@ export class EtatCpdlc {
 
   }
 
-  getHeureLogCpdlc(): string {
-
-    return "heure = " + this.heure;
-  }
-
 
   //GETTERS
   getTitle(): string {
@@ -77,6 +67,25 @@ export class EtatCpdlc {
     return this.date
   }
 
+  //SETTERS
+  setTitle(title: string) {
+    this.title = title;
+  }
+  setDate(date: string) {
+    this.date = date;
+  }
+  setHeure(heure: string) {
+    this.heure = heure;
+  }
+  setInfoMap(infoMap: TSMap<string, string>) {
+    this.infoMap = infoMap;
+  }
+  setEtat(etat: Etat) {
+    this.etat = etat;
+  }
+  setAssociable(associable: boolean) {
+    this.associable = associable;
+  }
 
 }
 

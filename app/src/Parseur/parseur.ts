@@ -1,7 +1,7 @@
 
-import {vol} from '../Modele/vol';
-import {etatCpdlc} from '../Modele/etatCpdlc';
-import {Etat} from './enumEtat';
+import {Vol} from '../Modele/vol';
+import {EtatCpdlc} from '../Modele/etatCpdlc';
+import {Etat} from '../Modele/enumEtat';
 
 
 import {split} from './split';
@@ -12,19 +12,16 @@ let fsplit = new split();
 let readline = require("../scripts/node-readline/node-readline");
 //let grep = require("./grep.ts");
 import * as grep from "./grep";
-const path_dir = "./app/assets/";
-const path_dir_input = path_dir+"Input/";
-const path_dir_input_user = path_dir_input+"user/";
-const path_dir_input_system = path_dir_input+"system/";
-const path_dir_output = path_dir+"Output/";
-const fichierGbdi = path_dir_input_system+"STPV_G2910_CA20180816_13082018__1156";
-const source = path_dir_output+"result.htm"; //Fichier en entree a analyser
+
+import {path}  from '../main'
+
 
 export class parseurVemgsa {
 
 
-  parseur = function (arcid:string, plnid:number, fichierSourceVemgsa:string[]):vol {
-
+  parseur = function (arcid:string, plnid:number, fichierSourceVemgsa:string[]):Vol {
+    const fichierGbdi = path.systemPath+"STPV_G2910_CA20180816_13082018__1156";
+    const source = path.outputPath+"result.htm"; //Fichier en entree a analyser
 
     console.log("arcid : "+arcid);
     console.log("plnid : "+plnid);
@@ -83,7 +80,7 @@ export class parseurVemgsa {
 
 
 
-    let monvol = new vol(arcid,plnid);
+    let monvol = new Vol(arcid,plnid);
 
 
 
@@ -102,25 +99,25 @@ export class parseurVemgsa {
       let infoLog = mylogCpdlcDecompose[1];
 
       //Creation de l objet logCpdlc et etatCpdlc
-      let  log = new etatCpdlc(numeroLigne);
+      let  log = new EtatCpdlc(numeroLigne);
 
       //Stockage de la date/heure
       let dateHeure = fsplit.splitString(ingoGen, " ");
-      log.date=dateHeure[0];
-      log.heure=dateHeure[1];
-      log.associable=dateHeure[2];
+      log.setDate(dateHeure[0]);
+      log.setHeure(dateHeure[1]);
+      log.setAssociable(dateHeure[2]);
 
 
       //Stockage des infos suivantes
 
       let myMap = fsplit.stringToTuple (infoLog);
-      log.title = myMap['TITLE'];
-      log.infoMap = myMap;
+      log.setTitle(myMap['TITLE']);
+      log.setInfoMap(myMap);
 
       monvol.getListeVol().push(log);
 
       //automate a etat sur la letiable etat
-      switch(log.title) {
+      switch(log.getTitle()) {
       case 'CPCASREQ': {
         //console.log('CPCASREQ');
         if (monEtat == Etat.NonLogue) {
@@ -133,10 +130,10 @@ export class parseurVemgsa {
     }
     case 'CPCASRES': {
       //console.log('CPCASRES');
-      if ((log.infoMap["ATNASSOC"] == "S") || (log.infoMap["ATNASSOC"] == "L") ) {
+      if ((log.getInfoMap()["ATNASSOC"] == "S") || (log.getInfoMap()["ATNASSOC"] == "L") ) {
       monEtat = Etat.DemandeLogonAutorisee;
     }
-    else if (log.infoMap["ATNASSOC"] == "F"){
+    else if (log.getInfoMap()["ATNASSOC"] == "F"){
       monEtat = Etat.NonLogue;
     }
     else {
@@ -146,10 +143,10 @@ export class parseurVemgsa {
   }
   case 'CPCVNRES': {
     //console.log('CPCVNRES');
-    if (log.infoMap["GAPPSTATUS"] == "A") {
+    if (log.getInfoMap()["GAPPSTATUS"] == "A") {
     monEtat = Etat.Logue;
   }
-  else if (log.infoMap["GAPPSTATUS"] == "F"){
+  else if (log.getInfoMap()["GAPPSTATUS"] == "F"){
     monEtat = Etat.NonLogue;
   }
   else {
@@ -171,10 +168,10 @@ case 'CPCCOMSTAT': {
   //console.log('CPCCOMSTAT');
   if (monEtat == Etat.DemandeConnexion) {
 
-  if (log.infoMap["CPDLCCOMSTATUS"] == "A"){
+  if (log.getInfoMap()["CPDLCCOMSTATUS"] == "A"){
     monEtat = Etat.Associe;
   }
-  else if (log.infoMap["CPDLCCOMSTATUS"] == "N"){
+  else if (log.getInfoMap()["CPDLCCOMSTATUS"] == "N"){
     monEtat = Etat.Logue;
     let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air";
   }
@@ -192,9 +189,9 @@ case 'CPCEND': {
 }
 case 'CPCCLOSLNK': {
   //console.log('CPCCLOSLNK');
-  if (log.infoMap["FREQ"] !== undefined){
+  if (log.getInfoMap()["FREQ"] !== undefined){
   let freq = frequences.conversionFreq(log.getFrequence());
-  log.infoMap["FREQ"]=freq;
+  log.getInfoMap()["FREQ"]=freq;
   monEtat = Etat.TransfertEnCours;
 }
 
@@ -205,18 +202,18 @@ break;
 }
 case 'CPCMSGDOWN': {
   //console.log('CPCMSGDOWN');
-  //  console.log('CPCMSGDOWN :'+log.infoMap.get("CPDLCMSGDOWN"));
+  //  console.log('CPCMSGDOWN :'+log.getInfoMap().get("CPDLCMSGDOWN"));
   if (monEtat == Etat.TransfertEnCours)  {
-  if ((log.infoMap["CPDLCMSGDOWN"] == "WIL") || (log.infoMap["CPDLCMSGDOWN"] == "LCK")){
+  if ((log.getInfoMap()["CPDLCMSGDOWN"] == "WIL") || (log.getInfoMap()["CPDLCMSGDOWN"] == "LCK")){
     monEtat = Etat.Transfere;
   }
-  else if ((log.infoMap["CPDLCMSGDOWN"] == "UNA") || (log.infoMap["CPDLCMSGDOWN"] == "STB")) {
+  else if ((log.getInfoMap()["CPDLCMSGDOWN"] == "UNA") || (log.getInfoMap()["CPDLCMSGDOWN"] == "STB")) {
     monEtat = Etat.RetourALaVoix;
   }
 }
 //Cas ou le serveur air n a pas repondu assez tot, le vol passe vtr donc closelink obligatoire -> demande deconnexion en cours
 if (monEtat == Etat.DemandeDeconnexion)  {
-if ((log.infoMap["CPDLCMSGDOWN"] == "UNA") || (log.infoMap["CPDLCMSGDOWN"] == "STB")) {
+if ((log.getInfoMap()["CPDLCMSGDOWN"] == "UNA") || (log.getInfoMap()["CPDLCMSGDOWN"] == "STB")) {
   monEtat = Etat.DemandeDeconnexion;
 }
 }
@@ -227,7 +224,7 @@ break;
 }
 case 'CPCFREQ': {
   let freq = frequences.conversionFreq(log.getFrequence());
-  log.infoMap["FREQ"]=freq;
+  log.getInfoMap()["FREQ"]=freq;
   monEtat = Etat.TransfertEnCours;
 
   //console.log('CPCFREQ');
@@ -251,10 +248,10 @@ default: {
 
 }
 //console.log("affichage : "+ log.afficheLogCpdlc());
-log.etat=monEtat;
+log.setEtat(monEtat);
 /*console.log(log.getHeureLogCpdlc()+ " --> "+log.title + " Etat calcule : "+monEtat);
-if ((log.title == "CPCFREQ")  || (log.title == "CPCNXTCNTR") || ((log.title == "CPCCLOSLNK") && (log.infoMap.get("FREQ") !== undefined))){
-  console.log("vers  : "+log.infoMap.get("UNITID"));
+if ((log.title == "CPCFREQ")  || (log.title == "CPCNXTCNTR") || ((log.title == "CPCCLOSLNK") && (log.getInfoMap().get("FREQ") !== undefined))){
+  console.log("vers  : "+log.getInfoMap().get("UNITID"));
 }
 if (log.getFrequence() !== null) {
 
