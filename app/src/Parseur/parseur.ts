@@ -13,15 +13,15 @@ let readline = require("../scripts/node-readline/node-readline");
 //let grep = require("./grep.ts");
 import * as grep from "./grep";
 
-import {path}  from '../main'
-
+import {path}  from '../main';
+const p = require('path');
 
 export class parseurVemgsa {
 
 
   parseur = function (arcid:string, plnid:number, fichierSourceVemgsa:string[]):Vol {
-    const fichierGbdi = path.systemPath+"STPV_G2910_CA20180816_13082018__1156";
-    const source = path.outputPath+"result.htm"; //Fichier en entree a analyser
+    const fichierGbdi =  p.resolve(path.systemPath,"STPV_G2910_CA20180816_13082018__1156");
+    const source =  p.resolve(path.outputPath,"result.htm"); //Fichier en entree a analyser
 
     console.log("arcid : "+arcid);
     console.log("plnid : "+plnid);

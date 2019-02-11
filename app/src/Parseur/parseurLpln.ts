@@ -14,7 +14,7 @@ let readline = require("../scripts/node-readline/node-readline");
 import * as grep from "./grepLPLN";
 import { isUndefined } from 'util';
 
-
+const p = require('path');
 import {path}  from '../main'
 
 
@@ -32,10 +32,11 @@ export class parseurLpln {
   
 
   parseur = function (arcid:string, plnid:number, fichierSourceLpln:string):Vol {
-    const fichierGbdi = path.systemPath+"STPV_G2910_CA20180816_13082018__1156";
-    const source = path.outputPath+"resultLPLN.htm"; //Fichier en entree a analyser
 
-    var fichierSourceLpln= path.userPath+fichierSourceLpln;
+    const fichierGbdi = p.resolve(path.systemPath,"STPV_G2910_CA20180816_13082018__1156" );   
+    const source =  p.resolve(path.outputPath,"resultLPLN.htm"); //Fichier en entree a analyser
+
+    fichierSourceLpln=  p.resolve(path.userPath,fichierSourceLpln);
 
     if ((arcid == "") && (plnid !== 0)){
       arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
@@ -471,7 +472,7 @@ recuperationCPC = function(infoLog:string):string[] {
 
 grepListeVolFromLpln =function( fichierSourceLpln:string):Vol[] {
 console.log("coucou");
-  let fichierSource = path.userPath+fichierSourceLpln;
+  let fichierSource = p.resolve(path.userPath,fichierSourceLpln);
   let fd = this.isFichierLisible(fichierSource); //Test de l'ouverture du fichier et recuperation du file descriptor
 
   //let motif = /(-)(.*)(\/)(.*)(H)(.*)(MN)(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL:)(.*)(RANG SL:)(.*)(PLN)(.*)(-)/;

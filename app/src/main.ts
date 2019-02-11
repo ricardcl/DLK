@@ -41,9 +41,9 @@ console.log("systemPath: "+systemPath);
   */
 
 
-
+ console.log("debut main");
  export const path  = new Path (dist, assets, input , output,  user, system);
 
-console.log("hello2");
+
 new Formulaire();
 

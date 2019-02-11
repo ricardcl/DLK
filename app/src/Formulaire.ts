@@ -1,6 +1,7 @@
 import { mixInfos } from './Parseur/MixInfos';
 import { getListeVols } from './Parseur/MixInfos';
 import {path}  from './main'
+const p = require('path');
 
 
 var SocketIOFileUpload = require("socketio-file-upload");
@@ -64,13 +65,13 @@ export class Formulaire {
                 console.log("vemgsa 1: " + fichierVemgsa[0]);
 
                   //Test de l'ouverture du fichier              
-                let r = readline.fopen(path.userPath+fichierLpln, "r")
+                let r = readline.fopen(p.resolve(path.userPath,fichierLpln), "r")
                 if (r === false) {
                 console.log("Error, can't open ", fichierLpln);
               }else {
                 console.log("ok lpln");
               }
-              let r2 = readline.fopen(path.userPath+fichierVemgsa, "r")
+              let r2 = readline.fopen(p.resolve(path.userPath,fichierVemgsa), "r")
               if (r2 === false) {
               console.log("Error, can't open ", fichierVemgsa);
             }else {

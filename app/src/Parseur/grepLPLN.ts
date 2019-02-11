@@ -8,7 +8,8 @@ copier le resultat dans un fichier texte
 const fs = require('fs');
 let readline = require("../scripts/node-readline/node-readline");
 
-import {path}  from '../main'
+import {path}  from '../main';
+const p = require('path');
 //console.log('path: '+path);
 
 //console.log("path.outputPath: "+path.outputPath);
@@ -16,7 +17,7 @@ import {path}  from '../main'
 
 
 export function grepLogLPLN (arcid:string, plnid:number, fichierSourceLpln:string):void {
-  let fichierDestination = path.outputPath+"resultLPLN.htm";
+  let fichierDestination = p.resolve(path.outputPath,"resultLPLN.htm");
   let fichierSource = fichierSourceLpln;
   //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";

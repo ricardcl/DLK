@@ -3,10 +3,10 @@ const fs = require('fs');
 
 var readline = require("../scripts/node-readline/node-readline");
 import {path}  from '../main'
+const p = require('path');
 
-
-const fichierGbdi = path.inputPath+"STPV_G2910_CA20180816_13082018__1156";
-const fichierFreq =  path.outputPath+"freq.htm";
+const fichierGbdi = p.resolve(path.inputPath,"STPV_G2910_CA20180816_13082018__1156");
+const fichierFreq =  p.resolve(path.outputPath,"freq.htm");
 
 //process.exit(1) : pour sortir de la fonctionet
 // break pour sortir du test en restant dans la fonction

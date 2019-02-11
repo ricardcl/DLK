@@ -7,7 +7,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 */
 
 const fs = require('fs');
-import {path}  from '../main'
+import {path}  from '../main';
+const p = require('path');
 let readline = require("../scripts/node-readline/node-readline");
 
 
@@ -15,7 +16,7 @@ let readline = require("../scripts/node-readline/node-readline");
 
 export function grepLog (arcid:string, plnid:number, fichierSourceVemgsa:string[] ):void {
 
-    let fichierDestination = path.outputPath+"/result.htm";
+    let fichierDestination = p.resolve(path.outputPath,"result.htm");
     let w = fs.openSync(fichierDestination, "w");
 
   for (let fichier of fichierSourceVemgsa) {
@@ -31,7 +32,7 @@ export function grepLog (arcid:string, plnid:number, fichierSourceVemgsa:string[
     console.log("coucou2");
     console.log("fichier"+fichier);
    
-    let r = readline.fopen(path.userPath+fichierSource, "r");
+    let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
 
 
     let count = 0;
@@ -97,7 +98,7 @@ export function grepArcidFromPlnid (plnid:number,fichierSourceVemgsa:string ):st
 
   let fichierSource = fichierSourceVemgsa;
   //"../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
-  let fichierDestination = path.outputPath+"result.htm";
+  let fichierDestination = p.resolve(path.outputPath,"result.htm");
   let reqid=0;
   let arcid = "";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
@@ -110,10 +111,10 @@ export function grepArcidFromPlnid (plnid:number,fichierSourceVemgsa:string ):st
   
   console.log('path_dir_input_user : ',path.userPath);
 
-  console.log('path_complet : ',path.userPath+fichierSource);
+  console.log('path_complet : ',p.resolve(path.userPath,fichierSource));
   
   
-  let r = readline.fopen(path.userPath+fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let motifVemgsa =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
   let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;
   let motif2 = /(.*)(CPCASRES)(.*)(-PLNID )(.*)(-REQID)(.*)/;
@@ -159,10 +160,10 @@ export function grepArcidFromPlnid (plnid:number,fichierSourceVemgsa:string ):st
 export function grepArcidFromReqid ( reqid:number, fichierSourceVemgsa:string):string {
   let fichierSource = fichierSourceVemgsa;
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
-  let fichierDestination = path.outputPath+"result.htm";
+  let fichierDestination = p.resolve(path.outputPath,"result.htm");
   let arcid="";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-  let r = readline.fopen(path.userPath+fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let motifVemgsa =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
   let motif1 = /(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-ATNLOGON)(.*)(-REQID)(.*)/;
@@ -207,11 +208,11 @@ export function grepArcidFromReqid ( reqid:number, fichierSourceVemgsa:string):s
 export function grepPlnidFromArcid ( arcid:string, fichierSourceVemgsa:string):number {
   let fichierSource = fichierSourceVemgsa;
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
-  let fichierDestination = path.outputPath+"result.htm";
+  let fichierDestination = p.resolve(path.outputPath,"result.htm");
   let reqid=0;
   let plnid=0;
 
-  let r = readline.fopen(path.userPath+fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let motifVemgsa =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
 
@@ -296,7 +297,7 @@ export function grepPlnidFromArcid ( arcid:string, fichierSourceVemgsa:string):n
 export function grepPlageHoraireFichier (fichierSourceVemgsa:string ):void {
 
   let fichierSource = fichierSourceVemgsa;
-  let r = readline.fopen(path.userPath+fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let motif =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
   //26/09/2018 07H54'11" -TITLE CPCCLOSLNK-PLNID 7466  	,
