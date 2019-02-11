@@ -189,6 +189,7 @@ case 'CPCEND': {
 }
 case 'CPCCLOSLNK': {
   //console.log('CPCCLOSLNK');
+
   if (log.getInfoMap()["FREQ"] !== undefined){
   let freq = frequences.conversionFreq(log.getFrequence());
   log.getInfoMap()["FREQ"]=freq;

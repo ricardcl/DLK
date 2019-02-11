@@ -45,9 +45,11 @@ export class EtatCpdlc {
   }
 
   getFrequence(): string {
-    if (this.infoMap.get("FREQ") !== undefined) {
-      var freq = this.infoMap.get("FREQ");
-      return freq;
+
+
+
+    if (this.infoMap["FREQ"] !== undefined) {
+      return this.infoMap["FREQ"];
     }
     else {
       return null;
