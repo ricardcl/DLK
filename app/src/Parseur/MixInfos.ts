@@ -27,14 +27,24 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
    let monvolVemgsa = new Vol(arcid,plnid);
   let pv = new parseurVemgsa();
   monvolVemgsa = pv.parseur(arcid,plnid,fichierSourceVemgsa );
-  console.log("monvolVemgsa: ",monvolVemgsa);
+ /**
+  * console.log("monvolVemgsa: ",monvolVemgsa);
+  *for (let index = 0; index < monvolVemgsa.getListeVol().length; index++) {
+   * console.log("monvolVemgsa Logs: ",index," ",monvolVemgsa.getListeVol()[index].getMapCpdlc());
+   *   }
+    */ 
+
+  
 
 
   //Initialisation du vol issu des donnees LPLN
   let monvolLpln = new Vol(arcid,plnid);
   let pl = new parseurLpln();
   monvolLpln = pl.parseur(arcid,plnid, fichierSourceLpln);
-  console.log("monvolLpln: ",monvolLpln);
+  /**
+   *   console.log("monvolLpln: ",monvolLpln);
+   */
+
 
 
 
@@ -58,11 +68,9 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
   let key3=0;
   let key2=0;
   monvolVemgsa.getListeVol().forEach((elt, key) => {
-    //console.log(monvolLpln.getListeVol().get(key).title);
-    //if ((monvolLpln.getListeVol().get(key).title == "CPCASREQ") && (monvolLpln.getListeVol().get(key+1).title == "CPCASRES") ){
+
     key2 = key+7 +key3;
-    //  console.log("key2 : " + key2);
-    //console.log("key2 : "+key2);
+
 
 //{(0,CPCA),
 //(1,CPCB)
@@ -97,10 +105,8 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
           key3 = key3-1;
           break;
         }
-        // if (cmpHeureElt(monvolVemgsa.getListeVol().get(key).heure ,  monvolLpln.getListeVol().get(key2).heure) == false )
         console.log("info Lpln unique : "  +monvolLpln.getListeVol()[key2].getTitle())
         addElt(monvolLpln.getListeVol()[key2]  );
-        //console.log("ca match pas");
         key2 = key2+1;
         key3 = key3+1;
 
@@ -113,7 +119,6 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
       if (elt.getTitle() ==monvolLpln.getListeVol()[key2].getTitle() ){
         console.log("Couple trouvé : \ninfo Vemgsa : "  +elt.getTitle());
         addElt(elt);
-        //  console.log("key2 : "+key2);
         console.log("info Lpln : "  +monvolLpln.getListeVol()[key2].getTitle());
       }
 
@@ -126,7 +131,6 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
   key2=key2+1;
   while ( monvolLpln.getListeVol().length == key2 ){
-    //  console.log("key2 : "+key2);
     console.log("info Lpln supp: "  +monvolLpln.getListeVol()[key2].getTitle());
     key2=key2+1;
   
@@ -135,6 +139,8 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
 
   function addElt(elt : EtatCpdlc):void {
+    console.log("elt ajoute: ",elt);
+    
     monvolFinal.getListeVol().push(elt);
   }
 
@@ -195,6 +201,15 @@ monvolLpln.getListeVol().forEach((value, key, map) => {
 console.log(monvolLpln.etat);
 console.log(key, ':', value);
 })*/
+
+monvolFinal.getListeVol().forEach(etat => {
+  //console.log("contenu map: ",etat.getInfoMap());
+  etat.setDetailLog();
+
+  console.log("contenu detail map: ",etat.getDetaillog());
+});
+
+
 return monvolFinal;
 }
 

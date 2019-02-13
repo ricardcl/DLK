@@ -1,4 +1,5 @@
 import { TSMap } from "typescript-map";
+import { DetailCpdlc } from "../Modele/detailCpdlc";
 
 var espace = " ";
 
@@ -51,6 +52,37 @@ export class split {
     return mymap;
   }
 
+    /*
+  objectif : Fonction qui prend en entree une chaine de caractere,
+  decoupe en differents elements cette chaine à partir du séparateur '-'
+  et renvoie sous forme de table de hashage  le resultat
+  Parametres en entrée :
+  stringToSplit : la chaine de caractere a separer
+  */
+ stringToDetailCpdlc = function (stringToSplit){
+
+
+  let mymap : DetailCpdlc[] = new Array();
+
+  //Remplissage de la table 
+  let infosDecomposees = this.splitString(stringToSplit, '-');
+  let detail = <DetailCpdlc>{};
+  for (var i = 0; i < infosDecomposees.length; i++) {
+    if (i==0)  {
+      var title= infosDecomposees[i].trim();
+      detail.key = 'TITLE';
+      detail.value = title;
+      mymap.push(detail);
+    }
+    else {
+      var tuple = this.splitString(infosDecomposees[i].trim(), espace);     
+      detail.key = tuple[0];
+      detail.value = tuple[1];
+      mymap.push(detail);
+    }
+  }
+  return mymap;
+}
 
 
   

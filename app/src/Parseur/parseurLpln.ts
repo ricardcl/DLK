@@ -106,7 +106,11 @@ export class parseurLpln {
       //Stockage des infos générales
       let myMap=this.recuperationCPC(infoLog);
       log.setTitle(myMap['TITLE']);
+      console.log("myMap: ",myMap);
+      
       log.setInfoMap( myMap);
+      console.log("setInfoMap: ", log.getInfoMap());
+      
 
       monvol.getListeVol().push(log);
 

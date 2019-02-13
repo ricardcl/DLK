@@ -14,6 +14,7 @@ let readline = require("../scripts/node-readline/node-readline");
 import * as grep from "./grep";
 
 import {path}  from '../main';
+import { DetailCpdlc } from '../Modele/detailCpdlc';
 const p = require('path');
 
 export class parseurVemgsa {
@@ -110,10 +111,14 @@ export class parseurVemgsa {
 
       //Stockage des infos suivantes
 
-      let myMap = fsplit.stringToTuple (infoLog);
-      log.setTitle(myMap['TITLE']);
-      log.setInfoMap(myMap);
+      //let myMap = fsplit.stringToTuple (infoLog);
+      let myMap : DetailCpdlc[]= fsplit.stringToDetailCpdlc (infoLog);
+      
+           
+      log.setTitle(log.getDetail('TITLE'));
+      log.setDetail(myMap);
 
+   
       monvol.getListeVol().push(log);
 
       //automate a etat sur la letiable etat
@@ -224,6 +229,7 @@ else {
 break;
 }
 case 'CPCFREQ': {
+
   let freq = frequences.conversionFreq(log.getFrequence());
   log.getInfoMap()["FREQ"]=freq;
   monEtat = Etat.TransfertEnCours;

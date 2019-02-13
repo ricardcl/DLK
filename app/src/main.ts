@@ -2,6 +2,7 @@
 import { Formulaire } from "./Formulaire";
 import {split} from "./Parseur/split";
 import { Path } from './Modele/path';
+import { mixInfos } from './Parseur/MixInfos';
 
 
 
@@ -24,9 +25,9 @@ const output = p.resolve(assets, 'Output');
 const user = p.resolve(input,'user');
 const system = p.resolve(input, 'system');
 
-//export const path : Path = {distPath: dist,assetsPath:  assets, inputPath: input ,outputPath: output, userPath: user, systemPath:system};
 
-
+console.log("debut main");
+export const path  = new Path (dist, assets, input , output,  user, system);
 
 
  /**
@@ -41,9 +42,11 @@ console.log("systemPath: "+systemPath);
   */
 
 
- console.log("debut main");
- export const path  = new Path (dist, assets, input , output,  user, system);
+
+ //console.log("resulat mixinfos: ",mixInfos("",9694,  "lpln", ["vemgsa"]).);
+ mixInfos("",9694,  "lpln", ["vemgsa"]);
 
 
-new Formulaire();
+ 
+ //new Formulaire();
 

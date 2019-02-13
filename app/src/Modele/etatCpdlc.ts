@@ -1,5 +1,6 @@
 import { TSMap } from "typescript-map";
 import { Etat } from './enumEtat';
+import { DetailCpdlc } from "./detailCpdlc";
 
 export class EtatCpdlc {
   private id: number = 0;
@@ -9,6 +10,7 @@ export class EtatCpdlc {
   private etat: Etat = Etat.NonLogue;
   private associable: boolean = false;
   private infoMap: TSMap<string, string>;
+  private detailLog : DetailCpdlc[];
 
 
 
@@ -16,6 +18,7 @@ export class EtatCpdlc {
   constructor(id: number) {
     this.id = id;
     this.infoMap = new TSMap();
+    this.detailLog = new Array();
   }
 
   /*getLogCpdlc() {
@@ -57,6 +60,35 @@ export class EtatCpdlc {
 
   }
 
+  getFrequence2(): string {
+
+    this.detailLog.forEach(element => {
+      if (element.key === "FREQ") {
+        return element.value;
+      }
+    });
+
+    return null;
+  }
+
+  isDetail(key : string){
+    this.detailLog.forEach(element => {
+      if ( key === element.key) return true;
+    });
+    return null;
+  }
+
+  getDetail(key : string){
+    this.detailLog.forEach(element => {
+      if ( key === element.key) return element.value;
+    });
+    return null;
+  }
+
+  setDetail(array : DetailCpdlc[]){
+    this.detailLog = array;
+
+  }
 
   //GETTERS
   getTitle(): string {
@@ -87,6 +119,24 @@ export class EtatCpdlc {
   }
   setAssociable(associable: boolean) {
     this.associable = associable;
+  }
+
+  setDetailLog(){
+    console.log("debut set detail log");
+    console.log("contenu map: ",this.infoMap);
+  console.log("contenu map title: ",this.infoMap['TITLE']);
+  let detail = <DetailCpdlc>{};
+  detail.key = 'TITLE';
+  detail.value = this.infoMap['TITLE'];
+  this.detailLog.push(detail);
+  console.log("contenu map longueur: ",this.detailLog.length);
+
+
+
+  }
+
+  getDetaillog(){
+    return this.detailLog;
   }
 
 }
