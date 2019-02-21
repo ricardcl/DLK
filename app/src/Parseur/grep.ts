@@ -20,7 +20,6 @@ export function grepLog (arcid:string, plnid:number, fichierSourceVemgsa:string[
     let w = fs.openSync(fichierDestination, "w");
 
   for (let fichier of fichierSourceVemgsa) {
-    console.log("coucou1");
     //let fichierSource = "../Input/test1.htm";
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
 
@@ -29,14 +28,12 @@ export function grepLog (arcid:string, plnid:number, fichierSourceVemgsa:string[
     //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
 
 
-    console.log("coucou2");
-    console.log("fichier"+fichier);
-   
+
     let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
 
 
     let count = 0;
-    console.log("coucou3");
+
     /* regex a utiliser pour enlever les caracteres speciaux
     en utilisant mylogCpdlc = mylogCpdlc.replace(regex);*/
     //let regex = /|||||||�|@|.||%|\(|\)|,|ZZZZ|]\|þ|Ô|Ç|â|Á|||[a-z]/g;
@@ -53,7 +50,7 @@ export function grepLog (arcid:string, plnid:number, fichierSourceVemgsa:string[
 
     let motif =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
-    console.log("coucou4");
+
     let motifPlnid = "-PLNID "+plnid;
     let motifArcid = "-ARCID "+arcid;
 
@@ -109,9 +106,9 @@ export function grepArcidFromPlnid (plnid:number,fichierSourceVemgsa:string ):st
   console.log('fichierSourceVemgsa : ',fichierSourceVemgsa);
   console.log('fichierSource : ',fichierSource);
   
-  console.log('path_dir_input_user : ',path.userPath);
+ // console.log('path_dir_input_user : ',path.userPath);
 
-  console.log('path_complet : ',p.resolve(path.userPath,fichierSource));
+  //console.log('path_complet : ',p.resolve(path.userPath,fichierSource));
   
   
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");

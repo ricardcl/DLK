@@ -5,7 +5,7 @@ import {EtatCpdlc} from '../Modele/etatCpdlc';
 
 
 
-export  function getListeVols( arcid : string, plnid : number,fichierSourceLpln : string, fichierSourceVemgsa : string[] ):Vol[] {
+export  function getListeLogss( arcid : string, plnid : number,fichierSourceLpln : string, fichierSourceVemgsa : string[] ):Vol[] {
   let monvolFinal:Vol; 
   let monvolVemgsa:Vol; 
   let monvolLpln:Vol; 
@@ -29,8 +29,8 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
   monvolVemgsa = pv.parseur(arcid,plnid,fichierSourceVemgsa );
  /**
   * console.log("monvolVemgsa: ",monvolVemgsa);
-  *for (let index = 0; index < monvolVemgsa.getListeVol().length; index++) {
-   * console.log("monvolVemgsa Logs: ",index," ",monvolVemgsa.getListeVol()[index].getMapCpdlc());
+  *for (let index = 0; index < monvolVemgsa.getListeLogs().length; index++) {
+   * console.log("monvolVemgsa Logs: ",index," ",monvolVemgsa.getListeLogs()[index].getMapCpdlc());
    *   }
     */ 
 
@@ -54,11 +54,11 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
 
 
-  monvolVemgsa.getListeVol().forEach((elt) => {
+  monvolVemgsa.getListeLogs().forEach((elt) => {
     console.log(" heure : " +elt.getHeure() +" info Vemgsa : "  +elt.getTitle());
 
   })
-  monvolLpln.getListeVol().forEach((elt) => {
+  monvolLpln.getListeLogs().forEach((elt) => {
     //  console.log("key : "+key);
     console.log(" heure : " + elt.getHeure() +" info Lpln : "  +elt.getTitle());
   })
@@ -67,7 +67,7 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
   let key3=0;
   let key2=0;
-  monvolVemgsa.getListeVol().forEach((elt, key) => {
+  monvolVemgsa.getListeLogs().forEach((elt, key) => {
 
     key2 = key+7 +key3;
 
@@ -78,60 +78,60 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
 //(value, key,map)
 
-    if ( monvolLpln.getListeVol().length <= key2 ){
+    if ( monvolLpln.getListeLogs().length <= key2 ){
 
       console.log("\nComparaison :\ninfo Vemgsa : "  + elt.getTitle());
-      console.log("info Lpln : " , monvolLpln.getListeVol()[key2].getTitle());
+      console.log("info Lpln : " , monvolLpln.getListeLogs()[key2].getTitle());
 
 
-      while (elt.getTitle() !==  monvolLpln.getListeVol()[key2].getTitle() )  {
+      while (elt.getTitle() !==  monvolLpln.getListeLogs()[key2].getTitle() )  {
 
 
-        if ( (elt.getTitle() == 'CPCMSGDOWN' ) && (monvolLpln.getListeVol()[key-1].getTitle() == 'CPCCLOSLNK' )){
+        if ( (elt.getTitle() == 'CPCMSGDOWN' ) && (monvolLpln.getListeLogs()[key-1].getTitle() == 'CPCCLOSLNK' )){
           console.log("cpccloselink suivi de cpcmsgdown  : "  +"info Vemgsa : "  +elt.getTitle());
 
           key3 = key3-1;
           break;
         }
-        if (( elt.getTitle() == 'CPCMSGDOWN' ) && (monvolLpln.getListeVol()[key-1].getTitle() == 'CPCMSGUP' )){
+        if (( elt.getTitle() == 'CPCMSGDOWN' ) && (monvolLpln.getListeLogs()[key-1].getTitle() == 'CPCMSGUP' )){
           console.log("cpcmsgup suivi de cpcmsgdown  : "  +"info Vemgsa : "  + elt.getTitle());
 
           key3 = key3-1;
           break;
         }
-        if ( (elt.getTitle() == 'CPCMSGDOWN' ) && (monvolLpln.getListeVol()[key-1].getTitle() == 'CPCFREQ')){
+        if ( (elt.getTitle() == 'CPCMSGDOWN' ) && (monvolLpln.getListeLogs()[key-1].getTitle() == 'CPCFREQ')){
           console.log("cpcfreq suivi de cpcmsgdown  : "  +"info Vemgsa : "  +elt.getTitle());
 
           key3 = key3-1;
           break;
         }
-        console.log("info Lpln unique : "  +monvolLpln.getListeVol()[key2].getTitle())
-        addElt(monvolLpln.getListeVol()[key2]  );
+        console.log("info Lpln unique : "  +monvolLpln.getListeLogs()[key2].getTitle())
+        addElt(monvolLpln.getListeLogs()[key2]  );
         key2 = key2+1;
         key3 = key3+1;
 
-        if ( monvolLpln.getListeVol().length < key2){
+        if ( monvolLpln.getListeLogs().length < key2){
           key2 = key2-1;
           break;
         }
 
       }
-      if (elt.getTitle() ==monvolLpln.getListeVol()[key2].getTitle() ){
+      if (elt.getTitle() ==monvolLpln.getListeLogs()[key2].getTitle() ){
         console.log("Couple trouvé : \ninfo Vemgsa : "  +elt.getTitle());
         addElt(elt);
-        console.log("info Lpln : "  +monvolLpln.getListeVol()[key2].getTitle());
+        console.log("info Lpln : "  +monvolLpln.getListeLogs()[key2].getTitle());
       }
 
     }
     else {
-      console.log("info Vemgsa unique : "  +elt.getTitle());
+     // console.log("info Vemgsa unique : "  +elt.getTitle());
       addElt(elt);
     }
   })
 
   key2=key2+1;
-  while ( monvolLpln.getListeVol().length == key2 ){
-    console.log("info Lpln supp: "  +monvolLpln.getListeVol()[key2].getTitle());
+  while ( monvolLpln.getListeLogs().length == key2 ){
+    console.log("info Lpln supp: "  +monvolLpln.getListeLogs()[key2].getTitle());
     key2=key2+1;
   
   }
@@ -139,9 +139,9 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
 
   function addElt(elt : EtatCpdlc):void {
-    console.log("elt ajoute: ",elt);
+ //   console.log("elt ajoute: ",elt);
     
-    monvolFinal.getListeVol().push(elt);
+    monvolFinal.getListeLogs().push(elt);
   }
 
 
@@ -178,9 +178,9 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
   }
 
   
-  /**let hV = monvolVemgsa.getListeVol().get(1).heure;
+  /**let hV = monvolVemgsa.getListeLogs().get(1).heure;
   console.log("heure HV : "+hV);
-  let hL = monvolLpln.getListeVol().get(10).heure;
+  let hL = monvolLpln.getListeLogs().get(10).heure;
   console.log("heure HL : "+hL);
   //let result1 = cmpHeureElt("04H25\'01\"","04H26" );
   let result1 = cmpHeureElt(hV,hL);
@@ -188,26 +188,29 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
 */
 
-  /*monvolLpln.getListeVol().forEach((value, key, map) => {
+  /*monvolLpln.getListeLogs().forEach((value, key, map) => {
 
-  if (monvolLpln.getListeVol().get(key).etat)
-  console.log(monvolLpln.getListeVol().get(key).etat);
+  if (monvolLpln.getListeLogs().get(key).etat)
+  console.log(monvolLpln.getListeLogs().get(key).etat);
 
 })
-console.log(monvolVemgsa.getListeVol().get(0).heure);
+console.log(monvolVemgsa.getListeLogs().get(0).heure);
 */
 /*
-monvolLpln.getListeVol().forEach((value, key, map) => {
+monvolLpln.getListeLogs().forEach((value, key, map) => {
 console.log(monvolLpln.etat);
 console.log(key, ':', value);
 })*/
 
-monvolFinal.getListeVol().forEach(etat => {
-  //console.log("contenu map: ",etat.getInfoMap());
-  etat.setDetailLog();
 
-  console.log("contenu detail map: ",etat.getDetaillog());
+/**
+ * monvolFinal.getListeLogs().forEach(etat => {
+  console.log("contenu  map before: ",etat.getDetaillog());
 });
+ */
+
+//console.log("date 0 : ",monvolFinal.getListeLogs()[0].getDate());
+//console.log("detaillog 0 : ",monvolFinal.getListeLogs()[0].getDetaillog());
 
 
 return monvolFinal;

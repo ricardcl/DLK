@@ -1,5 +1,5 @@
 import { mixInfos } from './Parseur/MixInfos';
-import { getListeVols } from './Parseur/MixInfos';
+import { getListeLogss } from './Parseur/MixInfos';
 import {path}  from './main'
 const p = require('path');
 
@@ -46,8 +46,8 @@ export class Formulaire {
 
             socket.on('analysingPlnid', (file) => {
                 console.log("analysingPlnid");
-                console.log(getListeVols("",0, file, null));
-                socket.emit("analysedPlnid",getListeVols("",0, file, null));
+                console.log(getListeLogss("",0, file, null));
+                socket.emit("analysedPlnid",getListeLogss("",0, file, null));
             });
 
             socket.on('analysing', (plnid, lplnfilename, vemgsafilename) => {

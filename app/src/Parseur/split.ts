@@ -60,19 +60,20 @@ export class split {
   stringToSplit : la chaine de caractere a separer
   */
  stringToDetailCpdlc = function (stringToSplit){
-
-
+  
   let mymap : DetailCpdlc[] = new Array();
 
   //Remplissage de la table 
   let infosDecomposees = this.splitString(stringToSplit, '-');
-  let detail = <DetailCpdlc>{};
+
   for (var i = 0; i < infosDecomposees.length; i++) {
+    let detail = <DetailCpdlc>{};
     if (i==0)  {
       var title= infosDecomposees[i].trim();
       detail.key = 'TITLE';
       detail.value = title;
       mymap.push(detail);
+      
     }
     else {
       var tuple = this.splitString(infosDecomposees[i].trim(), espace);     
@@ -81,6 +82,8 @@ export class split {
       mymap.push(detail);
     }
   }
+
+  
   return mymap;
 }
 

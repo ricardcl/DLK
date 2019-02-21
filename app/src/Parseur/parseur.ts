@@ -113,13 +113,16 @@ export class parseurVemgsa {
 
       //let myMap = fsplit.stringToTuple (infoLog);
       let myMap : DetailCpdlc[]= fsplit.stringToDetailCpdlc (infoLog);
-      
-           
-      log.setTitle(log.getDetail('TITLE'));
-      log.setDetail(myMap);
 
    
-      monvol.getListeVol().push(log);
+           
+      
+      log.setDetailLog(myMap);
+ 
+
+      log.setTitle(log.getDetail('TITLE'));
+   
+      monvol.getListeLogs().push(log);
 
       //automate a etat sur la letiable etat
       switch(log.getTitle()) {
@@ -135,10 +138,10 @@ export class parseurVemgsa {
     }
     case 'CPCASRES': {
       //console.log('CPCASRES');
-      if ((log.getInfoMap()["ATNASSOC"] == "S") || (log.getInfoMap()["ATNASSOC"] == "L") ) {
+      if ((log.getDetail("ATNASSOC") == "S") || (log.getDetail("ATNASSOC") == "L") ) {
       monEtat = Etat.DemandeLogonAutorisee;
     }
-    else if (log.getInfoMap()["ATNASSOC"] == "F"){
+    else if (log.getDetail("ATNASSOC") == "F"){
       monEtat = Etat.NonLogue;
     }
     else {
@@ -148,10 +151,10 @@ export class parseurVemgsa {
   }
   case 'CPCVNRES': {
     //console.log('CPCVNRES');
-    if (log.getInfoMap()["GAPPSTATUS"] == "A") {
+    if (log.getDetail("GAPPSTATUS") == "A") {
     monEtat = Etat.Logue;
   }
-  else if (log.getInfoMap()["GAPPSTATUS"] == "F"){
+  else if (log.getDetail("GAPPSTATUS") == "F"){
     monEtat = Etat.NonLogue;
   }
   else {
@@ -173,10 +176,10 @@ case 'CPCCOMSTAT': {
   //console.log('CPCCOMSTAT');
   if (monEtat == Etat.DemandeConnexion) {
 
-  if (log.getInfoMap()["CPDLCCOMSTATUS"] == "A"){
+  if (log.getDetail("CPDLCCOMSTATUS") == "A"){
     monEtat = Etat.Associe;
   }
-  else if (log.getInfoMap()["CPDLCCOMSTATUS"] == "N"){
+  else if (log.getDetail("CPDLCCOMSTATUS") == "N"){
     monEtat = Etat.Logue;
     let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air";
   }
@@ -194,10 +197,12 @@ case 'CPCEND': {
 }
 case 'CPCCLOSLNK': {
   //console.log('CPCCLOSLNK');
-
-  if (log.getInfoMap()["FREQ"] !== undefined){
-  let freq = frequences.conversionFreq(log.getFrequence());
-  log.getInfoMap()["FREQ"]=freq;
+  if (log.getDetail("FREQ") !== undefined){
+  let freq = frequences.conversionFreq(log.getDetail("FREQ"));
+  let detail = <DetailCpdlc>{};
+  detail.key = "FREQ";
+  detail.value = freq; 
+  log.addDetail(detail);
   monEtat = Etat.TransfertEnCours;
 }
 
@@ -210,16 +215,16 @@ case 'CPCMSGDOWN': {
   //console.log('CPCMSGDOWN');
   //  console.log('CPCMSGDOWN :'+log.getInfoMap().get("CPDLCMSGDOWN"));
   if (monEtat == Etat.TransfertEnCours)  {
-  if ((log.getInfoMap()["CPDLCMSGDOWN"] == "WIL") || (log.getInfoMap()["CPDLCMSGDOWN"] == "LCK")){
+  if ((log.getDetail("CPDLCMSGDOWN") == "WIL") || (log.getDetail("CPDLCMSGDOWN") == "LCK")){
     monEtat = Etat.Transfere;
   }
-  else if ((log.getInfoMap()["CPDLCMSGDOWN"] == "UNA") || (log.getInfoMap()["CPDLCMSGDOWN"] == "STB")) {
+  else if ((log.getDetail("CPDLCMSGDOWN") == "UNA") || (log.getDetail("CPDLCMSGDOWN") == "STB")) {
     monEtat = Etat.RetourALaVoix;
   }
 }
 //Cas ou le serveur air n a pas repondu assez tot, le vol passe vtr donc closelink obligatoire -> demande deconnexion en cours
 if (monEtat == Etat.DemandeDeconnexion)  {
-if ((log.getInfoMap()["CPDLCMSGDOWN"] == "UNA") || (log.getInfoMap()["CPDLCMSGDOWN"] == "STB")) {
+if ((log.getDetail("CPDLCMSGDOWN") == "UNA") || (log.getDetail("CPDLCMSGDOWN") == "STB")) {
   monEtat = Etat.DemandeDeconnexion;
 }
 }
@@ -229,10 +234,13 @@ else {
 break;
 }
 case 'CPCFREQ': {
-
-  let freq = frequences.conversionFreq(log.getFrequence());
-  log.getInfoMap()["FREQ"]=freq;
-  monEtat = Etat.TransfertEnCours;
+  let freq = frequences.conversionFreq(log.getDetail("FREQ")); 
+  
+  let detail = <DetailCpdlc>{};
+    detail.key = "FREQ";
+    detail.value = freq; 
+    log.addDetail(detail);
+      monEtat = Etat.TransfertEnCours;
 
   //console.log('CPCFREQ');
   // TODO:

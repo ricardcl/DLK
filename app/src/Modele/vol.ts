@@ -34,12 +34,12 @@ export class Vol {
 
 
 
-     getVol(vol : Vol):string {
+    public  getVol(vol : Vol):string {
         console.log(vol.reqid);
         return "InfosVol :  " + vol.reqid;
     }
 
-    public getListeVol():EtatCpdlc[]{
+    public getListeLogs():EtatCpdlc[]{
         return this.listeLogs;
     }
 

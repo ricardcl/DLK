@@ -130,7 +130,7 @@ ex : 135930 devient 135.930
 freq : une frequence de transfert
 */
 exports.conversionFreq = function(freq) {
-
+  
   var motifFreq = /(\d\d\d)(\d+)/;
   var frequence = freq.replace(motifFreq, "$1.$2");
   return frequence;

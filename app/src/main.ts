@@ -43,10 +43,10 @@ console.log("systemPath: "+systemPath);
 
 
 
- //console.log("resulat mixinfos: ",mixInfos("",9694,  "lpln", ["vemgsa"]).);
- mixInfos("",9694,  "lpln", ["vemgsa"]);
+ //console.log("resulat mixinfos: ",mixInfos("",9694,  "lpln", ["vemgsa"]));
+ //mixInfos("",9694,  "lpln", ["vemgsa"]);
 
 
  
- //new Formulaire();
+ new Formulaire();
 
