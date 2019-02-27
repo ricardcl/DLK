@@ -3,6 +3,8 @@ import { Formulaire } from "./Formulaire";
 import {split} from "./Parseur/split";
 import { Path } from './Modele/path';
 import { mixInfos } from './Parseur/MixInfos';
+import { getListeVols } from './Parseur/MixInfos';
+
 
 
 
@@ -46,7 +48,7 @@ console.log("systemPath: "+systemPath);
  //console.log("resulat mixinfos: ",mixInfos("",9694,  "lpln", ["vemgsa"]));
  //mixInfos("",9694,  "lpln", ["vemgsa"]);
 
-
+ //console.log(getListeVols("",9694,  "lpln", ["vemgsa"]));
  
  new Formulaire();
 

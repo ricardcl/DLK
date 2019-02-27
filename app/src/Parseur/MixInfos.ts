@@ -5,13 +5,11 @@ import {EtatCpdlc} from '../Modele/etatCpdlc';
 
 
 
-export  function getListeLogss( arcid : string, plnid : number,fichierSourceLpln : string, fichierSourceVemgsa : string[] ):Vol[] {
+export  function getListeVols( arcid : string, plnid : number,fichierSourceLpln : string, fichierSourceVemgsa : string[] ):Vol[] {
   let monvolFinal:Vol; 
   let monvolVemgsa:Vol; 
   let monvolLpln:Vol; 
   let pl = new parseurLpln();
-  //let arcid = "EWG6LB";
-  //let plnid = 6461;
   console.log(pl.grepListeVolFromLpln(fichierSourceLpln));
   return pl.grepListeVolFromLpln(fichierSourceLpln);
 }

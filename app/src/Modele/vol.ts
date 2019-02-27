@@ -43,4 +43,7 @@ export class Vol {
         return this.listeLogs;
     }
 
+    public getArcid( ):string {
+        return this.arcid ;
+    }
 }

@@ -7,6 +7,7 @@ import {split} from './split';
 let fsplit = new split();
 
 
+
 //let plnid = 6461;
 //7183
 
@@ -489,33 +490,37 @@ console.log("coucou");
   let indicatif:string="";
   let nomSL:string="";
   let listeVols :Vol[]= [];
+  let listeVolsUniques :Vol[]= [];
 //Traitement du fichier
 do {
 //Test de la fin de fichier
-var mylogCpdlc = readline.fgets(fd);
-if (mylogCpdlc === false) { break;}
+var line = readline.fgets(fd);
+if (line === false) { break;}
 //Recuperation des lignes contenant le motif
-let info1Lpln = mylogCpdlc.match(motif);
-if  (info1Lpln !== null){
+let motifLine = line.match(motif);
+if  (motifLine !== null){
   //console.log(info1Lpln);
-  plnid =  mylogCpdlc.toString().replace(motif, "$3").trim();
+  plnid =  line.toString().replace(motif, "$3").trim();
   //console.log("plnid : "+plnid);
-  indicatif =  mylogCpdlc.toString().replace(motif, "$5").trim();
+  indicatif =  line.toString().replace(motif, "$5").trim();
   //console.log("arcid : "+indicatif);
-  nomSL =  mylogCpdlc.toString().replace(motif, "$7").trim();
+  nomSL =  line.toString().replace(motif, "$7").trim();
   //console.log("nomSL : "+nomSL);
   let monvol = new Vol(indicatif,plnid);
   monvol.setSL(nomSL);
   listeVols.push(monvol);
-  
 }
 
 }while (!readline.eof(fd));
 readline.fclose(fd);
 
 //console.log(listeVols);
-
-return listeVols;
+// suppression des doublons
+var cache = {};
+listeVolsUniques = listeVols.filter(function(elem){
+	return cache[elem.getArcid()]?0:cache[elem.getArcid()]=1;
+});
+return listeVolsUniques;
 }
 
  isFichierLisible = function ( fichier:string):number {
