@@ -53,7 +53,7 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
   monvolLpln.getListeLogs().forEach((elt, key) => {
 
     console.log("date lpln: ",elt.getDate());
-    //console.log("heure vemgsa: ",elt.getHeure());
+    console.log("heure lpln: ",elt.getHeure());
 
 
   })

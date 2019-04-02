@@ -83,8 +83,8 @@ if  ((info1Lpln !== null) && (info2Lpln !== null) ){
   // Recuperation des echanges CPC
   let info4Lpln = mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE");
   if (info4Lpln !== null){
+    fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
     do {
-      fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
        mylogCpdlc = readline.fgets(r);
       if (mylogCpdlc === false) { break;}
 
