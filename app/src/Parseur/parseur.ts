@@ -104,8 +104,13 @@ export class parseurVemgsa {
 
       //Stockage de la date/heure
       let dateHeure = fsplit.splitString(ingoGen, " ");
+      
+      
       log.setDate(dateHeure[0]);
       log.setHeure(dateHeure[1]);
+
+
+      
       log.setAssociable(dateHeure[2]);
 
 
@@ -124,7 +129,7 @@ export class parseurVemgsa {
    
       monvol.getListeLogs().push(log);
 
-      //automate a etat sur la letiable etat
+      //automate a etat sur la variable etat
       switch(log.getTitle()) {
       case 'CPCASREQ': {
         //console.log('CPCASREQ');
@@ -283,6 +288,8 @@ numeroLigne += 1;
 
 readline.fclose(r);
 //fs.closeSync(w);
+
+
 
 return monvol;
 }

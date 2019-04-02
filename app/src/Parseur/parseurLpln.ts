@@ -85,11 +85,14 @@ export class parseurLpln {
       //Test si la ligne lue est une info générale CPDLC ou une information sur un etat CPDLC
       //TODO : faire un check plus complet sur le format attentu : * nombre date *
       if ( mylogCpdlc.match(/\*/) !== null ){
-      //Recuperation de la date/heure et du contenu CPDLC de la ligne lue
+      //Recuperation du numero de ligne et de l'heure et du contenu CPDLC de la ligne lue
       let mylogCpdlcDecompose = fsplit.splitString(mylogCpdlc, '*');
-      //Recuperation de la date/heure de la ligne lue
-      let ingoGen = mylogCpdlcDecompose[1].trim();
-      ingoGen=ingoGen.replace(/\s+/g," ");
+      //Recuperation du numero de ligne et de l'heure de la ligne lue
+      let infoGen = mylogCpdlcDecompose[1].trim();
+
+
+      
+      infoGen=infoGen.replace(/\s+/g," ");
       //Recuperation du contenu CPDLC de la ligne lue
       let infoLog = mylogCpdlcDecompose[2];
 
@@ -100,7 +103,7 @@ export class parseurLpln {
       let  log = new EtatCpdlc(numeroLigne);
 
       //Stockage de la date/heure
-      let dateHeure = fsplit.splitString(ingoGen, " ");
+      let dateHeure = fsplit.splitString(infoGen, " ");
       //log.date=dateHeure[0];
       log.setHeure(dateHeure[1]);
       //log.associable=dateHeure[2];
@@ -117,7 +120,7 @@ export class parseurLpln {
 
 
 
-      //automate a etat sur la letiable etat
+      //automate a etat sur la variable etat
       switch(log.getTitle()) {
       case 'CPCASREQ': {
         //console.log('CPCASREQ');
@@ -474,6 +477,9 @@ recuperationCPC = function(infoLog:string):string[] {
     mymap['POSITION']=position;
 
   }
+
+ 
+  
 
   return mymap;
 }

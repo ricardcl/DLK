@@ -44,9 +44,11 @@ console.log("systemPath: "+systemPath);
   */
 
 
+  let arcid = ""; //"EWG6LB"
+  let plnid = 8977;//9694; //6461
 
- //console.log("resulat mixinfos: ",mixInfos("",9694,  "lpln", ["vemgsa"]));
- //mixInfos("",9694,  "lpln", ["vemgsa"]);
+ console.log("resulat mixinfos: ");
+ mixInfos(arcid,plnid,  "lpln", ["vemgsa"]);
 
  //console.log(getListeVols("",9694,  "lpln", ["vemgsa"]));
  

@@ -185,7 +185,7 @@ export function grepArcidFromReqid ( reqid:number, fichierSourceVemgsa:string):s
       }
       if  ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif2) !== null) && (mylogCpdlc.match(reqid) !== null)){
         mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-        console.log("log : "+mylogCpdlc);
+        //console.log("log : "+mylogCpdlc);
         arcid = mylogCpdlc.toString().replace(motif2, "$3").trim();
         //arcid = Number(String(reqid).substr(1));
         //console.log("arcid2 : "+arcid);

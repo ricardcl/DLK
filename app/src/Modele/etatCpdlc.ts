@@ -34,16 +34,20 @@ export class EtatCpdlc {
 
   isDetail(key : string):boolean{
     let trouve:boolean =false;
+  
     this.detailLog.forEach(element => {
+         
       if ( key === element.key) trouve =true;;
     });
+    
     return trouve;
   }
 
   getDetail(key : string){
+
     if (this.isDetail ( key)) {
       let result:string;
-      this.detailLog.forEach(element => {
+      this.detailLog.forEach(element => {        
         if ( key == element.key) {
           result = element.value;
         }
@@ -80,7 +84,11 @@ export class EtatCpdlc {
     return this.date;
   }
   getHeure(): string {
-    return this.date
+    return this.heure
+  }
+
+  getEtat(): Etat {
+    return this.etat
   }
 
   //SETTERS
