@@ -35,29 +35,59 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
 
 
 
-   monvolVemgsa.getListeLogs().forEach((elt, key) => {
-    
+  monvolVemgsa.getListeLogs().forEach((elt, key) => {
+    let heureTransfert = "";
+    let positionTransfert = "";
+    //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
     if (elt.getTitle() == 'CPCFREQ') {
+
       monvolLpln.getListeLogs().forEach((eltL, keyL) => {
         if (eltL.getTitle() == 'CPCFREQ') {
-          if (isHeuresEgales(elt.getHeure(),eltL.getHeure())){     
-            console.log("date vemgsa : ", elt.getDate(),"date lpln : ", eltL.getDate());
-            console.log("freq: ", elt.getDetail("FREQ")," heure: ",elt.getHeure());
+          if (isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
+            console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate());
+            heureTransfert = eltL.getHeure();
+            console.log("freq: ", elt.getDetail("FREQ"), " heure: ", heureTransfert);
+
           }
         }
       })
+      //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
+      monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+        
+        if (eltL.getTitle() == 'TRFDL') {
+          if ( diffHeuresLplnEgales(eltL.getHeure(),heureTransfert) <= 1) {
+            console.log("eltL", eltL.getTitle());
+            positionTransfert= eltL.getDetaillog()['POSITION'];
+            console.log("Position",positionTransfert );
+            console.log(" heure de transfert: ", heureTransfert);
+          }
+        }
+        if (eltL.getTitle() == 'FIN TRFDL' ) {
+          if ( diffHeuresLplnEgales(eltL.getHeure(),heureTransfert) <= 2) {
+            console.log("eltL", eltL.getTitle());
+            console.log("eltL", eltL);
+          }
+        }
+        if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
+          if ( diffHeuresLplnEgales(eltL.getHeure(),heureTransfert) <= 2) {
+            console.log("eltL", eltL.getTitle());
+            console.log("eltL", eltL);
+
+          }
+        }
+      })
+
     }
   })
 
 
-  monvolLpln.getListeLogs().forEach((elt, key) => {
+     /**monvolLpln.getListeLogs().forEach((elt, key) => {
 
-    console.log("date lpln: ",elt.getDate());
-    console.log("heure lpln: ",elt.getHeure());
+   // console.log("date lpln: ",elt.getDate());
+    //console.log("heure lpln: ",elt.getHeure());
+    console.log("elt", elt);
 
-
-  })
-
+  })  */
 
 
 
@@ -69,8 +99,9 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
   }
 
 
-
-  function isHeuresEgales(hV: string, hL: string): boolean {
+  //Fonction pour comparer des heures VEMGSA et des heures LPLN uniquement !!!!
+  //Pas pour comparer des heures LPLN entre elles ou des heures VEMGSA entre elles
+  function isHeuresLplnVemgsaEgales(hV: string, hL: string): boolean {
     //h1 : heure VEMGSA précise
     //h2 : heure LPLN arrondie
     let h1, h2, m1, m2: number;
@@ -81,15 +112,15 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
       h1 = Number(hV.replace(motif1, "$1"));
       m1 = Number(hV.replace(motif1, "$3"));
     }
-   // console.log("hL :"+hL) ;
+    // console.log("hL :"+hL) ;
     if (hL.match(motif2) !== null) {
       h2 = Number(hL.replace(motif2, "$1"));
       m2 = Number(hL.replace(motif2, "$3"));
     }
-    //console.log("h1 :"+h1) ;
-   // console.log("m1 :"+m1) ;
-   // console.log("h2 :"+h2) ;
-   // console.log("m2 :"+m2) ;
+    //console.log("h1 :" + h1);
+    //console.log("m1 :" + m1);
+    //console.log("h2 :" + h2);
+    //console.log("m2 :" + m2);
 
     if ((h1 == h2) && ((m2 == m1) || (m2 == (m1 + 1)))) {
       //console.log("match") ;
@@ -98,6 +129,41 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
     else {
       //console.log("match pas") ;
       return false;
+    }
+
+  }
+
+    //Fonction pour comparer des heures LPLN  entre elles 
+  function diffHeuresLplnEgales(hL1: string, hL2: string): number {
+
+    let h1, h2, m1, m2: number;
+
+    let motif= /(.*)(H)(.*)/;
+    if (hL1.match(motif) !== null) {
+      h1 = Number(hL1.replace(motif, "$1"));
+      m1 = Number(hL1.replace(motif, "$3"));
+    }
+    // console.log("hL :"+hL) ;
+    if (hL2.match(motif) !== null) {
+      h2 = Number(hL2.replace(motif, "$1"));
+      m2 = Number(hL2.replace(motif, "$3"));
+    }
+    //console.log("h1 :" + h1);
+    //console.log("m1 :" + m1);
+    //console.log("h2 :" + h2);
+    //console.log("m2 :" + m2);
+
+    if (h1 == h2){
+      return Math.abs(m2-m1);
+    }
+    if (h1 == (h2-1)){
+      return Math.abs(60-m1+m2);
+    }
+    if (h1 == (h2+1)){
+      return Math.abs(m1+60-m2);
+    }
+    else {
+      return Infinity;
     }
 
   }
@@ -113,15 +179,15 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
       h1 = Number(hV.replace(motif1, "$1"));
       m1 = Number(hV.replace(motif1, "$3"));
     }
-   // console.log("hL :"+hL) ;
+    // console.log("hL :"+hL) ;
     if (hL.match(motif2) !== null) {
       h2 = Number(hL.replace(motif2, "$1"));
       m2 = Number(hL.replace(motif2, "$3"));
     }
     //console.log("h1 :"+h1) ;
-   // console.log("m1 :"+m1) ;
-   // console.log("h2 :"+h2) ;
-   // console.log("m2 :"+m2) ;
+    // console.log("m1 :"+m1) ;
+    // console.log("h2 :"+h2) ;
+    // console.log("m2 :"+m2) ;
 
     if ((h1 < h2) && ((m1 == m1) || (m2 == (m1 + 1)))) {
       //console.log("match") ;

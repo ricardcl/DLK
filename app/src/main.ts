@@ -45,10 +45,10 @@ console.log("systemPath: "+systemPath);
 
 
   let arcid = ""; //"EWG6LB"
-  let plnid = 8977;//8977;//9694; //6461
+  let plnid = 9694;//8977;//9694; //6461
 
  console.log("resulat mixinfos: ");
- mixInfos(arcid,plnid,  "lpln", ["vemgsa"]);
+ mixInfos(arcid,plnid,  "lpln2", ["vemgsa2"]);
 
  //console.log(getListeVols("",9694,  "lpln", ["vemgsa"]));
  
