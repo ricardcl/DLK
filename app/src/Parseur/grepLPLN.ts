@@ -92,11 +92,12 @@ if  ((info1Lpln !== null) && (info2Lpln !== null) ){
         fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
         //console.log(mylogCpdlc);
       }
-    }while ( (mylogCpdlc.match("Separateur d'impression") == null) && (mylogCpdlc.match("FIN DES DEPOUILLEMENTS") == null ));
+    }while ( (mylogCpdlc.match("Separateur d'impression") == null) && (mylogCpdlc.match("FIN DES DEPOUILLEMENTS") == null ) 
+    && (  (mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)));
   }
 
 
-}while(mylogCpdlc.match("Separateur d'impression") == null)
+}while((mylogCpdlc.match("Separateur d'impression") == null) &&(  (mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)));
 }
 
 }while (!readline.eof(r));

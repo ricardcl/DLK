@@ -65,7 +65,7 @@ export class parseurLpln {
       process.exit(1);
     }
 
-    /* Initialiation des letiables */
+    /* Initialisation des variables */
     let numeroLigne = 0; // Nuemro de la de lignes lue
     let monEtat = Etat.NonLogue; // Etat CPDLC par defaut
     let mylisteLogsCpdlc = new Array(); //Liste des lignes lues
