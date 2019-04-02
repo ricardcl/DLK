@@ -84,6 +84,7 @@ if  ((info1Lpln !== null) && (info2Lpln !== null) ){
   let info4Lpln = mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE");
   if (info4Lpln !== null){
     do {
+      fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
        mylogCpdlc = readline.fgets(r);
       if (mylogCpdlc === false) { break;}
 

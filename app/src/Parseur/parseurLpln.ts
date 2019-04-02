@@ -69,7 +69,8 @@ export class parseurLpln {
     let numeroLigne = 0; // Nuemro de la de lignes lue
     let monEtat = Etat.NonLogue; // Etat CPDLC par defaut
     let mylisteLogsCpdlc = new Array(); //Liste des lignes lues
-
+    let date ="";
+    
     let monvol = new Vol(arcid,plnid);
 
 
@@ -85,6 +86,14 @@ export class parseurLpln {
       //Test si la ligne lue est une info générale CPDLC ou une information sur un etat CPDLC
       //TODO : faire un check plus complet sur le format attentu : * nombre date *
       if ( mylogCpdlc.match(/\*/) !== null ){
+
+        //Recuperation de la date si c est la ligne  "EDITION DU CHAMP ARCHIVAGE"
+        if (mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE") !== null){
+           let motif =  /(\*)(.*)(\*)(.*)(CHAMP)(.*)/;
+            date = mylogCpdlc.replace(motif, "$2").trim();
+
+         }
+
       //Recuperation du numero de ligne et de l'heure et du contenu CPDLC de la ligne lue
       let mylogCpdlcDecompose = fsplit.splitString(mylogCpdlc, '*');
       //Recuperation du numero de ligne et de l'heure de la ligne lue
@@ -105,6 +114,7 @@ export class parseurLpln {
       //Stockage de la date/heure
       let dateHeure = fsplit.splitString(infoGen, " ");
       //log.date=dateHeure[0];
+      log.setDate(date);
       log.setHeure(dateHeure[1]);
       //log.associable=dateHeure[2];
 
@@ -477,6 +487,9 @@ recuperationCPC = function(infoLog:string):string[] {
     mymap['POSITION']=position;
 
   }
+
+
+  
 
  
   
