@@ -32,7 +32,9 @@ export class Vol {
         vol.reqid = reqid;
     }
 
-
+    public setListeLogs(listeLogs: EtatCpdlc[]):void{
+        this.listeLogs = listeLogs;
+    }
 
     public  getVol(vol : Vol):string {
         console.log(vol.reqid);

@@ -38,56 +38,69 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
   monvolVemgsa.getListeLogs().forEach((elt, key) => {
     let heureTransfert = "";
     let positionTransfert = "";
+
+    addElt(elt);
+
     //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
     if (elt.getTitle() == 'CPCFREQ') {
 
       monvolLpln.getListeLogs().forEach((eltL, keyL) => {
         if (eltL.getTitle() == 'CPCFREQ') {
           if (isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
-            console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate());
+           // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
             heureTransfert = eltL.getHeure();
-            console.log("freq: ", elt.getDetail("FREQ"), " heure: ", heureTransfert);
+           // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
+            
+
 
           }
-        }
-      })
-      //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
-      monvolLpln.getListeLogs().forEach((eltL, keyL) => {
-        
-        if (eltL.getTitle() == 'TRFDL') {
-          if ( diffHeuresLplnEgales(eltL.getHeure(),heureTransfert) <= 1) {
-            console.log("eltL", eltL.getTitle());
-            positionTransfert= eltL.getDetaillog()['POSITION'];
-            console.log("Position",positionTransfert );
-            console.log(" heure de transfert: ", heureTransfert);
-          }
-        }
-        if (eltL.getTitle() == 'FIN TRFDL' ) {
-          if ( diffHeuresLplnEgales(eltL.getHeure(),heureTransfert) <= 2) {
-            console.log("eltL", eltL.getTitle());
-            console.log("eltL", eltL);
-          }
-        }
-        if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
-          if ( diffHeuresLplnEgales(eltL.getHeure(),heureTransfert) <= 2) {
-            console.log("eltL", eltL.getTitle());
-            console.log("eltL", eltL);
 
-          }
+          //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
+          monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+
+            if (eltL.getTitle() == 'TRFDL') {
+              if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 1) {
+                //console.log("eltL", eltL.getTitle());
+                positionTransfert = eltL.getDetaillog()['POSITION'];
+                //console.log("Position", positionTransfert);
+                //console.log(" heure de transfert: ", heureTransfert);
+                addElt(eltL);
+
+              }
+            }
+            if (eltL.getTitle() == 'FIN TRFDL') {
+              if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2) {
+                //console.log("eltL", eltL.getTitle());
+                //console.log("eltL", eltL);
+                addElt(eltL);
+              }
+            }
+            if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
+              if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2) {
+                //console.log("eltL", eltL.getTitle());
+                //console.log("eltL", eltL);
+                addElt(eltL);
+              }
+            }
+          })
+
         }
+
       })
+
 
     }
+
   })
 
 
-     /**monvolLpln.getListeLogs().forEach((elt, key) => {
+  /**monvolLpln.getListeLogs().forEach((elt, key) => {
 
-   // console.log("date lpln: ",elt.getDate());
-    //console.log("heure lpln: ",elt.getHeure());
-    console.log("elt", elt);
+// console.log("date lpln: ",elt.getDate());
+ //console.log("heure lpln: ",elt.getHeure());
+ console.log("elt", elt);
 
-  })  */
+})  */
 
 
 
@@ -133,12 +146,12 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
 
   }
 
-    //Fonction pour comparer des heures LPLN  entre elles 
+  //Fonction pour comparer des heures LPLN  entre elles 
   function diffHeuresLplnEgales(hL1: string, hL2: string): number {
 
     let h1, h2, m1, m2: number;
 
-    let motif= /(.*)(H)(.*)/;
+    let motif = /(.*)(H)(.*)/;
     if (hL1.match(motif) !== null) {
       h1 = Number(hL1.replace(motif, "$1"));
       m1 = Number(hL1.replace(motif, "$3"));
@@ -153,14 +166,14 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
     //console.log("h2 :" + h2);
     //console.log("m2 :" + m2);
 
-    if (h1 == h2){
-      return Math.abs(m2-m1);
+    if (h1 == h2) {
+      return Math.abs(m2 - m1);
     }
-    if (h1 == (h2-1)){
-      return Math.abs(60-m1+m2);
+    if (h1 == (h2 - 1)) {
+      return Math.abs(60 - m1 + m2);
     }
-    if (h1 == (h2+1)){
-      return Math.abs(m1+60-m2);
+    if (h1 == (h2 + 1)) {
+      return Math.abs(m1 + 60 - m2);
     }
     else {
       return Infinity;
@@ -204,11 +217,31 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
   console.log("resultat vol final : ");
   let graphe = new grapheEtat();
 
+
+
+  
+  let  arrayLogTemp: EtatCpdlc[] =  monvolFinal.getListeLogs();
+  let trie: boolean = false;
+  let changement: boolean = false;
+  while (!trie){
+for (let i = 0; i < arrayLogTemp.length-1; i++) {
+  const element =  arrayLogTemp[i];
+  const elementNext = arrayLogTemp[i+1];
+  if ( element.getHeure() >  elementNext.getHeure() ) {
+    arrayLogTemp[i]=elementNext;
+    arrayLogTemp[i+1]=element;
+    changement = true;
+  }
+ }
+if ( changement == false) { trie = true;}
+}
+monvolFinal.setListeLogs( arrayLogTemp);
+
   monvolFinal = graphe.grapheMix(monvolFinal);
 
   monvolFinal.getListeLogs().forEach(etatCpdlc => {
     //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-    console.log("msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    console.log("heure: ", etatCpdlc.getHeure(),"msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
   });
 
   return monvolFinal;

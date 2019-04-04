@@ -136,6 +136,24 @@ export class grapheEtat {
                 // TODO:
                 break;
             }
+            case 'TRFDL': {
+                let position = etatCpdlc.getDetaillog()['POSITION'];
+
+                let detail = <DetailCpdlc>{};
+                detail.key = "POSITION";
+                detail.value = position;
+                etatCpdlc.addDetail(detail);
+                monEtat = Etat.TransfertEnCours;
+                break;
+            }
+            case 'FIN TRFDL': {
+                monEtat = Etat.RetourALaVoix;
+                break;
+            }
+            case 'TRARTV': {
+                monEtat = Etat.RetourALaVoixAcquitte;
+                break;
+            }
             case 'CPCMSGUP': {
                 //console.log('CPCMSGUP');
                 // TODO:
