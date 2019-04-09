@@ -337,6 +337,81 @@ export function grepPlageHoraireFichier (fichierSourceVemgsa:string ):void {
 }
 
 
+ 
+
+  export function isPlnid (plnid:number, fichierSourceVemgsa:string[] ):boolean {
+    let result:boolean = false;
+    for (let fichier of fichierSourceVemgsa) {
+      let fichierSource = fichier;
+  
+      let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
+      let motifVemgsa =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
+      let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;
+      let motif2 = /(.*)(CPCASRES)(.*)(-PLNID )(.*)(-REQID)(.*)/;
+    
+      if (r === false) {
+        console.log("Error, can't open ", fichierSource);
+        process.exit(1);
+      }
+      else {
+        do {
+          let mylogCpdlc = readline.fgets(r);
+          mylogCpdlc=mylogCpdlc.toString();
+          if (mylogCpdlc === false) { break;}
+    
+    
+          if  ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(plnid) !== null)){
+           result = true;        
+           break;
+          }
+    
+          if  ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif2) !== null) && (mylogCpdlc.match(plnid) !== null)){
+            result = true;
+            break;
+          }
+        }while (!readline.eof(r));
+        
+      }
+      readline.fclose(r);
+  
+    }
+    return result;
+  }
+  
+  export function isArcid (arcid:string, fichierSourceVemgsa:string[] ):boolean {
+    let result:boolean = false;
+    for (let fichier of fichierSourceVemgsa) {
+      let fichierSource = fichier;
+  
+      let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
+      let motifVemgsa =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
+      let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;
+    
+      if (r === false) {
+        console.log("Error, can't open ", fichierSource);
+        process.exit(1);
+      }
+      else {
+        do {
+          let mylogCpdlc = readline.fgets(r);
+          mylogCpdlc=mylogCpdlc.toString();
+          if (mylogCpdlc === false) { break;}
+    
+    
+          if  ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(arcid) !== null)){
+           result = true;        
+           break;
+          }
+  
+        }while (!readline.eof(r));
+        
+      }
+      readline.fclose(r);
+  
+    }
+    return result;
+  }
+  
 //grepPlageHoraireFichier("../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742");
 
 

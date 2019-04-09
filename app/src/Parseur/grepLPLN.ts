@@ -177,6 +177,67 @@ return plnid;
 }
 
 
+export function isArcid ( arcid:string, fichierSourceLpln:string):boolean {
+  let result:boolean = false;
+  let fichierSource = fichierSourceLpln;
+  let r = readline.fopen(fichierSource, "r");
+  let count = 0;
+  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
+  let plnid =0;
+  //Test de l'ouverture du fichier
+  if (r === false) {
+  console.log("Error, can't open ", fichierSource);
+  process.exit(1);
+}
+//Traitement du fichier
+do {
+//Test de la fin de fichier
+var mylogCpdlc = readline.fgets(r);
+if (mylogCpdlc === false) { break;}
+//Test du début des logs concernant le vol dans le SL AIX
+let info1Lpln = mylogCpdlc.match(motif);
+let info2Lpln = mylogCpdlc.match(arcid);
+if  ((info1Lpln !== null) && (info2Lpln !== null) ){
+  result = true;
+  break;
+}
+
+}while (!readline.eof(r));
+readline.fclose(r);
+
+return result;
+}
+
+export function isPlnid ( plnid:number, fichierSourceLpln:string):boolean {
+  let result:boolean =false;
+  let fichierSource = fichierSourceLpln;
+  let r = readline.fopen(fichierSource, "r");
+  let count = 0;
+  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
+  let arcid ="";
+  //Test de l'ouverture du fichier
+  if (r === false) {
+  console.log("Error, can't open ", fichierSource);
+  process.exit(1);
+}
+//Traitement du fichier
+do {
+//Test de la fin de fichier
+var mylogCpdlc = readline.fgets(r);
+if (mylogCpdlc === false) { break;}
+//Test du début des logs concernant le vol dans le SL AIX
+let info1Lpln = mylogCpdlc.match(motif);
+let info2Lpln = mylogCpdlc.match(plnid);
+if  ((info1Lpln !== null) && (info2Lpln !== null) ){
+  result =true;
+    break;
+}
+
+}while (!readline.eof(r));
+readline.fclose(r);
+
+return result;
+}
 
 
 //this.grepPlnIdLPLN(7183);

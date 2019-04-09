@@ -21,6 +21,8 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
   //Initialisation du vol issu des donnees VEMGSA
   let monvolVemgsa = new Vol(arcid, plnid);
   let pv = new parseurVemgsa();
+  pv.identification(arcid, plnid, fichierSourceVemgsa);
+
   monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
 
   //Initialisation du vol issu des donnees LPLN

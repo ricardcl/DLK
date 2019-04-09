@@ -45,11 +45,11 @@ console.log("systemPath: "+systemPath);
 
 
   let arcid = ""; //"EWG6LB"
-  let plnid = 8977;
+  let plnid = 9694;
 //8977 = lpln   9694= lpln2   
 //5854= lpln3 &  5491 = lpln4 pas de vemgsa
  console.log("resulat mixinfos: ");
- mixInfos(arcid,plnid,  "lpln", ["vemgsa"]);
+ mixInfos(arcid,plnid,  "lpln2", ["vemgsa2"]);
 
  
  new Formulaire();

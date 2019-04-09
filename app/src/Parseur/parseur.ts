@@ -15,10 +15,57 @@ import * as grep from "./grep";
 
 import {path}  from '../main';
 import { DetailCpdlc } from '../Modele/detailCpdlc';
+import { Identifiants } from '../Modele/identifiants';
+
 const p = require('path');
 
 export class parseurVemgsa {
 
+  identification = function (arcid:string, plnid:number, fichierSourceVemgsa:string[]):Identifiants {
+    
+    console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceVemgsa) );
+    
+    let id = <Identifiants>{};
+    id.identifie=false;
+
+    console.log("arcid : "+arcid);
+    console.log("plnid : "+plnid);
+    if ((arcid == "") && (plnid !== 0)){
+
+      for (let fichier of fichierSourceVemgsa) {
+        console.log("fichier : ", fichier);
+        console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
+                
+        arcid = grep.grepArcidFromPlnid(plnid, fichier);
+
+        if(arcid !== ""){
+            console.log("arcid trouve : "+arcid);
+            id.identifie=true;
+            break; 
+        }
+      }
+
+
+    }
+    if ((arcid !== "") && (plnid == 0)){
+      for (let fichier of fichierSourceVemgsa) {
+        plnid = grep.grepPlnidFromArcid(arcid,fichier );
+        if(plnid !== 0){
+            console.log("plnid trouve : "+plnid);
+            id.identifie=true;
+            break;
+        }
+      }
+    }
+    console.log("arcid2 : "+arcid);
+    console.log("plnid2 : "+plnid);
+
+
+    id.plnid=plnid;
+    id.arcid=arcid;
+    console.log(" id.arcid: ",id.arcid," id.plnid: ",id.plnid," id.identifie: ",id.identifie);
+    return id;
+  }
 
   parseur = function (arcid:string, plnid:number, fichierSourceVemgsa:string[]):Vol {
     const fichierGbdi =  p.resolve(path.systemPath,"STPV_G2910_CA20180816_13082018__1156");
