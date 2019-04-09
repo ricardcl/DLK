@@ -47,10 +47,10 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
       monvolLpln.getListeLogs().forEach((eltL, keyL) => {
         if (eltL.getTitle() == 'CPCFREQ') {
           if (isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
-           // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
+            // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
             heureTransfert = eltL.getHeure();
-           // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
-            
+            // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
+
 
 
           }
@@ -219,29 +219,34 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
 
 
 
-  
-  let  arrayLogTemp: EtatCpdlc[] =  monvolFinal.getListeLogs();
+
+  let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
+
   let trie: boolean = false;
-  let changement: boolean = false;
-  while (!trie){
-for (let i = 0; i < arrayLogTemp.length-1; i++) {
-  const element =  arrayLogTemp[i];
-  const elementNext = arrayLogTemp[i+1];
-  if ( element.getHeure() >  elementNext.getHeure() ) {
-    arrayLogTemp[i]=elementNext;
-    arrayLogTemp[i+1]=element;
-    changement = true;
+  let changement: boolean;
+  while (!trie) {
+    for (let i = 0; i < arrayLogTemp.length - 1; i++) {
+      changement = false;
+
+      const element = arrayLogTemp[i];
+      const elementNext = arrayLogTemp[i + 1];
+      if (element.getHeure() > elementNext.getHeure()) {
+        arrayLogTemp[i] = elementNext;
+        arrayLogTemp[i + 1] = element;
+        changement = true;
+        //console.log("inversion: elementNext"+elementNext+" element : "+element);
+
+      }
+    }
+    if (changement == false) { trie = true; }
   }
- }
-if ( changement == false) { trie = true;}
-}
-monvolFinal.setListeLogs( arrayLogTemp);
+  monvolFinal.setListeLogs(arrayLogTemp);
 
   monvolFinal = graphe.grapheMix(monvolFinal);
 
   monvolFinal.getListeLogs().forEach(etatCpdlc => {
     //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-    console.log("heure: ", etatCpdlc.getHeure(),"msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
   });
 
   return monvolFinal;
