@@ -43,6 +43,9 @@ console.log("userPath: "+userPath);
 console.log("systemPath: "+systemPath);
   */
 
+  /* 
+  
+  */
 
   let arcid = ""; //"EWG6LB"
   let plnid = 9694;

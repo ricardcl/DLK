@@ -22,24 +22,25 @@ const p = require('path');
 export class parseurVemgsa {
 
   identification = function (arcid:string, plnid:number, fichierSourceVemgsa:string[]):Identifiants {
+    console.log("identification VEMGSA");
     
-    console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceVemgsa) );
+    //console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceVemgsa) );
     
     let id = <Identifiants>{};
     id.identifie=false;
 
-    console.log("arcid : "+arcid);
-    console.log("plnid : "+plnid);
+    //console.log("arcid : "+arcid);
+    //console.log("plnid : "+plnid);
     if ((arcid == "") && (plnid !== 0)){
 
       for (let fichier of fichierSourceVemgsa) {
-        console.log("fichier : ", fichier);
-        console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
+        //console.log("fichier : ", fichier);
+        //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
                 
         arcid = grep.grepArcidFromPlnid(plnid, fichier);
 
         if(arcid !== ""){
-            console.log("arcid trouve : "+arcid);
+            //console.log("arcid trouve : "+arcid);
             id.identifie=true;
             break; 
         }
@@ -51,14 +52,12 @@ export class parseurVemgsa {
       for (let fichier of fichierSourceVemgsa) {
         plnid = grep.grepPlnidFromArcid(arcid,fichier );
         if(plnid !== 0){
-            console.log("plnid trouve : "+plnid);
+            //console.log("plnid trouve : "+plnid);
             id.identifie=true;
             break;
         }
       }
     }
-    console.log("arcid2 : "+arcid);
-    console.log("plnid2 : "+plnid);
 
 
     id.plnid=plnid;
@@ -71,18 +70,18 @@ export class parseurVemgsa {
     const fichierGbdi =  p.resolve(path.systemPath,"STPV_G2910_CA20180816_13082018__1156");
     const source =  p.resolve(path.outputPath,"result.htm"); //Fichier en entree a analyser
 
-    console.log("arcid : "+arcid);
-    console.log("plnid : "+plnid);
+    //console.log("arcid : "+arcid);
+    //console.log("plnid : "+plnid);
     if ((arcid == "") && (plnid !== 0)){
 
       for (let fichier of fichierSourceVemgsa) {
-        console.log("fichier : ", fichier);
-        console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
+        //console.log("fichier : ", fichier);
+        //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
                 
         arcid = grep.grepArcidFromPlnid(plnid, fichier);
 
         if(arcid !== ""){
-            console.log("arcid trouve : "+arcid);
+            //console.log("arcid trouve : "+arcid);
             break;
         }
       }
@@ -93,13 +92,13 @@ export class parseurVemgsa {
       for (let fichier of fichierSourceVemgsa) {
         plnid = grep.grepPlnidFromArcid(arcid,fichier );
         if(plnid !== 0){
-            console.log("plnid trouve : "+plnid);
+            //console.log("plnid trouve : "+plnid);
             break;
         }
       }
     }
-    console.log("arcid2 : "+arcid);
-    console.log("plnid2 : "+plnid);
+    //console.log("arcid2 : "+arcid);
+    //console.log("plnid2 : "+plnid);
 
     grep.grepLog(arcid,plnid, fichierSourceVemgsa);
 

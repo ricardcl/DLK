@@ -18,6 +18,7 @@ import { isUndefined } from 'util';
 const p = require('path');
 import { path } from '../main'
 import { DetailCpdlc } from '../Modele/detailCpdlc';
+import { Identifiants } from '../Modele/identifiants';
 
 
 
@@ -32,6 +33,42 @@ import { DetailCpdlc } from '../Modele/detailCpdlc';
 
 export class parseurLpln {
 
+  identification = function (arcid:string, plnid:number, fichierSourceLpln:string):Identifiants {
+    console.log("identification LPLN");
+    
+    //console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceLpln) );
+    
+    let id = <Identifiants>{};
+    id.identifie=false;
+
+    //console.log("arcid : "+arcid);
+    //console.log("plnid : "+plnid);
+    if ((arcid == "") && (plnid !== 0)){
+               
+        arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
+
+        if(arcid !== ""){
+            //console.log("arcid trouve : "+arcid);
+            id.identifie=true;
+        }   
+    }
+
+    if ((arcid !== "") && (plnid == 0)){
+        plnid = grep.grepPlnidFromArcid(arcid,fichierSourceLpln );
+        if(plnid !== 0){
+            //console.log("plnid trouve : "+plnid);
+            id.identifie=true;
+
+        }
+      }
+
+
+
+    id.plnid=plnid;
+    id.arcid=arcid;
+    console.log(" id.arcid: ",id.arcid," id.plnid: ",id.plnid," id.identifie: ",id.identifie);
+    return id;
+  }
 
   parseur = function (arcid: string, plnid: number, fichierSourceLpln: string): Vol {
 

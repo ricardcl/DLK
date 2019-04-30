@@ -22,7 +22,7 @@ export function grepLogLPLN (arcid:string, plnid:number, fichierSourceLpln:strin
   //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-  let r = readline.fopen(fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let w = fs.openSync(fichierDestination, "w");
   let count = 0;
 
@@ -41,7 +41,7 @@ let info1Lpln = mylogCpdlc.match("NUMERO PLN: "+plnid);
 let info2Lpln = mylogCpdlc.match("NOM SL: AIX");
 if  ((info1Lpln !== null) && (info2Lpln !== null) ){
   fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
-  console.log(mylogCpdlc);
+  //console.log(mylogCpdlc);
   //Lecture des logs concernant le vol dans le SL AIX
   do {
     mylogCpdlc = readline.fgets(r);
@@ -114,7 +114,7 @@ export function grepArcidFromPlnid ( plnid:number, fichierSourceLpln:string):str
   //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-  let r = readline.fopen(fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let count = 0;
   let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
   let arcid ="";
@@ -148,7 +148,7 @@ export function grepPlnidFromArcid ( arcid:string, fichierSourceLpln:string):num
   //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-  let r = readline.fopen(fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let count = 0;
   let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
   let plnid =0;
@@ -180,7 +180,7 @@ return plnid;
 export function isArcid ( arcid:string, fichierSourceLpln:string):boolean {
   let result:boolean = false;
   let fichierSource = fichierSourceLpln;
-  let r = readline.fopen(fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let count = 0;
   let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
   let plnid =0;
@@ -211,7 +211,7 @@ return result;
 export function isPlnid ( plnid:number, fichierSourceLpln:string):boolean {
   let result:boolean =false;
   let fichierSource = fichierSourceLpln;
-  let r = readline.fopen(fichierSource, "r");
+  let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let count = 0;
   let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
   let arcid ="";

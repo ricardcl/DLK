@@ -3,7 +3,7 @@ import { parseurLpln } from './parseurLpln';
 import { parseurVemgsa } from './parseur';
 import { grapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
-
+import { Identifiants } from '../Modele/identifiants';
 
 
 export function getListeVols(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Vol[] {
@@ -15,19 +15,42 @@ export function getListeVols(arcid: string, plnid: number, fichierSourceLpln: st
   return pl.grepListeVolFromLpln(fichierSourceLpln);
 }
 
+ export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): void {
+
+ //Initialisation du vol issu des donnees VEMGSA
+ let monvolVemgsa = new Vol(arcid, plnid);
+ let pv = new parseurVemgsa();
+ let idV = <Identifiants>{};
+ idV = pv.identification(arcid, plnid, fichierSourceVemgsa);
+
+ monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
+
+ //Initialisation du vol issu des donnees LPLN
+ let monvolLpln = new Vol(arcid, plnid);
+ let pl = new parseurLpln();
+ let idL = <Identifiants>{};
+ idL = pl.identification(arcid, plnid, fichierSourceLpln);
+ monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
+
+}
+
+
+
 export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Vol {
 
+  identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa);
 
   //Initialisation du vol issu des donnees VEMGSA
   let monvolVemgsa = new Vol(arcid, plnid);
   let pv = new parseurVemgsa();
-  pv.identification(arcid, plnid, fichierSourceVemgsa);
+  //pv.identification(arcid, plnid, fichierSourceVemgsa);
 
   monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
 
   //Initialisation du vol issu des donnees LPLN
   let monvolLpln = new Vol(arcid, plnid);
   let pl = new parseurLpln();
+  //pl.identification(arcid, plnid, fichierSourceLpln);
   monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
   //Initialisation du vol final issu des donnees LPLN et VEMGSA
@@ -97,11 +120,11 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
 
 
   /**monvolLpln.getListeLogs().forEach((elt, key) => {
-
+ 
 // console.log("date lpln: ",elt.getDate());
  //console.log("heure lpln: ",elt.getHeure());
  console.log("elt", elt);
-
+ 
 })  */
 
 

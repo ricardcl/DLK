@@ -103,8 +103,8 @@ export function grepArcidFromPlnid (plnid:number,fichierSourceVemgsa:string ):st
 
 
 
-  console.log('fichierSourceVemgsa : ',fichierSourceVemgsa);
-  console.log('fichierSource : ',fichierSource);
+  //console.log('fichierSourceVemgsa : ',fichierSourceVemgsa);
+  //console.log('fichierSource : ',fichierSource);
   
  // console.log('path_dir_input_user : ',path.userPath);
 
@@ -138,15 +138,15 @@ export function grepArcidFromPlnid (plnid:number,fichierSourceVemgsa:string ):st
         mylogCpdlc = mylogCpdlc.match(motifVemgsa);
         reqid = mylogCpdlc.toString().replace(motif2, "$7").trim();
         reqid = Number(String(reqid).substr(1));
-        console.log("reqid : "+reqid);
+        //console.log("reqid : "+reqid);
         arcid = grepArcidFromReqid(reqid,fichierSourceVemgsa);
         break;
       }
     }while (!readline.eof(r));
   }
-  console.log("plnid : "+plnid);
-  console.log("reqid : "+reqid);
-  console.log("arcid : "+arcid);
+  //console.log("plnid : "+plnid);
+  //console.log("reqid : "+reqid);
+  //console.log("arcid : "+arcid);
   readline.fclose(r);
   return arcid;
 
@@ -242,14 +242,14 @@ export function grepPlnidFromArcid ( arcid:string, fichierSourceVemgsa:string):n
             mylogCpdlc = readline.fgets(r);
             mylogCpdlc = mylogCpdlc.toString();
             if((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") !== null) ){
-              console.log("cas 1A");
+              //console.log("cas 1A");
               infoLpln1 = mylogCpdlc.match(motifVemgsa);
               //CAS 1A :  reqid et plnid en info  ex : GMI39SL PLNID 7893-REQID 01099
               let motif = /(.*)(-PLNID)(.*)(-REQID)(.*)/;
               reqid=infoLpln1.toString().replace(motif,"$5").trim();
               plnid=infoLpln1.toString().replace(motif,"$3").trim();
-              console.log("plnid : "+plnid);
-              console.log("reqid : "+reqid);
+              //console.log("plnid : "+plnid);
+              //console.log("reqid : "+reqid);
               break;
             }
             if((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") == null) ){
@@ -258,7 +258,7 @@ export function grepPlnidFromArcid ( arcid:string, fichierSourceVemgsa:string):n
               //CAS 1B: que le reqid comme information  ex : EZY928J
               let motif = /(.*)(-REQID)(.*)/;
               reqid=infoLpln1.toString().replace("$5").trim();
-              console.log("reqid : "+reqid);
+              //console.log("reqid : "+reqid);
               break;
             }
 
@@ -269,9 +269,9 @@ export function grepPlnidFromArcid ( arcid:string, fichierSourceVemgsa:string):n
         //CAS 2 : arcid envoye en meme temps que le plnid dans le CPCASRES (ex AFR6006)
         // on en deduit le reqid
         else {
-          console.log("cas 2");
+          //console.log("cas 2");
           plnid=infoLpln1.toString().replace(motifCPCASRES, "$5").trim();
-          console.log("plnid : "+plnid);
+          //console.log("plnid : "+plnid);
           break;
         }
 
