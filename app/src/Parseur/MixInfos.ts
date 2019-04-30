@@ -45,8 +45,9 @@ export function identificationF(arcid: string, plnid: number, fichierSourceLpln:
     console.log("cas 1")
     idL = identificationLpln(arcid, plnid, fichierSourceLpln);
     idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa);
-    if (sameIdent(idL,idV) == true) {
-     return idL; }
+    if (sameIdent(idL, idV) == true) {
+      return idL;
+    }
     else {
       idL.identifie = false;
       return idL;
@@ -54,14 +55,17 @@ export function identificationF(arcid: string, plnid: number, fichierSourceLpln:
   }
   else {
     if (fichierSourceLpln != "") {
+      console.log("cas 2")
       idL = identificationLpln(arcid, plnid, fichierSourceLpln);
       return idL;
     }
     if (fichierSourceVemgsa[0] != "") {
+      console.log("cas 3")
       idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa);
       return idV;
     }
     else {
+      console.log("cas 4")
       idL.identifie = false;
       return idL;
     }
@@ -71,249 +75,177 @@ export function identificationF(arcid: string, plnid: number, fichierSourceLpln:
 
 
 
+//Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
 export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Vol {
-console.log("identification : ", identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa));
 
 
-  //Initialisation du vol issu des donnees VEMGSA
-  let monvolVemgsa = new Vol(arcid, plnid);
-  let pv = new parseurVemgsa();
-  //pv.identification(arcid, plnid, fichierSourceVemgsa);
+  console.log("identification : ", identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa));
 
-  monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
+  if ((fichierSourceLpln != "") && (fichierSourceVemgsa[0] != "")) {
 
-  //Initialisation du vol issu des donnees LPLN
-  let monvolLpln = new Vol(arcid, plnid);
-  let pl = new parseurLpln();
-  //pl.identification(arcid, plnid, fichierSourceLpln);
-  monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
+    //Initialisation du vol issu des donnees VEMGSA
+    let monvolVemgsa = new Vol(arcid, plnid);
+    let pv = new parseurVemgsa();
+    //pv.identification(arcid, plnid, fichierSourceVemgsa);
 
-  //Initialisation du vol final issu des donnees LPLN et VEMGSA
-  let monvolFinal = new Vol(arcid, plnid);
+    monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
 
+    //Initialisation du vol issu des donnees LPLN
+    let monvolLpln = new Vol(arcid, plnid);
+    let pl = new parseurLpln();
+    //pl.identification(arcid, plnid, fichierSourceLpln);
+    monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
-
-
-
-  monvolVemgsa.getListeLogs().forEach((elt, key) => {
-    let heureTransfert = "";
-    let positionTransfert = "";
-
-    addElt(elt);
-
-    //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
-    if (elt.getTitle() == 'CPCFREQ') {
-
-      monvolLpln.getListeLogs().forEach((eltL, keyL) => {
-        if (eltL.getTitle() == 'CPCFREQ') {
-          if (isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
-            // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
-            heureTransfert = eltL.getHeure();
-            // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
+    //Initialisation du vol final issu des donnees LPLN et VEMGSA
+    let monvolFinal = new Vol(arcid, plnid);
 
 
+
+
+
+    monvolVemgsa.getListeLogs().forEach((elt, key) => {
+      let heureTransfert = "";
+      let positionTransfert = "";
+
+      monvolVemgsa.addElt(elt);
+
+      //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
+      if (elt.getTitle() == 'CPCFREQ') {
+
+        monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+          if (eltL.getTitle() == 'CPCFREQ') {
+            if (isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
+              // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
+              heureTransfert = eltL.getHeure();
+              // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
+
+
+
+            }
+
+            //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
+            monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+
+              if (eltL.getTitle() == 'TRFDL') {
+                if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 1) {
+                  //console.log("eltL", eltL.getTitle());
+                  positionTransfert = eltL.getDetaillog()['POSITION'];
+                  //console.log("Position", positionTransfert);
+                  //console.log(" heure de transfert: ", heureTransfert);
+                  monvolVemgsa.addElt(eltL);
+
+                }
+              }
+              if (eltL.getTitle() == 'FIN TRFDL') {
+                if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2) {
+                  //console.log("eltL", eltL.getTitle());
+                  //console.log("eltL", eltL);
+                  monvolVemgsa.addElt(eltL);
+                }
+              }
+              if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
+                if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2) {
+                  //console.log("eltL", eltL.getTitle());
+                  //console.log("eltL", eltL);
+                  monvolVemgsa.addElt(eltL);
+                }
+              }
+            })
 
           }
 
-          //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
-          monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+        })
 
-            if (eltL.getTitle() == 'TRFDL') {
-              if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 1) {
-                //console.log("eltL", eltL.getTitle());
-                positionTransfert = eltL.getDetaillog()['POSITION'];
-                //console.log("Position", positionTransfert);
-                //console.log(" heure de transfert: ", heureTransfert);
-                addElt(eltL);
-
-              }
-            }
-            if (eltL.getTitle() == 'FIN TRFDL') {
-              if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2) {
-                //console.log("eltL", eltL.getTitle());
-                //console.log("eltL", eltL);
-                addElt(eltL);
-              }
-            }
-            if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
-              if (diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2) {
-                //console.log("eltL", eltL.getTitle());
-                //console.log("eltL", eltL);
-                addElt(eltL);
-              }
-            }
-          })
-
-        }
-
-      })
-
-
-    }
-
-  })
-
-
-  /**monvolLpln.getListeLogs().forEach((elt, key) => {
- 
-// console.log("date lpln: ",elt.getDate());
- //console.log("heure lpln: ",elt.getHeure());
- console.log("elt", elt);
- 
-})  */
-
-
-
-
-  function addElt(elt: EtatCpdlc): void {
-    //   console.log("elt ajoute: ",elt);
-
-    monvolFinal.getListeLogs().push(elt);
-  }
-
-
-  //Fonction pour comparer des heures VEMGSA et des heures LPLN uniquement !!!!
-  //Pas pour comparer des heures LPLN entre elles ou des heures VEMGSA entre elles
-  function isHeuresLplnVemgsaEgales(hV: string, hL: string): boolean {
-    //h1 : heure VEMGSA précise
-    //h2 : heure LPLN arrondie
-    let h1, h2, m1, m2: number;
-
-    let motif1 = /(.*)(H)(.*)(')(.*)/;
-    let motif2 = /(.*)(H)(.*)/;
-    if (hV.match(motif1) !== null) {
-      h1 = Number(hV.replace(motif1, "$1"));
-      m1 = Number(hV.replace(motif1, "$3"));
-    }
-    // console.log("hL :"+hL) ;
-    if (hL.match(motif2) !== null) {
-      h2 = Number(hL.replace(motif2, "$1"));
-      m2 = Number(hL.replace(motif2, "$3"));
-    }
-    //console.log("h1 :" + h1);
-    //console.log("m1 :" + m1);
-    //console.log("h2 :" + h2);
-    //console.log("m2 :" + m2);
-
-    if ((h1 == h2) && ((m2 == m1) || (m2 == (m1 + 1)))) {
-      //console.log("match") ;
-      return true;
-    }
-    else {
-      //console.log("match pas") ;
-      return false;
-    }
-
-  }
-
-  //Fonction pour comparer des heures LPLN  entre elles 
-  function diffHeuresLplnEgales(hL1: string, hL2: string): number {
-
-    let h1, h2, m1, m2: number;
-
-    let motif = /(.*)(H)(.*)/;
-    if (hL1.match(motif) !== null) {
-      h1 = Number(hL1.replace(motif, "$1"));
-      m1 = Number(hL1.replace(motif, "$3"));
-    }
-    // console.log("hL :"+hL) ;
-    if (hL2.match(motif) !== null) {
-      h2 = Number(hL2.replace(motif, "$1"));
-      m2 = Number(hL2.replace(motif, "$3"));
-    }
-    //console.log("h1 :" + h1);
-    //console.log("m1 :" + m1);
-    //console.log("h2 :" + h2);
-    //console.log("m2 :" + m2);
-
-    if (h1 == h2) {
-      return Math.abs(m2 - m1);
-    }
-    if (h1 == (h2 - 1)) {
-      return Math.abs(60 - m1 + m2);
-    }
-    if (h1 == (h2 + 1)) {
-      return Math.abs(m1 + 60 - m2);
-    }
-    else {
-      return Infinity;
-    }
-
-  }
-
-  function isDateInferieure(hV: string, hL: string): boolean {
-    //h1 : heure VEMGSA précise
-    //h2 : heure LPLN arrondie
-    let h1, h2, m1, m2: number;
-
-    let motif1 = /(.*)(H)(.*)(')(.*)/;
-    let motif2 = /(.*)(H)(.*)/;
-    if (hV.match(motif1) !== null) {
-      h1 = Number(hV.replace(motif1, "$1"));
-      m1 = Number(hV.replace(motif1, "$3"));
-    }
-    // console.log("hL :"+hL) ;
-    if (hL.match(motif2) !== null) {
-      h2 = Number(hL.replace(motif2, "$1"));
-      m2 = Number(hL.replace(motif2, "$3"));
-    }
-    //console.log("h1 :"+h1) ;
-    // console.log("m1 :"+m1) ;
-    // console.log("h2 :"+h2) ;
-    // console.log("m2 :"+m2) ;
-
-    if ((h1 < h2) && ((m1 == m1) || (m2 == (m1 + 1)))) {
-      //console.log("match") ;
-      return true;
-    }
-    else {
-      //console.log("match pas") ;
-      return false;
-    }
-
-  }
-
-
-  console.log("resultat vol final : ");
-  let graphe = new grapheEtat();
-
-
-
-
-  let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
-
-  let trie: boolean = false;
-  let changement: boolean;
-  while (!trie) {
-    for (let i = 0; i < arrayLogTemp.length - 1; i++) {
-      changement = false;
-
-      const element = arrayLogTemp[i];
-      const elementNext = arrayLogTemp[i + 1];
-      if (element.getHeure() > elementNext.getHeure()) {
-        arrayLogTemp[i] = elementNext;
-        arrayLogTemp[i + 1] = element;
-        changement = true;
-        //console.log("inversion: elementNext"+elementNext+" element : "+element);
 
       }
+
+    })
+
+    console.log("resultat vol final : ");
+    let graphe = new grapheEtat();
+
+
+    let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
+
+    let trie: boolean = false;
+    let changement: boolean;
+    while (!trie) {
+      for (let i = 0; i < arrayLogTemp.length - 1; i++) {
+        changement = false;
+
+        const element = arrayLogTemp[i];
+        const elementNext = arrayLogTemp[i + 1];
+        if (element.getHeure() > elementNext.getHeure()) {
+          arrayLogTemp[i] = elementNext;
+          arrayLogTemp[i + 1] = element;
+          changement = true;
+          //console.log("inversion: elementNext"+elementNext+" element : "+element);
+
+        }
+      }
+      if (changement == false) { trie = true; }
     }
-    if (changement == false) { trie = true; }
+    monvolFinal.setListeLogs(arrayLogTemp);
+
+    monvolFinal = graphe.grapheMix(monvolFinal);
+
+    monvolFinal.getListeLogs().forEach(etatCpdlc => {
+      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    });
+
+    return monvolFinal;
   }
-  monvolFinal.setListeLogs(arrayLogTemp);
 
-  monvolFinal = graphe.grapheMix(monvolFinal);
 
-  monvolFinal.getListeLogs().forEach(etatCpdlc => {
-    //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-  });
-
-  return monvolFinal;
 }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+//Fonction pour comparer des heures VEMGSA et des heures LPLN uniquement !!!!
+//Pas pour comparer des heures LPLN entre elles ou des heures VEMGSA entre elles
+function isHeuresLplnVemgsaEgales(hV: string, hL: string): boolean {
+  //h1 : heure VEMGSA précise
+  //h2 : heure LPLN arrondie
+  let h1, h2, m1, m2: number;
+
+  let motif1 = /(.*)(H)(.*)(')(.*)/;
+  let motif2 = /(.*)(H)(.*)/;
+  if (hV.match(motif1) !== null) {
+    h1 = Number(hV.replace(motif1, "$1"));
+    m1 = Number(hV.replace(motif1, "$3"));
+  }
+  // console.log("hL :"+hL) ;
+  if (hL.match(motif2) !== null) {
+    h2 = Number(hL.replace(motif2, "$1"));
+    m2 = Number(hL.replace(motif2, "$3"));
+  }
+  //console.log("h1 :" + h1);
+  //console.log("m1 :" + m1);
+  //console.log("h2 :" + h2);
+  //console.log("m2 :" + m2);
+
+  if ((h1 == h2) && ((m2 == m1) || (m2 == (m1 + 1)))) {
+    //console.log("match") ;
+    return true;
+  }
+  else {
+    //console.log("match pas") ;
+    return false;
+  }
+
+}
 
 /* Fonction qui prend en entrée deux fichiers Vemgsa et renvoie les deux fichiers en les classant par date */
 function orderVemgsa(list: string[]): string[] {
@@ -363,6 +295,73 @@ function orderVemgsa(list: string[]): string[] {
 }
 
 
+function isDateInferieure(hV: string, hL: string): boolean {
+  //h1 : heure VEMGSA précise
+  //h2 : heure LPLN arrondie
+  let h1, h2, m1, m2: number;
+
+  let motif1 = /(.*)(H)(.*)(')(.*)/;
+  let motif2 = /(.*)(H)(.*)/;
+  if (hV.match(motif1) !== null) {
+    h1 = Number(hV.replace(motif1, "$1"));
+    m1 = Number(hV.replace(motif1, "$3"));
+  }
+  // console.log("hL :"+hL) ;
+  if (hL.match(motif2) !== null) {
+    h2 = Number(hL.replace(motif2, "$1"));
+    m2 = Number(hL.replace(motif2, "$3"));
+  }
+  //console.log("h1 :"+h1) ;
+  // console.log("m1 :"+m1) ;
+  // console.log("h2 :"+h2) ;
+  // console.log("m2 :"+m2) ;
+
+  if ((h1 < h2) && ((m1 == m1) || (m2 == (m1 + 1)))) {
+    //console.log("match") ;
+    return true;
+  }
+  else {
+    //console.log("match pas") ;
+    return false;
+  }
+
+}
+
+
+//Fonction pour comparer des heures LPLN  entre elles 
+function diffHeuresLplnEgales(hL1: string, hL2: string): number {
+
+  let h1, h2, m1, m2: number;
+
+  let motif = /(.*)(H)(.*)/;
+  if (hL1.match(motif) !== null) {
+    h1 = Number(hL1.replace(motif, "$1"));
+    m1 = Number(hL1.replace(motif, "$3"));
+  }
+  // console.log("hL :"+hL) ;
+  if (hL2.match(motif) !== null) {
+    h2 = Number(hL2.replace(motif, "$1"));
+    m2 = Number(hL2.replace(motif, "$3"));
+  }
+  //console.log("h1 :" + h1);
+  //console.log("m1 :" + m1);
+  //console.log("h2 :" + h2);
+  //console.log("m2 :" + m2);
+
+  if (h1 == h2) {
+    return Math.abs(m2 - m1);
+  }
+  if (h1 == (h2 - 1)) {
+    return Math.abs(60 - m1 + m2);
+  }
+  if (h1 == (h2 + 1)) {
+    return Math.abs(m1 + 60 - m2);
+  }
+  else {
+    return Infinity;
+  }
+
+}
 /** export function appelMixInfos(){
   let fichierSourceLpln = "./Input/LPLN_8474";
   let fichierSourceVemgsa = "./Input/VEMGSA2.OPP.stpv3_260918_0742_270918_0721";

@@ -48,4 +48,9 @@ export class Vol {
     public getArcid( ):string {
         return this.arcid ;
     }
+
+    public addElt(elt: EtatCpdlc): void {   
+        this.getListeLogs().push(elt);
+      }
+    
 }
