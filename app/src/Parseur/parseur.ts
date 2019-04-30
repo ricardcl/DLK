@@ -62,6 +62,8 @@ export class parseurVemgsa {
 
     id.plnid=plnid;
     id.arcid=arcid;
+
+    
     console.log(" id.arcid: ",id.arcid," id.plnid: ",id.plnid," id.identifie: ",id.identifie);
     return id;
   }

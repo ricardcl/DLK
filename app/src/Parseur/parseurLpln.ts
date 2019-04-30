@@ -46,7 +46,7 @@ export class parseurLpln {
     if ((arcid == "") && (plnid !== 0)){
                
         arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
-
+        console.log(arcid);
         if(arcid !== ""){
             //console.log("arcid trouve : "+arcid);
             id.identifie=true;
@@ -66,6 +66,7 @@ export class parseurLpln {
 
     id.plnid=plnid;
     id.arcid=arcid;
+
     console.log(" id.arcid: ",id.arcid," id.plnid: ",id.plnid," id.identifie: ",id.identifie);
     return id;
   }

@@ -3,7 +3,7 @@ import { parseurLpln } from './parseurLpln';
 import { parseurVemgsa } from './parseur';
 import { grapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
-import { Identifiants } from '../Modele/identifiants';
+import { Identifiants, sameIdent } from '../Modele/identifiants';
 
 
 export function getListeVols(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Vol[] {
@@ -15,30 +15,65 @@ export function getListeVols(arcid: string, plnid: number, fichierSourceLpln: st
   return pl.grepListeVolFromLpln(fichierSourceLpln);
 }
 
- export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): void {
 
- //Initialisation du vol issu des donnees VEMGSA
- let monvolVemgsa = new Vol(arcid, plnid);
- let pv = new parseurVemgsa();
- let idV = <Identifiants>{};
- idV = pv.identification(arcid, plnid, fichierSourceVemgsa);
+export function identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
+  //Initialisation du vol issu des donnees LPLN
+  let monvolLpln = new Vol(arcid, plnid);
+  let pl = new parseurLpln();
+  let idL = <Identifiants>{};
+  idL = pl.identification(arcid, plnid, fichierSourceLpln);
+  monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
+  return idL;
+}
 
- monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
+export function identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[]): Identifiants {
+  //Initialisation du vol issu des donnees VEMGSA
+  let monvolVemgsa = new Vol(arcid, plnid);
+  let pv = new parseurVemgsa();
+  let idV = <Identifiants>{};
+  idV = pv.identification(arcid, plnid, fichierSourceVemgsa);
 
- //Initialisation du vol issu des donnees LPLN
- let monvolLpln = new Vol(arcid, plnid);
- let pl = new parseurLpln();
- let idL = <Identifiants>{};
- idL = pl.identification(arcid, plnid, fichierSourceLpln);
- monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
+  monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
+  return idV;
+}
+
+
+export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Identifiants {
+  let idL, idV = <Identifiants>{};
+
+  if ((fichierSourceLpln != "") && (fichierSourceVemgsa[0] != "")) {
+    console.log("cas 1")
+    idL = identificationLpln(arcid, plnid, fichierSourceLpln);
+    idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa);
+    if (sameIdent(idL,idV) == true) {
+     return idL; }
+    else {
+      idL.identifie = false;
+      return idL;
+    }
+  }
+  else {
+    if (fichierSourceLpln != "") {
+      idL = identificationLpln(arcid, plnid, fichierSourceLpln);
+      return idL;
+    }
+    if (fichierSourceVemgsa[0] != "") {
+      idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa);
+      return idV;
+    }
+    else {
+      idL.identifie = false;
+      return idL;
+    }
+  }
 
 }
 
 
 
 export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Vol {
+console.log("identification : ", identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa));
 
-  identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa);
 
   //Initialisation du vol issu des donnees VEMGSA
   let monvolVemgsa = new Vol(arcid, plnid);

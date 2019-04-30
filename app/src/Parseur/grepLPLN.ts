@@ -116,7 +116,7 @@ export function grepArcidFromPlnid ( plnid:number, fichierSourceLpln:string):str
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let count = 0;
-  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
+  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL: AIX)(.*)/;
   let arcid ="";
   //Test de l'ouverture du fichier
   if (r === false) {
@@ -133,6 +133,7 @@ let info1Lpln = mylogCpdlc.match(motif);
 let info2Lpln = mylogCpdlc.match(plnid);
 if  ((info1Lpln !== null) && (info2Lpln !== null) ){
   arcid =  mylogCpdlc.toString().replace(motif, "$5").trim();
+  
     break;
 }
 
