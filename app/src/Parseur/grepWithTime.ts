@@ -3,6 +3,7 @@
 OBJECTIF DE CETTE FONCTION :
 Lire le contenu d un fichier VEMGSA donne en entree
 recuperer uniquement les informations relatives a un PLNID
+dans une plage horaire donnee
 copier le resultat dans un fichier texte en enlevant les caracteres speciaux et verifiant que le format et correct
 */
 
