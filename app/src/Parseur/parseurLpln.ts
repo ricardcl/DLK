@@ -4,6 +4,9 @@ import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
 import { TSMap } from "typescript-map";
 import { split } from './split';
+import * as moment from 'moment';
+import * as dates from './date';
+
 let fsplit = new split();
 
 
@@ -107,8 +110,10 @@ export class parseurLpln {
     let numeroLigne = 0; // Nuemro de la de lignes lue
     let monEtat = Etat.NonLogue; // Etat CPDLC par defaut
     let mylisteLogsCpdlc = new Array(); //Liste des lignes lues
-    let date = "";
-
+    let dateTemp: string = "";
+    let mois: string = "";
+    let jour: string = "";
+  
     let monvol = new Vol(arcid, plnid);
 
 
@@ -128,7 +133,14 @@ export class parseurLpln {
         //Recuperation de la date si c est la ligne  "EDITION DU CHAMP ARCHIVAGE"
         if (mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE") !== null) {
           let motif = /(\*)(.*)(\*)(.*)(CHAMP)(.*)/;
-          date = mylogCpdlc.replace(motif, "$2").trim();
+          //console.log(mylogCpdlc);
+          
+          dateTemp = mylogCpdlc.replace(motif, "$2").trim();
+          let motifDate = /(.*)( )(.*)/;
+          if  (dateTemp.match(motifDate) !== null) {
+             jour = dateTemp.toString().replace(motifDate, "$1");
+             mois = dates.MonthLetterToNumber(dateTemp.toString().replace(motifDate, "$3"));
+          }
 
         }
         else {
@@ -151,11 +163,19 @@ export class parseurLpln {
           let log = new EtatCpdlc(numeroLigne);
 
           //Stockage de la date/heure
-          let dateHeure = fsplit.splitString(infoGen, " ");
-          //log.date=dateHeure[0];
-          log.setDate(date);
-          log.setHeure(dateHeure[1]);
-          //log.associable=dateHeure[2];
+
+          let motifDateHeure = /(.*)( )(.*)(H)(.*)/;
+          let dateHeure = infoGen.match(motifDateHeure);
+          if  (dateHeure !== null) {
+            const heure = dateHeure.toString().replace(motifDateHeure, "$3");
+            const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
+            const dateToStore = jour+ "-" + mois+ " " +heure+" "+minutes;
+            const momentDate = moment(dateToStore,'DD-MM HH mm');
+            
+           log.setDate( moment(momentDate).format('DD-MM'));
+          log.setHeure( moment(momentDate).format('HH mm'));
+          }
+
 
           //Stockage des infos générales
           let myMap = this.recuperationCPC(infoLog);

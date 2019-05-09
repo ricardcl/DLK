@@ -4,7 +4,7 @@ import {split} from "./Parseur/split";
 import { Path } from './Modele/path';
 import { mixInfos } from './Parseur/MixInfos';
 import { getListeVols } from './Parseur/MixInfos';
-import * as moment from 'moment';
+
 
 
 
@@ -47,18 +47,6 @@ console.log("systemPath: "+systemPath);
   
   */
 
-
-
-
-
-
- // expected output: false;
- const dateToStore = "04/09/2018 17 15 02" 
- const dateToStore1 = "04/09/2018 01 15 02" 
-const momentDate = moment(dateToStore,'DD-MM-YYYY HH mm ss');
-const momentDate1 = moment(dateToStore1,'DD-MM-YYYY HH mm ss');
-console.log(momentDate.format());
-console.log(momentDate1.format());
 
 
 

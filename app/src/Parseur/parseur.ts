@@ -2,6 +2,7 @@
 import {Vol} from '../Modele/vol';
 import {EtatCpdlc} from '../Modele/etatCpdlc';
 import {Etat} from '../Modele/enumEtat';
+import * as moment from 'moment';
 
 
 import {split} from './split';
@@ -151,12 +152,22 @@ export class parseurVemgsa {
       let  log = new EtatCpdlc(numeroLigne);
 
       //Stockage de la date/heure
-      let dateHeure = fsplit.splitString(ingoGen, " ");
-      
-      
-      log.setDate(dateHeure[0]);
-      log.setHeure(dateHeure[1]);
+      //let dateHeure = fsplit.splitString(ingoGen, " ");
+      let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
+      let dateHeure = ingoGen.match(motifDateHeure);
+      if  (dateHeure !== null) {
+        const date = dateHeure.toString().replace(motifDateHeure, "$1");
+        const heure = dateHeure.toString().replace(motifDateHeure, "$3");
+        const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
+        const secondes = dateHeure.toString().replace(motifDateHeure, "$7");
+        const dateToStore = date+" "+heure+" "+minutes+" "+secondes;
+        const momentDate = moment(dateToStore,'DD-MM-YYYY HH mm ss');
+        ////console.log(momentDate.format());  A TESTER CAR APPELLE 2 FOIS
 
+      log.setDate( moment(momentDate).format('DD-MM-YYYY'));
+      log.setHeure( moment(momentDate).format('HH mm ss'));
+      }
+ 
 
       
       log.setAssociable(dateHeure[2]);

@@ -138,54 +138,17 @@ export  function mixInfos( arcid : string, plnid : number,fichierSourceLpln : st
 
 
   function addElt(elt : EtatCpdlc):void {
- //   console.log("elt ajoute: ",elt);
+   console.log("elt ajoute: ",elt);
     
     monvolFinal.getListeLogs().push(elt);
   }
 
 
 
-  function cmpHeureElt(hV : string, hL : string):boolean {
-    //h1 : heure VEMGSA précise
-    //h2 : heure LPLN arrondie
-    let h1,h2,m1,m2: number;
 
-    let motif1 = /(.*)(H)(.*)(')(.*)/;
-    let motif2 = /(.*)(H)(.*)/;
-    if (hV.match(motif1) !== null ){
-      h1 = Number(hV.replace(motif1, "$1"));
-      m1 = Number(hV.replace(motif1, "$3"));
-    }
-    if (hL.match(motif2) !== null ){
-      h2 = Number(hL.replace(motif2, "$1"));
-      m2 = Number(hL.replace(motif2, "$3"));
-    }
-    //console.log("h1 :"+h1) ;
-    //console.log("m1 :"+m1) ;
-    //console.log("h2 :"+h2) ;
-    //console.log("m2 :"+m2) ;
-
-    if ((h1 == h2 )&& (( m2 == m1) || ( m2 == (m1+1))) ){
-      //console.log("match") ;
-      return true;
-    }
-    else {
-      //console.log("match pas") ;
-      return false;
-    }
-
-  }
 
   
-  /**let hV = monvolVemgsa.getListeLogs().get(1).heure;
-  console.log("heure HV : "+hV);
-  let hL = monvolLpln.getListeLogs().get(10).heure;
-  console.log("heure HL : "+hL);
-  //let result1 = cmpHeureElt("04H25\'01\"","04H26" );
-  let result1 = cmpHeureElt(hV,hL);
 
-
-*/
 
   /*monvolLpln.getListeLogs().forEach((value, key, map) => {
 
