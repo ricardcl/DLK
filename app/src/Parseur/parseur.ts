@@ -145,7 +145,7 @@ export class parseurVemgsa {
 
       //Recuperation de la date/heure et des infos suivantes
       let mylogCpdlcDecompose = fsplit.splitString(mylogCpdlc, 'TITLE');
-      let ingoGen = mylogCpdlcDecompose[0];
+      let infoGen = mylogCpdlcDecompose[0];
       let infoLog = mylogCpdlcDecompose[1];
 
       //Creation de l objet logCpdlc et etatCpdlc
@@ -154,7 +154,7 @@ export class parseurVemgsa {
       //Stockage de la date/heure
       //let dateHeure = fsplit.splitString(ingoGen, " ");
       let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
-      let dateHeure = ingoGen.match(motifDateHeure);
+      let dateHeure = infoGen.match(motifDateHeure);
       if  (dateHeure !== null) {
         const date = dateHeure.toString().replace(motifDateHeure, "$1");
         const heure = dateHeure.toString().replace(motifDateHeure, "$3");

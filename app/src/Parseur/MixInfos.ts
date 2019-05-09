@@ -173,7 +173,7 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
 
         const element = arrayLogTemp[i];
         const elementNext = arrayLogTemp[i + 1];
-        if (dates.isSup(element.getHeure(), elementNext.getHeure())) {
+        if (dates.isHeureSup(element.getHeure(), elementNext.getHeure())) {
           arrayLogTemp[i] = elementNext;
           arrayLogTemp[i + 1] = element;
           changement = true;
@@ -203,50 +203,7 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
 
 
 
-/* Fonction qui prend en entrée deux fichiers Vemgsa et renvoie les deux fichiers en les classant par date 
-en s'appuyant sur la date indiquee dans le nom du fichier*/
 
-// A MODIFIER POUR LIRE LA DATE DANS LE FICHIER !!!!!!!!!!!!!!!!!
-function orderVemgsa(list: string[]): string[] {
-  let f1: string = list[0];
-  let f2: string = list[1];
-  let d1, d2, d1_supp, d2_supp: number;
-  let temp: string = "";
-
-  let motif = /(.*)(VEMGSA)(.*)(stpv)(.*)(_)(.*)(_)(.*)(_)(.*)(_)(.*)/;
-  if (f1.match(motif) !== null) {
-    d1 = Number(f1.replace(motif, "$7"));
-  }
-  if (f2.match(motif) !== null) {
-    d2 = Number(f2.replace(motif, "$7"));
-  }
-  if (d1 < d2) {
-  }
-  if (d1 > d2) {
-    temp = list[0];
-    list[0] = list[1];
-    list[1] = temp;
-  }
-  if (d1 == d2) {
-    if (f1.match(motif) !== null) {
-      d1_supp = Number(f1.replace(motif, "$9"));
-    }
-    if (f2.match(motif) !== undefined) {
-      d2_supp = Number(f2.replace(motif, "$9"));
-    }
-    if (d1_supp < d2_supp) {
-    }
-    if (d1_supp > d2_supp) {
-      temp = list[0];
-      list[0] = list[1];
-      list[1] = temp;
-    }
-
-
-  }
-
-  return list;
-}
 
 
 

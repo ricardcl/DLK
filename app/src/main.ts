@@ -4,6 +4,7 @@ import {split} from "./Parseur/split";
 import { Path } from './Modele/path';
 import { mixInfos } from './Parseur/MixInfos';
 import { getListeVols } from './Parseur/MixInfos';
+import * as grep from "./Parseur/grep";
 
 
 
@@ -46,8 +47,10 @@ console.log("systemPath: "+systemPath);
   /* 
   
   */
+ 
 
-
+ grep.grepDifferentsVolsVemgsaTrouves(["../user/vemgsa2","../user/vemgsa2"], 9694);
+grep.orderVemgsa(["../user/vemgsa2","../user/vemgsa2"]);
 
 
   let arcid = ""; //"EWG6LB"
