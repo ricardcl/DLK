@@ -406,21 +406,22 @@ export function grepDifferentsVolsVemgsaTrouves(fichierSourceVemgsa: string[], p
 }
 
 /* Fonction qui prend en entrée deux fichiers Vemgsa et renvoie les deux fichiers en les classant par date 
-en s'appuyant sur la date indiquee dans le nom du fichier*/
-
-// A MODIFIER POUR LIRE LA DATE DANS LE FICHIER !!!!!!!!!!!!!!!!!
+en s'appuyant sur les dates du premier et du dernier log contenu dans le fichier*/
 export function orderVemgsa(list: string[]): string[] {
 
 let datesFichier1: dates.datesFile;
 let datesFichier2: dates.datesFile;
 datesFichier1 = grepPlageHoraireFichier(list[0]);
 datesFichier2 = grepPlageHoraireFichier(list[1]);
-console.log(datesFichier1);
-console.log(datesFichier2);
+console.log("datesFichier1: ",datesFichier1);
+console.log("datesFichier2: ",datesFichier2);
   if ( dates.isDateSup(datesFichier1.dateMin, datesFichier2.dateMin)) {
+    console.log("ordre fichiers: ",list[1],list[0]);
+    
     return [list[1],list[0]];
   }
   else {
+    console.log("ordre fichiers: ",list[0],list[1]);
     return list;
   }
 }

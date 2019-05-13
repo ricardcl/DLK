@@ -50,7 +50,12 @@ console.log("systemPath: "+systemPath);
  
 
  grep.grepDifferentsVolsVemgsaTrouves(["../user/vemgsa2","../user/vemgsa2"], 9694);
-grep.orderVemgsa(["../user/vemgsa2","../user/vemgsa2"]);
+grep.orderVemgsa(["../user/VEMGSA3.OPP.stpv1_020519_0716_030519_0625","../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716"]);
+
+// VEMGSA2.OPP.stpv1_010519_0706_020519_0716
+// VEMGSA3.OPP.stpv1_020519_0716_030519_0625
+// VEMGSA4.OPP.stpv1_030519_0625_040519_0941
+// VEMGSA5.OPP.stpv1_040519_0941_050519_0642
 
 
   let arcid = ""; //"EWG6LB"
