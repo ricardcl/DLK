@@ -4,6 +4,7 @@ import { parseurVemgsa } from './parseur';
 import { Identifiants, sameIdent } from '../Modele/identifiants';
 import * as dates from './date';
 import * as grep from "./grep";
+import { Contexte } from '../Modele/enumContexte';
 
 export interface checkAnswer {
     valeurRetour: number; // 0: PAS TROUVE, 1 : TROUVE, 2: creneau horaire necessaire
@@ -13,7 +14,27 @@ export interface checkAnswer {
     // creneauHoraire?:dates.datesFile;
 }
 
+export function evaluationContexte(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Contexte {
 
+    
+let contexte:Contexte = Contexte.NONE;
+
+if ( (fichierSourceLpln != "")   ) { // et test que le fichier s'ouvre
+    if ( (fichierSourceVemgsa[0] != "")   ) {
+        contexte=Contexte.LPLNVEMGSA;
+    }
+    else {
+        contexte=Contexte.LPLN;
+    }
+}
+else{
+    if ( (fichierSourceVemgsa[0] != "")   ) {
+        contexte=Contexte.VEMGSA;
+    }
+
+}
+return contexte;
+}
 //Verifie que les fichiers donnes en entree existent et s'ouvre et les valeurs rentrees (arcid, plnid ) existent dans le fichier
 export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): checkAnswer {
 

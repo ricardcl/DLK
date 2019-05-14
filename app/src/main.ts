@@ -3,9 +3,10 @@ import { Formulaire } from "./Formulaire";
 import {split} from "./Parseur/split";
 import { Path } from './Modele/path';
 import { mixInfos } from './Parseur/MixInfos';
-import { check, checkInitial, checkAnswer } from './Parseur/check';
+import { check, checkInitial, checkAnswer, evaluationContexte } from './Parseur/check';
 import { getListeVols } from './Parseur/MixInfos';
 import * as grep from "./Parseur/grep";
+import { Contexte } from "./Modele/enumContexte";
 
 
 
@@ -76,6 +77,8 @@ console.log("resulat mixinfos: ");
 
 
 let listVemgsa:string[]= grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]);
+let contexte:Contexte = evaluationContexte(arcid,plnid,"",listVemgsa);
+
 let resultCheckInitial = <checkAnswer>{};
  resultCheckInitial = checkInitial(arcid,plnid,"",listVemgsa );
 
@@ -86,7 +89,10 @@ if (resultCheckInitial.valeurRetour == 2) {
   check(arcid,plnid,"", listVemgsa);
 }
 
-mixInfos(arcid,plnid,  "", listVemgsa);
+if (contexte == Contexte.LPLNVEMGSA) {
+  mixInfos(arcid,plnid,  "", listVemgsa);
+}
+
 
 
 
