@@ -71,17 +71,22 @@ console.log("resulat mixinfos: ");
  //mixInfos(arcid,plnid,  "lpln3", ["vemgsa3"]);
 
 
-//mixInfos(arcid,plnid,  "3727_FIN6RM", ["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]);
 
+
+
+
+let listVemgsa:string[]= grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]);
 let resultCheckInitial = <checkAnswer>{};
- resultCheckInitial = checkInitial(arcid,plnid,"", grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]));
+ resultCheckInitial = checkInitial(arcid,plnid,"",listVemgsa );
 
 if (resultCheckInitial.valeurRetour == 1) {
-  check(arcid,plnid,"", grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]));
+  check(arcid,plnid,"", listVemgsa);
 }
 if (resultCheckInitial.valeurRetour == 2) {
-  check(arcid,plnid,"", grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]),);
+  check(arcid,plnid,"", listVemgsa);
 }
+
+mixInfos(arcid,plnid,  "", listVemgsa);
 
 
 

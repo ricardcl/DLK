@@ -113,3 +113,35 @@ export function getCreneaux(dates: string[]): datesFile[] {
     console.log("creneaux trouves :",creneau);
     return creneau;
 }
+
+export function isInCreneauxVemgsa(dates: datesFile, log:string, diffMax:number): boolean {
+    let isIn:boolean=false;
+
+    let creneau =  <datesFile>{};
+    const momentDate1 = moment(creneau.dateMin, 'DD-MM-YYYY HH mm ss');
+    const momentDate2 = moment(creneau.dateMax, 'DD-MM-YYYY HH mm ss');
+
+
+    let motif = /(\d\d\/\d\d\/\d\d\d\d)(\s.*-[A-Z]+\s+[A-Z|\d]+)/;
+    let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
+
+    if (log.toString().match(motif) !== null) {
+        let date = log.toString().replace(motif, "$1");
+        //  console.log("date: ",date);
+        if (date.match(motifDateHeure) !== null) {
+          const jour = date.toString().replace(motifDateHeure, "$1");
+          const heure = date.toString().replace(motifDateHeure, "$3");
+          const minutes = date.toString().replace(motifDateHeure, "$5");
+          const secondes = date.toString().replace(motifDateHeure, "$7");
+          const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
+          const momentDate = moment(dateToStore,'DD-MM-YYYY HH mm ss');
+
+          const diff1: number = Math.abs(momentDate.diff(momentDate1))
+          const diff2: number = Math.abs(momentDate.diff(momentDate2))
+
+          if ( (diff1 <= diffMax) &&  (diff2 <= diffMax)){ isIn=true;}
+       
+        }
+    }
+    return isIn;
+}

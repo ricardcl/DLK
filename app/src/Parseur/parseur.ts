@@ -38,7 +38,7 @@ export class parseurVemgsa {
         //console.log("fichier : ", fichier);
         //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
                 
-        arcid = grep.grepArcidFromPlnid(plnid, fichier);
+        arcid = grep.grepArcidFromPlnid(plnid, fichier, horaire);
 
         if(arcid !== ""){
             //console.log("arcid trouve : "+arcid);
@@ -51,7 +51,7 @@ export class parseurVemgsa {
     }
     if ((arcid !== "") && (plnid == 0)){
       for (let fichier of fichierSourceVemgsa) {
-        plnid = grep.grepPlnidFromArcid(arcid,fichier );
+        plnid = grep.grepPlnidFromArcid(arcid,fichier, horaire );
         if(plnid !== 0){
             //console.log("plnid trouve : "+plnid);
             id.identifie=true;

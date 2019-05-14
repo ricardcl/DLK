@@ -65,8 +65,8 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
 
 
 
-    id = identificationF(arcid, plnid, fichierSourceLpln, grep.orderVemgsa(fichierSourceVemgsa), horaire);
-    console.log("identification : ", identificationF(arcid, plnid, fichierSourceLpln, grep.orderVemgsa(fichierSourceVemgsa), horaire));
+    id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, horaire);
+
     answer.arcid = id.arcid;
     answer.plnid = id.plnid;
     if (id.identifie == true) {
