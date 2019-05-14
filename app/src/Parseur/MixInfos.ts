@@ -132,10 +132,10 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
     }
     monvolFinal.setListeLogs(arrayLogTemp);
 
-    monvolFinal = graphe.grapheMix(monvolFinal);
 
-    
-console.log("debut logs collectes et tries");
+
+    monvolFinal = graphe.grapheMix(monvolFinal);
+    console.log("debut logs collectes et tries");
 
     monvolFinal.getListeLogs().forEach(etatCpdlc => {
       //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
@@ -143,17 +143,53 @@ console.log("debut logs collectes et tries");
     });
     console.log("fin logs collectes et tries");
     return monvolFinal;
-
-
-
 }
 
 
 
 
 
+export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string): Vol {
+
+  //Initialisation du vol issu des donnees LPLN
+  let monvolLpln = new Vol(arcid, plnid);
+  let pl = new parseurLpln();
+  monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
 
+    console.log("debut logs collectes et tries");
+
+    monvolLpln.getListeLogs().forEach(etatCpdlc => {
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    });
+    console.log("fin logs collectes et tries");
+    return monvolLpln;
+
+
+}
+
+export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[]): Vol {
+
+
+
+
+  //Initialisation du vol issu des donnees VEMGSA
+  let monvolVemgsa = new Vol(arcid, plnid);
+  let pv = new parseurVemgsa();
+  //pv.identification(arcid, plnid, fichierSourceVemgsa);
+
+  monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
+
+  
+
+    console.log("debut logs collectes et tries");
+
+    monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    });
+    console.log("fin logs collectes et tries");
+    return monvolVemgsa;
+}
 
 
 //TODO : tester le fichier en entrée : existance, dates de validité pour savoir si l'aircraft id est bien dans le vemgsa ...

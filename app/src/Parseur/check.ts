@@ -3,7 +3,8 @@ import { parseurLpln } from './parseurLpln';
 import { parseurVemgsa } from './parseur';
 import { Identifiants, sameIdent } from '../Modele/identifiants';
 import * as dates from './date';
-import * as grep from "./grep";
+import * as grepV from "./grep";
+import * as grepL from "./grepLPLN";
 import { Contexte } from '../Modele/enumContexte';
 
 export interface checkAnswer {
@@ -16,29 +17,30 @@ export interface checkAnswer {
 
 export function evaluationContexte(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Contexte {
 
-    
-let contexte:Contexte = Contexte.NONE;
 
-if ( (fichierSourceLpln != "")   ) { // et test que le fichier s'ouvre
-    if ( (fichierSourceVemgsa[0] != "")   ) {
-        contexte=Contexte.LPLNVEMGSA;
+    let contexte: Contexte = Contexte.NONE;
+
+    if ((fichierSourceLpln != "")) { // et test que le fichier s'ouvre
+        if ((fichierSourceVemgsa[0] != "")) {
+            contexte = Contexte.LPLNVEMGSA;
+        }
+        else {
+            contexte = Contexte.LPLN;
+        }
     }
     else {
-        contexte=Contexte.LPLN;
-    }
-}
-else{
-    if ( (fichierSourceVemgsa[0] != "")   ) {
-        contexte=Contexte.VEMGSA;
-    }
+        if ((fichierSourceVemgsa[0] != "")) {
+            contexte = Contexte.VEMGSA;
+        }
 
-}
-return contexte;
+    }
+    return contexte;
 }
 //Verifie que les fichiers donnes en entree existent et s'ouvre et les valeurs rentrees (arcid, plnid ) existent dans le fichier
-export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): checkAnswer {
+export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte): checkAnswer {
 
     let id = <Identifiants>{};
+    let result = <dates.arrayDatesFile>{};
     let answer = <checkAnswer>{};
     answer.arcid = arcid;
     answer.plnid = plnid;
@@ -46,36 +48,103 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
     answer.MessageRetour = "Vol non trouve";
 
 
-
-    if ((fichierSourceLpln == "") && (fichierSourceVemgsa[0] != "")) {
-
-        let result = <dates.arrayDatesFile>{};
-        result.dates = new Array;
-       // if ((arcid !== "") && (plnid == 0)) {
-       // }
-        if ((arcid == "") && (plnid !== 0)) {
-            
-            result= grep.isPlnidAndPlageHoraire(fichierSourceVemgsa,plnid);
-            if (result.existe == true){
-                let creneau = new Array (<dates.datesFile>{});
-                creneau = dates.getCreneaux(result.dates);
-                if (creneau.length > 1){
-                    answer.valeurRetour = 2;
-                    answer.MessageRetour = "trop de creneaux trouves";     
-                }
-                else{
+    switch (contexte) {
+        case Contexte.LPLN:
+            console.log(" Contexte.LPLN ");
+            if ((arcid !== "") && (plnid == 0)) {
+                if (grepL.isArcid(arcid, fichierSourceLpln) == true) {
                     answer.valeurRetour = 1;
                     answer.MessageRetour = "Vol trouve";
                 }
             }
+            if ((arcid == "") && (plnid !== 0)) {
+                if (grepL.isPlnid(plnid, fichierSourceLpln) == true) {
+                    answer.valeurRetour = 1;
+                    answer.MessageRetour = "Vol trouve";
+                }
+            }
+            break;
+        case Contexte.VEMGSA:
+            console.log(" Contexte.VEMGSA ");
+            result.dates = new Array;
+            if ((arcid !== "") && (plnid == 0)) {
+                result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
+                if (result.existe == true) {
+                    let creneau = new Array(<dates.datesFile>{});
+                    console.log("creneaux trouves:", result.dates);
+                    if (result.dates.length > 1) {
+                        answer.valeurRetour = 2;
+                        answer.MessageRetour = "trop de creneaux trouves";
+                    }
+                    else {
+                        answer.valeurRetour = 1;
+                        answer.MessageRetour = "Vol trouve";
+                    }
+                }
+            }
+            if ((arcid == "") && (plnid !== 0)) {
+                result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+                if (result.existe == true) {
+                    let creneau = new Array(<dates.datesFile>{});
+                    creneau = dates.getCreneaux(result.dates);
+                    if (creneau.length > 1) {
+                        answer.valeurRetour = 2;
+                        answer.MessageRetour = "trop de creneaux trouves";
+                    }
+                    else {
+                        answer.valeurRetour = 1;
+                        answer.MessageRetour = "Vol trouve";
+                    }
+                }
+            }
+            break;
+        case Contexte.LPLNVEMGSA:
+            console.log(" Contexte.LPLNVEMGSA ");
+            result.dates = new Array;
+            if ((arcid !== "") && (plnid == 0)) {
+                result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
 
-        }
+                if ((grepL.isArcid(arcid, fichierSourceLpln) == true) && (result.existe == true)) {
+                    let creneau = new Array(<dates.datesFile>{});
+                    console.log("creneaux trouves:", result.dates);
+                    if (result.dates.length > 1) {
+                        answer.valeurRetour = 2;
+                        answer.MessageRetour = "trop de creneaux trouves";
+                    }
+                    else {
+                        answer.valeurRetour = 1;
+                        answer.MessageRetour = "Vol trouve";
+                    }
+                }
+            }
+            if ((arcid == "") && (plnid !== 0)) {
+                result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+
+
+                if ((grepL.isPlnid(plnid, fichierSourceLpln) == true) && (result.existe == true)) {
+                    let creneau = new Array(<dates.datesFile>{});
+                    creneau = dates.getCreneaux(result.dates);
+                    if (creneau.length > 1) {
+                        answer.valeurRetour = 2;
+                        answer.MessageRetour = "trop de creneaux trouves";
+                    }
+                    else {
+                        answer.valeurRetour = 1;
+                        answer.MessageRetour = "Vol trouve";
+                    }
+                }
+            }
+            break;
+        default:
+            console.log(" Contexte.default ");
+            break;
     }
-    console.log("answer: ",answer);
-    
-return answer;
+
+
+    console.log("answer: ", answer);
+    return answer;
 }
-export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[],  horaire?: dates.datesFile): checkAnswer {
+export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): checkAnswer {
 
     let id = <Identifiants>{};
     let answer = <checkAnswer>{};
@@ -114,7 +183,6 @@ export function identificationLpln(arcid: string, plnid: number, fichierSourceLp
     let pl = new parseurLpln();
     let idL = <Identifiants>{};
     idL = pl.identification(arcid, plnid, fichierSourceLpln);
-    monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
     return idL;
 }
 
@@ -124,13 +192,11 @@ export function identificationVemgsa(arcid: string, plnid: number, fichierSource
     let pv = new parseurVemgsa();
     let idV = <Identifiants>{};
     idV = pv.identification(arcid, plnid, fichierSourceVemgsa, horaire);
-
-    monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
     return idV;
 }
 
 
-export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[],  horaire?: dates.datesFile): Identifiants {
+export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): Identifiants {
     let idL, idV = <Identifiants>{};
 
     if ((fichierSourceLpln != "") && (fichierSourceVemgsa[0] != "")) {
@@ -153,7 +219,7 @@ export function identificationF(arcid: string, plnid: number, fichierSourceLpln:
         }
         if (fichierSourceVemgsa[0] != "") {
             console.log("cas 3")
-            idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa,horaire);
+            idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, horaire);
             return idV;
         }
         else {

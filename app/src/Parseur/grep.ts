@@ -428,64 +428,9 @@ export function grepDifferentsLogsVemgsaTrouvesAvecLePlnid(fichierSourceVemgsa: 
   return 3;
 }
 
-export function isPlnidAndPlageHoraire(fichierSourceVemgsa: string[], plnid: number): dates.arrayDatesFile {
-
-  let result = <dates.arrayDatesFile>{};
-  result.dates = new Array;
-  result.existe = false;
-
-  let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
-  let motifPlnid = "-PLNID " + plnid;
-
-
-  let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
-  //26/09/2018 07H54'11" -TITLE CPCCLOSLNK-PLNID 7466  	,
-  //  let motif2 = /(\d\d)(\/)(\d\d)(\/)(\d\d\d\d )(\d\d)(H)(\d\d)(')(\d\d)(.*)/;
-  let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
 
 
 
-
-
-  for (let fichier of fichierSourceVemgsa) {
-    let fichierSource = fichier;
-    let r = readline.fopen(p.resolve(path.userPath, fichierSource), "r");
-
-
-    if (r === false) {
-      console.log("Error, can't open ", fichierSource);
-      process.exit(1);
-    }
-    else {
-      do {
-        let mylogCpdlc = readline.fgets(r);
-        if (mylogCpdlc === false) { break; }
-
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null)) {
-          mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-          result.existe = true;
-
-          if (mylogCpdlc.toString().match(motifDate) !== null) {
-            let date = mylogCpdlc.toString().replace(motifDate, "$1");
-            //  console.log("date a: ",date);
-
-            if (date.match(motifDateHeure) !== null) {
-              const jour = date.toString().replace(motifDateHeure, "$1");
-              const heure = date.toString().replace(motifDateHeure, "$3");
-              const minutes = date.toString().replace(motifDateHeure, "$5");
-              const secondes = date.toString().replace(motifDateHeure, "$7");
-              const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
-              result.dates.push(dateToStore);
-            }
-          }
-        }
-      } while (!readline.eof(r));
-    }
-    readline.fclose(r);
-  }
-  result.dates.forEach(element => { console.log(element); });
-  return result;
-}
 
 /* Fonction qui prend en entrée deux fichiers Vemgsa et renvoie les deux fichiers en les classant par date 
 en s'appuyant sur les dates du premier et du dernier log contenu dans le fichier*/
@@ -548,6 +493,57 @@ export function isPlnid(plnid: number, fichierSourceVemgsa: string[]): boolean {
   return result;
 }
 
+export function isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[] ): dates.arrayDatesFile {
+
+  let result = <dates.arrayDatesFile>{};
+  result.dates = new Array;
+  result.existe = false;
+
+  let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
+  let motifPlnid = "-PLNID " + plnid;
+  let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
+  let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
+
+  for (let fichier of fichierSourceVemgsa) {
+    let fichierSource = fichier;
+    let r = readline.fopen(p.resolve(path.userPath, fichierSource), "r");
+
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
+      process.exit(1);
+    }
+    else {
+      do {
+        let mylogCpdlc = readline.fgets(r);
+        if (mylogCpdlc === false) { break; }
+
+        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null)) {
+          mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+          result.existe = true;
+
+          if (mylogCpdlc.toString().match(motifDate) !== null) {
+            let date = mylogCpdlc.toString().replace(motifDate, "$1");
+            //  console.log("date a: ",date);
+
+            if (date.match(motifDateHeure) !== null) {
+              const jour = date.toString().replace(motifDateHeure, "$1");
+              const heure = date.toString().replace(motifDateHeure, "$3");
+              const minutes = date.toString().replace(motifDateHeure, "$5");
+              const secondes = date.toString().replace(motifDateHeure, "$7");
+              const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
+              result.dates.push(dateToStore);
+            }
+          }
+        }
+      } while (!readline.eof(r));
+    }
+    readline.fclose(r);
+  }
+  result.dates.forEach(element => { console.log(element); });
+  return result;
+}
+
+
 export function isArcid(arcid: string, fichierSourceVemgsa: string[]): boolean {
   let result: boolean = false;
   for (let fichier of fichierSourceVemgsa) {
@@ -582,7 +578,57 @@ export function isArcid(arcid: string, fichierSourceVemgsa: string[]): boolean {
   return result;
 }
 
+export function isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: string[]): dates.arrayDatesFile {
 
+  let result = <dates.arrayDatesFile>{};
+  result.dates = new Array;
+  result.existe = false;
+
+  let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
+  let motifArcid = "-ARCID " + arcid;
+
+  let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
+  let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
+
+  for (let fichier of fichierSourceVemgsa) {
+    let fichierSource = fichier;
+    let r = readline.fopen(p.resolve(path.userPath, fichierSource), "r");
+
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
+      process.exit(1);
+    }
+    else {
+      do {
+        let mylogCpdlc = readline.fgets(r);
+        if (mylogCpdlc === false) { break; }
+
+        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifArcid) !== null) ) {
+          console.log("mylogCpdlc: ",mylogCpdlc);
+          mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+          result.existe = true;
+
+          if (mylogCpdlc.toString().match(motifDate) !== null) {
+            let date = mylogCpdlc.toString().replace(motifDate, "$1");
+            //  console.log("date a: ",date);
+
+            if (date.match(motifDateHeure) !== null) {
+              const jour = date.toString().replace(motifDateHeure, "$1");
+              const heure = date.toString().replace(motifDateHeure, "$3");
+              const minutes = date.toString().replace(motifDateHeure, "$5");
+              const secondes = date.toString().replace(motifDateHeure, "$7");
+              const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
+              result.dates.push(dateToStore);
+            }
+          }
+        }
+      } while (!readline.eof(r));
+    }
+    readline.fclose(r);
+  }
+  result.dates.forEach(element => { console.log(element); });
+  return result;
+}
 //grepPlageHoraireFichier("../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742");
 
 

@@ -75,35 +75,9 @@ export class parseurVemgsa {
     const fichierGbdi =  p.resolve(path.systemPath,"STPV_G2910_CA20180816_13082018__1156");
     const source =  p.resolve(path.outputPath,"result.htm"); //Fichier en entree a analyser
 
-    //console.log("arcid : "+arcid);
-    //console.log("plnid : "+plnid);
-    if ((arcid == "") && (plnid !== 0)){
-      for (let fichier of fichierSourceVemgsa) {
-        //console.log("fichier : ", fichier);
-        //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);            
-        arcid = grep.grepArcidFromPlnid(plnid, fichier);
-        if(arcid !== ""){
-            //console.log("arcid trouve : "+arcid);
-            break;
-        }
-      }
-    }
-    if ((arcid !== "") && (plnid == 0)){
-      for (let fichier of fichierSourceVemgsa) {
-        plnid = grep.grepPlnidFromArcid(arcid,fichier );
-        if(plnid !== 0){
-            //console.log("plnid trouve : "+plnid);
-            break;
-        }
-      }
-    }
-    //console.log("arcid2 : "+arcid);
-    //console.log("plnid2 : "+plnid);
     grep.grepLog(arcid,plnid, fichierSourceVemgsa);
-    //grep.grepPlnId(7183);
+
     let frequences = require("./frequences");
-   
-    //let fichierDest = "../Output/freq.htm";
     frequences.GbdiToFreq(fichierGbdi);
 
 
@@ -124,8 +98,6 @@ export class parseurVemgsa {
 
     let monvol = new Vol(arcid,plnid);
 
-
-
     /* CREATION DU GRAPHE D ETAT */
 
     do {
@@ -145,26 +117,26 @@ export class parseurVemgsa {
 
       //Stockage de la date/heure
       //let dateHeure = fsplit.splitString(ingoGen, " ");
-      let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
-      let dateHeure = infoGen.match(motifDateHeure);
-      if  (dateHeure !== null) {
+
+      let motifDateHeure = /(\d\d\/\d\d\/\d\d\d\d)( )(\d\d)(H)(\d\d)(')(\d\d)(.*)/;
+
+
+      let dateHeure = infoGen.toString().match(motifDateHeure);     
+      if  (dateHeure !== null) {      
         const date = dateHeure.toString().replace(motifDateHeure, "$1");
         const heure = dateHeure.toString().replace(motifDateHeure, "$3");
         const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
         const secondes = dateHeure.toString().replace(motifDateHeure, "$7");
         const dateToStore = date+" "+heure+" "+minutes+" "+secondes;
         const momentDate = moment(dateToStore,'DD-MM-YYYY HH mm ss');
-        ////console.log(momentDate.format());  A TESTER CAR APPELLE 2 FOIS
+       // console.log("test date: ",momentDate.format()); 
 
       log.setDate( moment(momentDate).format('DD-MM-YYYY'));
       log.setHeure( moment(momentDate).format('HH mm ss'));
-      }
- 
-
       
-      log.setAssociable(dateHeure[2]);
+      log.setAssociable(infoGen.toString().replace(motifDateHeure, "$8"));
 
-
+    }
       //Stockage des infos suivantes
 
       //let myMap = fsplit.stringToTuple (infoLog);
