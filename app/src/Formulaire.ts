@@ -1,4 +1,4 @@
-import { mixInfos, identificationF } from './Parseur/MixInfos';
+import { mixInfos } from './Parseur/MixInfos';
 import { getListeVols } from './Parseur/MixInfos';
 import {path}  from './main'
 const p = require('path');
@@ -84,11 +84,11 @@ export class Formulaire {
                 console.log(mixInfos(arcid, plnid, fichierLpln, fichierVemgsa));
             });
 
-            socket.on('identifyingWithPlnid', function (arcid, plnid, fichierLpln, fichierVemgsa) {
+            /** socket.on('identifyingWithPlnid', function (arcid, plnid, fichierLpln, fichierVemgsa) {
                 console.log("identifying");
                 console.log(identificationF(arcid, plnid, fichierLpln, fichierVemgsa));
                 socket.emit("identified",identificationF(arcid, plnid, fichierLpln, fichierVemgsa));
-            });
+            }); */
 
         });
     }

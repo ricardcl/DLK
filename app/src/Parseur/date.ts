@@ -7,6 +7,12 @@ export interface datesFile {
     dateMax: string;
 }
 
+export interface arrayDatesFile {
+    existe: boolean;
+    dates: string[] ;
+}
+
+
 
 export function MonthLetterToNumber(month: string): string {
     let monthNumber: string = "00";
@@ -51,10 +57,17 @@ export function diffHeuresLplnEgales(hL1: string, hL2: string): number {
     const momentDateL1 = moment(hL1, 'HH mm');
     const momentDateL2 = moment(hL2, 'HH mm');  
     const diff: number = Math.abs(momentDateL1.diff(momentDateL2)); //Rmq : diff renvoie un resultat en ms
-    
     return diff;
 
   
+  }
+
+  //Fonction pour comparer des heures VEMGSA  entre elles : renvoie la difference de temps entre les deux
+export function diffHeuresVemgsaEgales(hV1: string, hV2: string): number {
+    const momentDateV1 = moment(hV1, 'DD-MM-YYYY HH mm ss');
+    const momentDateV2 = moment(hV2, 'DD-MM-YYYY HH mm ss');  
+    const diff: number = Math.abs(momentDateV1.diff(momentDateV2)); //Rmq : diff renvoie un resultat en ms
+    return diff; 
   }
 
   export function isHeureSup(h1: string, h2: string): boolean {
@@ -71,4 +84,32 @@ export function isDateSup(d1: string, d2: string): boolean {
     const diff: number =momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
     if (diff > 0) { return true; }
     else { return false; }
+}
+
+export function getCreneaux(dates: string[]): datesFile[] {
+    let arrayHeuresTrouvees: string[] = dates;
+    let creneau = new Array ;
+    const uneMinute: number = 60000;
+    const uneHeure: number = 60*uneMinute;
+    let diffMax= 3*uneHeure;
+    let i:number=0;
+    
+    creneau[i] = <arrayDatesFile>{};
+    creneau[i].dateMin=dates[0];
+
+    for (let index = 1; index < dates.length; index++) {
+        const element = dates[index];
+        const elementPrec = dates[index-1];        
+        if (index == dates.length-1 ){creneau[i].dateMax=element; }
+        else{
+            if (diffHeuresVemgsaEgales(element,elementPrec)>diffMax){
+                creneau[i].dateMax = elementPrec;
+                i++;
+                creneau[i] = <arrayDatesFile>{};
+                creneau[i].dateMin = element;
+            }
+        }
+    }
+    console.log("creneaux trouves :",creneau);
+    return creneau;
 }

@@ -3,6 +3,7 @@ import { Formulaire } from "./Formulaire";
 import {split} from "./Parseur/split";
 import { Path } from './Modele/path';
 import { mixInfos } from './Parseur/MixInfos';
+import { check, checkInitial, checkAnswer } from './Parseur/check';
 import { getListeVols } from './Parseur/MixInfos';
 import * as grep from "./Parseur/grep";
 
@@ -49,9 +50,10 @@ console.log("systemPath: "+systemPath);
   */
  
 
- grep.grepDifferentsVolsVemgsaTrouves(["../user/vemgsa2","../user/vemgsa2"], 9694);
-grep.orderVemgsa(["../user/VEMGSA3.OPP.stpv1_020519_0716_030519_0625","../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716"]);
+ //grep.grepDifferentsVolsVemgsaTrouves(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"], 3727);
+//grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706","../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716"]);
 
+// VEMGSA5.OPP.stpv1_300419_0708_010519_0706
 // VEMGSA2.OPP.stpv1_010519_0706_020519_0716
 // VEMGSA3.OPP.stpv1_020519_0716_030519_0625
 // VEMGSA4.OPP.stpv1_030519_0625_040519_0941
@@ -59,15 +61,27 @@ grep.orderVemgsa(["../user/VEMGSA3.OPP.stpv1_020519_0716_030519_0625","../user/V
 
 
   let arcid = ""; //"EWG6LB"
-  let plnid = 9694;
+  let plnid = 3727;
 //8977 = lpln   9694= lpln2   
 //5854= lpln3 &  5491 = lpln4 pas de vemgsa
- console.log("resulat mixinfos: ");
+//3124 entre le 30.04 et le 01.05 : test vol sur deux fichiers vemgsa , fichier lpln : 3124_EJU38QK
+//3727 deux vols avec le meme plnid et meme arcid dans VEMGSA5.OPP.stpv1_300419_0708_010519_0706,  et  VEMGSA2.OPP.stpv1_010519_0706_020519_0716
+// fichiers lpln concernes : 3727_FIN6RM et 3727_30mai 
+console.log("resulat mixinfos: ");
  //mixInfos(arcid,plnid,  "lpln3", ["vemgsa3"]);
 
 
-mixInfos(arcid,plnid,  "lpln2", ["vemgsa2"]);
- 
+//mixInfos(arcid,plnid,  "3727_FIN6RM", ["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]);
+
+let resultCheckInitial = <checkAnswer>{};
+ resultCheckInitial = checkInitial(arcid,plnid,"", grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]));
+
+if (resultCheckInitial.valeurRetour == 1) {
+  check(arcid,plnid,"", grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]));
+}
+if (resultCheckInitial.valeurRetour == 2) {
+  check(arcid,plnid,"", grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]),);
+}
 
 
 

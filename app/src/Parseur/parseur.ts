@@ -3,7 +3,7 @@ import {Vol} from '../Modele/vol';
 import {EtatCpdlc} from '../Modele/etatCpdlc';
 import {Etat} from '../Modele/enumEtat';
 import * as moment from 'moment';
-
+import * as dates from './date';
 
 import {split} from './split';
 let fsplit = new split();
@@ -22,7 +22,7 @@ const p = require('path');
 
 export class parseurVemgsa {
 
-  identification = function (arcid:string, plnid:number, fichierSourceVemgsa:string[]):Identifiants {
+  identification = function (arcid:string, plnid:number, fichierSourceVemgsa:string[],  horaire?: dates.datesFile):Identifiants {
     console.log("identification VEMGSA");
     
     //console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceVemgsa) );
@@ -69,6 +69,8 @@ export class parseurVemgsa {
     return id;
   }
 
+
+
   parseur = function (arcid:string, plnid:number, fichierSourceVemgsa:string[]):Vol {
     const fichierGbdi =  p.resolve(path.systemPath,"STPV_G2910_CA20180816_13082018__1156");
     const source =  p.resolve(path.outputPath,"result.htm"); //Fichier en entree a analyser
@@ -76,20 +78,15 @@ export class parseurVemgsa {
     //console.log("arcid : "+arcid);
     //console.log("plnid : "+plnid);
     if ((arcid == "") && (plnid !== 0)){
-
       for (let fichier of fichierSourceVemgsa) {
         //console.log("fichier : ", fichier);
-        //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
-                
+        //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);            
         arcid = grep.grepArcidFromPlnid(plnid, fichier);
-
         if(arcid !== ""){
             //console.log("arcid trouve : "+arcid);
             break;
         }
       }
-
-
     }
     if ((arcid !== "") && (plnid == 0)){
       for (let fichier of fichierSourceVemgsa) {
@@ -102,13 +99,8 @@ export class parseurVemgsa {
     }
     //console.log("arcid2 : "+arcid);
     //console.log("plnid2 : "+plnid);
-
     grep.grepLog(arcid,plnid, fichierSourceVemgsa);
-
     //grep.grepPlnId(7183);
-
-
-
     let frequences = require("./frequences");
    
     //let fichierDest = "../Output/freq.htm";
@@ -123,8 +115,8 @@ export class parseurVemgsa {
       process.exit(1);
     }
 
-    /* Initialiation des letiables */
-    let numeroLigne = 0; // Nuemro de la de lignes lue
+    /* Initialiation des variables */
+    let numeroLigne = 0; // Numero de la de lignes lue
     let monEtat = Etat.NonLogue; // Etat CPDLC par defaut
     let mylisteLogsCpdlc = new Array(); //Liste des lignes lues
 

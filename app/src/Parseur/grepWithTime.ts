@@ -15,40 +15,14 @@ let readline = require("../scripts/node-readline/node-readline");
 
 
 
-export function grepLog (arcid:string, plnid:number, fichierSourceVemgsa:string[] ):void {
+export function grepLogWithTime (arcid:string, plnid:number, fichierSourceVemgsa:string[] ):void {
 
     let fichierDestination = p.resolve(path.outputPath,"result.htm");
     let w = fs.openSync(fichierDestination, "w");
 
   for (let fichier of fichierSourceVemgsa) {
-    //let fichierSource = "../Input/test1.htm";
-    //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
-
     let fichierSource = fichier;
-
-    //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-
-
-
     let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-
-
-    let count = 0;
-
-    /* regex a utiliser pour enlever les caracteres speciaux
-    en utilisant mylogCpdlc = mylogCpdlc.replace(regex);*/
-    //let regex = /|||||||�|@|.||%|\(|\)|,|ZZZZ|]\|þ|Ô|Ç|â|Á|||[a-z]/g;
-
-    /* regex a utiliser pour ne garder que les caracteres autorises
-    en utilisant mylogCpdlc = mylogCpdlc.match(regex1);*/
-    //let regex1 = /[^A-Z0-9-/'"]/g;
-
-
-    /*format attendu d un fichier  VEMGSA
-    avec /\d\d\/\d\d\d\d\/\d\d = motif de la date
-    et \s = espace
-    */
-
     let motif =/\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
 

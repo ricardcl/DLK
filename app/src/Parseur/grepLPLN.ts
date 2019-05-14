@@ -24,7 +24,6 @@ export function grepLogLPLN (arcid:string, plnid:number, fichierSourceLpln:strin
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let w = fs.openSync(fichierDestination, "w");
-  let count = 0;
 
   //Test de l'ouverture du fichier
   if (r === false) {
@@ -115,7 +114,6 @@ export function grepArcidFromPlnid ( plnid:number, fichierSourceLpln:string):str
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-  let count = 0;
   let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL: AIX)(.*)/;
   let arcid ="";
   //Test de l'ouverture du fichier
@@ -150,7 +148,6 @@ export function grepPlnidFromArcid ( arcid:string, fichierSourceLpln:string):num
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-  let count = 0;
   let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
   let plnid =0;
   //Test de l'ouverture du fichier
@@ -182,7 +179,6 @@ export function isArcid ( arcid:string, fichierSourceLpln:string):boolean {
   let result:boolean = false;
   let fichierSource = fichierSourceLpln;
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-  let count = 0;
   let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
   let plnid =0;
   //Test de l'ouverture du fichier
@@ -213,7 +209,6 @@ export function isPlnid ( plnid:number, fichierSourceLpln:string):boolean {
   let result:boolean =false;
   let fichierSource = fichierSourceLpln;
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-  let count = 0;
   let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
   let arcid ="";
   //Test de l'ouverture du fichier
