@@ -7,15 +7,28 @@ import * as grepV from "./grep";
 import * as grepL from "./grepLPLN";
 import { Contexte } from '../Modele/enumContexte';
 
+
+
 export interface checkAnswer {
-    valeurRetour: number; // 0: PAS TROUVE, 1 : TROUVE, 2: creneau horaire necessaire
-    MessageRetour?: string
-    plnid: number;
-    arcid: string;
+    valeurRetour: number; 
+    MessageRetour: string
+    plnid?: number;
+    arcid?: string;
     // creneauHoraire?:dates.datesFile;
 }
 
-export function evaluationContexte(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Contexte {
+
+
+/**
+ * Fonction permettant de déterminer le contexte d'étude en fonction des fichiers de logs fournis
+ * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut)
+ * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max)
+ * @returns :   LPLN si uniquement le fichier LPLN est fourni
+ *              VEMGSA si uniquement un ou deux fichiers VEMGSA sont fournis
+ *              LPLNVEMGSA si le fichier LPLN est fourni avec un ou deux fichiers VEMGSA 
+ *              NONE sinon
+ */
+export function evaluationContexte(fichierSourceLpln: string, fichierSourceVemgsa: string[]): Contexte {
 
 
     let contexte: Contexte = Contexte.NONE;
@@ -36,14 +49,26 @@ export function evaluationContexte(arcid: string, plnid: number, fichierSourceLp
     }
     return contexte;
 }
-//Verifie que les fichiers donnes en entree existent et s'ouvre et les valeurs rentrees (arcid, plnid ) existent dans le fichier
+
+
+/**
+ * Fonction permettant de déterminer la validité des données rentrées par l'utilisateur 
+ * Elle vérifie que les fichiers donnés en entree existent et s'ouvrent et les valeurs rentrees (arcid, plnid ) existent dans le fichier
+ * @param arcid : arcid rentré par l'utilisateur ("" par défaut)
+ * @param plnid : plnid rentré par l'utilisateur (0 par défaut)
+ * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut)
+ * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max)
+ * @param contexte : le contexte d'exécution lié aux types de fichiers logs en entrée
+ * @returns {valeurRetour,MessageRetour } 
+ *   où valeurRetour indique si le checkInitial s'est bien déroulé :
+ *   0: arcid ou plnid trouvé, 1 : arcid et plnid non trouvés, 2 : arcid ou plnid trouvés dans desplages horaires disctintes
+ *   et où MessageRetour donne une explication en cas d'echec
+ */
 export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte): checkAnswer {
 
     let id = <Identifiants>{};
     let result = <dates.arrayDatesFile>{};
     let answer = <checkAnswer>{};
-    answer.arcid = arcid;
-    answer.plnid = plnid;
     answer.valeurRetour = 0;
     answer.MessageRetour = "Vol non trouve";
 
@@ -147,6 +172,20 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
     console.log("checkInitial: ", answer);
     return answer;
 }
+
+
+/**
+ * 
+ * Fonction permettant de déterminer le couple (arcid, plnid) en fonction des données rentrées par l'utilisateur  (arcid ou plnid)
+ * @param arcid : arcid rentré par l'utilisateur ("" par défaut)
+ * @param plnid : plnid rentré par l'utilisateur (0 par défaut)
+ * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut)
+ * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max)
+ * @param horaire : horaire permettant de restreindre les informations à traiter dans les fichiers de logs fournis (facultatif) 
+ * @returns { valeurRetour,MessageRetour,arcid, plnid } 
+ *   où valeurRetour indique si le check s'est bien déroulé : 0: COUPLE TROUVE, 1 : COUPLE NON TROUVE, 2: creneau horaire necessaire
+ *   et où MessageRetour donne une explication en cas d'echec
+ */
 export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): checkAnswer {
 
     let id = <Identifiants>{};
@@ -155,8 +194,6 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
     answer.plnid = plnid;
     answer.valeurRetour = 0;
     answer.MessageRetour = "Vol non trouve";
-
-
 
     id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, horaire);
     
@@ -177,6 +214,14 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
 }
 
 
+/**
+ * Fonction permettant d'identifier le couple (arcid,plnid) dans le fichier LPLN fourni
+ * @param arcid : arcid rentré par l'utilisateur ("" par défaut)
+ * @param plnid : plnid rentré par l'utilisateur (0 par défaut)
+ * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur 
+ * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
+ *                  et où plnid, arcid représent le couple s'il a pu être identifié
+ */
 export function identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
     //Initialisation du vol issu des donnees LPLN
     let monvolLpln = new Vol(arcid, plnid);
@@ -186,6 +231,15 @@ export function identificationLpln(arcid: string, plnid: number, fichierSourceLp
     return idL;
 }
 
+/**
+ * Fonction permettant d'identifier le couple (arcid,plnid) dans le fichier VEMGSA fourni
+ * @param arcid : arcid rentré par l'utilisateur ("" par défaut)
+ * @param plnid : plnid rentré par l'utilisateur (0 par défaut)
+ * @param fichierSourceVemgsa : fichier(s) VEMGSA rentré par l'utilisateur 
+ * @param horaire : l'horaire rentré par l'utilisateur (facultatif)
+ * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
+ *                  et où plnid, arcid représent le couple s'il a pu être identifié
+ */
 export function identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], horaire?: dates.datesFile): Identifiants {
     //Initialisation du vol issu des donnees VEMGSA
     let monvolVemgsa = new Vol(arcid, plnid);
@@ -195,7 +249,16 @@ export function identificationVemgsa(arcid: string, plnid: number, fichierSource
     return idV;
 }
 
-
+/**
+ * Fonction permettant d'identifier le couple (arcid,plnid) dans l'ensemble des fichiers de logs fournis
+ * @param arcid : arcid rentré par l'utilisateur ("" par défaut)
+ * @param plnid : plnid rentré par l'utilisateur (0 par défaut)
+ * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur 
+ * @param fichierSourceVemgsa : fichier(s) VEMGSA rentré par l'utilisateur
+ * @param horaire : l'horaire rentré par l'utilisateur (facultatif)
+ * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
+ *                  et où plnid, arcid représent le couple s'il a pu être identifié
+ */
 export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): Identifiants {
     let idL, idV = <Identifiants>{};
 

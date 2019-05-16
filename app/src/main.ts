@@ -94,7 +94,7 @@ if ( typeof listVemgsaInput == "object") {
 
 
 
-let contexte: Contexte = evaluationContexte(arcid, plnid, lpln, listVemgsa);
+let contexte: Contexte = evaluationContexte(lpln, listVemgsa);
 
 
 
