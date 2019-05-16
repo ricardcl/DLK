@@ -10,7 +10,7 @@ import { Contexte } from '../Modele/enumContexte';
 
 
 export interface checkAnswer {
-    valeurRetour: number; 
+    valeurRetour: number;
     MessageRetour: string
     plnid?: number;
     arcid?: string;
@@ -61,7 +61,7 @@ export function evaluationContexte(fichierSourceLpln: string, fichierSourceVemgs
  * @param contexte : le contexte d'exécution lié aux types de fichiers logs en entrée
  * @returns {valeurRetour,MessageRetour } 
  *   où valeurRetour indique si le checkInitial s'est bien déroulé :
- *   0: arcid ou plnid trouvé, 1 : arcid et plnid non trouvés, 2 : arcid ou plnid trouvés dans desplages horaires disctintes
+ *   0: arcid ou plnid trouvé ou probleme d'ouverture de fichier, 1 : arcid et plnid trouvés, 2 : arcid ou plnid trouvés dans desplages horaires distinctes
  *   et où MessageRetour donne une explication en cas d'echec
  */
 export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte): checkAnswer {
@@ -75,92 +75,110 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
 
     switch (contexte) {
         case Contexte.LPLN:
-            console.log(" Contexte.LPLN ");
-            if ((arcid !== "") && (plnid == 0)) {
-                if (grepL.isArcid(arcid, fichierSourceLpln) == true) {
-                    answer.valeurRetour = 1;
-                    answer.MessageRetour = "Vol trouve";
+            try {
+                console.log(" Contexte.LPLN ");
+                if ((arcid !== "") && (plnid == 0)) {
+                    if (grepL.isArcid(arcid, fichierSourceLpln) == true) {
+                        answer.valeurRetour = 1;
+                        answer.MessageRetour = "Vol trouve";
+                    }
                 }
-            }
-            if ((arcid == "") && (plnid !== 0)) {
-                if (grepL.isPlnid(plnid, fichierSourceLpln) == true) {
-                    answer.valeurRetour = 1;
-                    answer.MessageRetour = "Vol trouve";
+                if ((arcid == "") && (plnid !== 0)) {
+                    if (grepL.isPlnid(plnid, fichierSourceLpln) == true) {
+                        answer.valeurRetour = 1;
+                        answer.MessageRetour = "Vol trouve";
+                    }
                 }
+            } catch (exception) {
+                console.log("erreur lors de l'ouverture du fichier LPLN:", exception.code);
+                answer.valeurRetour = 0;
+                answer.MessageRetour = "Erreur lors de l'ouverture du fichier LPLN";
             }
             break;
         case Contexte.VEMGSA:
-            console.log(" Contexte.VEMGSA ");
-            result.dates = new Array;
-            if ((arcid !== "") && (plnid == 0)) {
-                result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
-                if (result.existe == true) {
-                    let creneau = new Array(<dates.datesFile>{});
-                    console.log("creneaux trouves:", result.dates);
-                    if (result.dates.length > 1) {
-                        answer.valeurRetour = 2;
-                        answer.MessageRetour = "trop de creneaux trouves";
-                    }
-                    else {
-                        answer.valeurRetour = 1;
-                        answer.MessageRetour = "Vol trouve";
-                    }
-                }
-            }
-            if ((arcid == "") && (plnid !== 0)) {
-                result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
-                if (result.existe == true) {
-                    let creneau = new Array(<dates.datesFile>{});
-                    creneau = dates.getCreneaux(result.dates);
-                    if (creneau.length > 1) {
-                        answer.valeurRetour = 2;
-                        answer.MessageRetour = "trop de creneaux trouves";
-                    }
-                    else {
-                        answer.valeurRetour = 1;
-                        answer.MessageRetour = "Vol trouve";
+            try {
+                console.log(" Contexte.VEMGSA ");
+                result.dates = new Array;
+                if ((arcid !== "") && (plnid == 0)) {
+                    result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
+                    if (result.existe == true) {
+                        let creneau = new Array(<dates.datesFile>{});
+                        console.log("creneaux trouves:", result.dates);
+                        if (result.dates.length > 1) {
+                            answer.valeurRetour = 2;
+                            answer.MessageRetour = "trop de creneaux trouves";
+                        }
+                        else {
+                            answer.valeurRetour = 1;
+                            answer.MessageRetour = "Vol trouve";
+                        }
                     }
                 }
+                if ((arcid == "") && (plnid !== 0)) {
+                    result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+                    if (result.existe == true) {
+                        let creneau = new Array(<dates.datesFile>{});
+                        creneau = dates.getCreneaux(result.dates);
+                        if (creneau.length > 1) {
+                            answer.valeurRetour = 2;
+                            answer.MessageRetour = "trop de creneaux trouves";
+                        }
+                        else {
+                            answer.valeurRetour = 1;
+                            answer.MessageRetour = "Vol trouve";
+                        }
+                    }
+                }
+            } catch (exception) {
+                console.log("erreur lors de l'ouverture du fichier VEMGSA:", exception.code);
+                answer.valeurRetour = 0;
+                answer.MessageRetour = "Erreur lors de l'ouverture du fichier VEMGSA";
             }
             break;
         case Contexte.LPLNVEMGSA:
-            console.log(" Contexte.LPLNVEMGSA ");
-            result.dates = new Array;
-            if ((arcid !== "") && (plnid == 0)) {
-                result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
+            try {
+                console.log(" Contexte.LPLNVEMGSA ");
+                result.dates = new Array;
+                if ((arcid !== "") && (plnid == 0)) {
+                    result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
 
-                if ((grepL.isArcid(arcid, fichierSourceLpln) == true) && (result.existe == true)) {
-                    let creneau = new Array(<dates.datesFile>{});
-                    console.log("creneaux trouves:", result.dates);
-                    if (result.dates.length > 1) {
-                        answer.valeurRetour = 2;
-                        answer.MessageRetour = "trop de creneaux trouves";
-                    }
-                    else {
-                        answer.valeurRetour = 1;
-                        answer.MessageRetour = "Vol trouve";
+                    if ((grepL.isArcid(arcid, fichierSourceLpln) == true) && (result.existe == true)) {
+                        let creneau = new Array(<dates.datesFile>{});
+                        console.log("creneaux trouves:", result.dates);
+                        if (result.dates.length > 1) {
+                            answer.valeurRetour = 2;
+                            answer.MessageRetour = "trop de creneaux trouves";
+                        }
+                        else {
+                            answer.valeurRetour = 1;
+                            answer.MessageRetour = "Vol trouve";
+                        }
                     }
                 }
-            }
-            if ((arcid == "") && (plnid !== 0)) {
-                result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+                if ((arcid == "") && (plnid !== 0)) {
+                    result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
 
 
-                if ((grepL.isPlnid(plnid, fichierSourceLpln) == true) && (result.existe == true) ) {
-                    let creneau = new Array(<dates.datesFile>{});
-                    creneau = dates.getCreneaux(result.dates);
-                    if (creneau.length > 1) {
-                        answer.valeurRetour = 2;
-                        answer.MessageRetour = "trop de creneaux trouves";
-                    }
-                    else {
-                        answer.valeurRetour = 1;
-                        answer.MessageRetour = "Vol trouve";
+                    if ((grepL.isPlnid(plnid, fichierSourceLpln) == true) && (result.existe == true)) {
+                        let creneau = new Array(<dates.datesFile>{});
+                        creneau = dates.getCreneaux(result.dates);
+                        if (creneau.length > 1) {
+                            answer.valeurRetour = 2;
+                            answer.MessageRetour = "trop de creneaux trouves";
+                        }
+                        else {
+                            answer.valeurRetour = 1;
+                            answer.MessageRetour = "Vol trouve";
+                        }
                     }
                 }
+            } catch (exception) {
+                console.log("erreur lors de l'ouverture des fichiers LPLN et VEMGSA:", exception.code);
+                answer.valeurRetour = 0;
+                answer.MessageRetour = "Erreur lors de l'ouverture des fichiers LPLN et VEMGSA";
             }
             break;
-            case Contexte.NONE:
+        case Contexte.NONE:
             console.log(" Contexte NONE ");
             break;
         default:
@@ -196,7 +214,7 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
     answer.MessageRetour = "Vol non trouve";
 
     id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, horaire);
-    
+
     answer.arcid = id.arcid;
     answer.plnid = id.plnid;
     answer.valeurRetour = 0;
