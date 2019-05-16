@@ -65,18 +65,21 @@ export function grepLog(arcid: string, plnid: number, fichierSourceVemgsa: strin
         if (mylogCpdlc.match(motif) !== null) {
           mylogCpdlc = mylogCpdlc.match(motif);
 
-          if (!horaire) { //cas ou un horaire de recherche est defini
-
-          }
-
-          if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0)) {
-            fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
-          }
-          else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
-            if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "")) {
+          if (!horaire) {
+            if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0)) {
               fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
             }
+            else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
+              if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "")) {
+                fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+              }
+            }
+
           }
+          else {
+            //TODO cas ou un horaire de recherche est defini
+          }
+
         }
 
       } while (!readline.eof(r));
@@ -99,21 +102,9 @@ export function grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, h
   let fichierDestination = p.resolve(path.outputPath, "result.htm");
   let reqid = 0;
   let arcid = "";
-  
+
   const uneMinute: number = 60000;
-  const diffMax:number = 10*uneMinute;
-  //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-
-
-
-
-  //console.log('fichierSourceVemgsa : ',fichierSourceVemgsa);
-  //console.log('fichierSource : ',fichierSource);
-
-  // console.log('path_dir_input_user : ',path.userPath);
-
-  //console.log('path_complet : ',p.resolve(path.userPath,fichierSource));
-
+  const diffMax: number = 10 * uneMinute;
 
   let r = readline.fopen(p.resolve(path.userPath, fichierSource), "r");
   let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
@@ -130,23 +121,28 @@ export function grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, h
       mylogCpdlc = mylogCpdlc.toString();
       if (mylogCpdlc === false) { break; }
 
-      if ((horaire == undefined) || ((horaire != undefined) && (dates.isInCreneauxVemgsa(horaire, mylogCpdlc,diffMax) == true))) {
+      if ((horaire == undefined) || ((horaire != undefined) && (dates.isInCreneauxVemgsa(horaire, mylogCpdlc, diffMax) == true))) {
         if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(plnid) !== null)) {
           mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-          arcid = mylogCpdlc.toString().replace(motif1, "$5").trim();
-          //console.log("arcid : "+arcid);
-          break;
+          let plnidTrouve: number;
+          plnidTrouve = mylogCpdlc.toString().replace(motif1, "$9").trim();
+          if (plnid == plnidTrouve) {
+            arcid = mylogCpdlc.toString().replace(motif1, "$5").trim();
+            break;
+          }
         }
 
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif2) !== null) && (mylogCpdlc.match(plnid) !== null)) {
+        else if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif2) !== null) && (mylogCpdlc.match(plnid) !== null)) {
           mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-          reqid = mylogCpdlc.toString().replace(motif2, "$7").trim();
-          reqid = Number(String(reqid).substr(1));
-          //console.log("reqid : "+reqid);
-          arcid = grepArcidFromReqid(reqid, fichierSourceVemgsa, horaire);
-          break;
+          let plnidTrouve: number;
+          plnidTrouve = mylogCpdlc.toString().replace(motif2, "$5").trim();
+          if (plnid == plnidTrouve) {
+            reqid = mylogCpdlc.toString().replace(motif2, "$7").trim();
+            reqid = Number(String(reqid).substr(1));
+            arcid = grepArcidFromReqid(reqid, fichierSourceVemgsa, horaire);
+            break;
+          }
         }
-
       }
 
 
@@ -169,7 +165,7 @@ export function grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, h
   let arcid = "";
 
   const uneMinute: number = 60000;
-  const diffMax:number = 60*uneMinute;
+  const diffMax: number = 60 * uneMinute;
 
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
   let r = readline.fopen(p.resolve(path.userPath, fichierSource), "r");
@@ -178,6 +174,8 @@ export function grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, h
   let motif1 = /(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-ATNLOGON)(.*)(-REQID)(.*)/;
   let motif2 = /(.*)(-ARCID )(.*)(-ATNLOGON)(.*)(-REQID)(.*)/;
 
+
+  
   if (r === false) {
     console.log("Error, can't open ", fichierSource);
     process.exit(1);
@@ -190,20 +188,14 @@ export function grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, h
 
       if ((horaire == undefined) || ((horaire != undefined) && (dates.isInCreneauxVemgsa(horaire, mylogCpdlc, diffMax) == true))) {
 
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(reqid) !== null)) {
+        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null)  && (mylogCpdlc.match(motif1) !== null)) {
           mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-          //console.log("log : "+mylogCpdlc);
           arcid = mylogCpdlc.toString().replace(motif1, "$3").trim();
-          //arcid = Number(String(reqid).substr(1));
-          //console.log("arcid1 : "+arcid);
           break;
         }
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif2) !== null) && (mylogCpdlc.match(reqid) !== null)) {
+        else if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null)  && (mylogCpdlc.match(motif2) !== null)) {
           mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-          //console.log("log : "+mylogCpdlc);
           arcid = mylogCpdlc.toString().replace(motif2, "$3").trim();
-          //arcid = Number(String(reqid).substr(1));
-          //console.log("arcid2 : "+arcid);
           break;
         }
       }
@@ -226,7 +218,7 @@ export function grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, h
   let plnid = 0;
 
   const uneMinute: number = 60000;
-  const diffMax:number = 60*uneMinute;
+  const diffMax: number = 60 * uneMinute;
 
   let r = readline.fopen(p.resolve(path.userPath, fichierSource), "r");
   let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
@@ -250,52 +242,52 @@ export function grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, h
 
         if ((horaire == undefined) || ((horaire != undefined) && (dates.isInCreneauxVemgsa(horaire, mylogCpdlc, diffMax) == true))) {
 
-        //CAS 1 : arcid envoye en meme temps que le reqId dans le CPCASREQ
-        // on en deduit le reqid
-        if (mylogCpdlc.match("CPCASREQ") !== null) {
-          reqid = infoLpln1.toString().replace(motifCPCASREQ, "$5").trim();
-          console.log("cas 1");
-          console.log("reqid : " + reqid);
-          //reqid = "".concat("0", String(reqid));
-          //console.log("reqid : "+reqid);
+          //CAS 1 : arcid envoye en meme temps que le reqId dans le CPCASREQ
+          // on en deduit le reqid
+          if (mylogCpdlc.match("CPCASREQ") !== null) {
+            reqid = infoLpln1.toString().replace(motifCPCASREQ, "$5").trim();
+            console.log("cas 1");
+            console.log("reqid : " + reqid);
+            //reqid = "".concat("0", String(reqid));
+            //console.log("reqid : "+reqid);
 
-          do {
-            mylogCpdlc = readline.fgets(r);
-            mylogCpdlc = mylogCpdlc.toString();
-            if ((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") !== null)) {
-              //console.log("cas 1A");
-              infoLpln1 = mylogCpdlc.match(motifVemgsa);
-              //CAS 1A :  reqid et plnid en info  ex : GMI39SL PLNID 7893-REQID 01099
-              let motif = /(.*)(-PLNID)(.*)(-REQID)(.*)/;
-              reqid = infoLpln1.toString().replace(motif, "$5").trim();
-              plnid = infoLpln1.toString().replace(motif, "$3").trim();
-              //console.log("plnid : "+plnid);
-              //console.log("reqid : "+reqid);
-              break;
-            }
-            if ((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") == null)) {
-              console.log("cas 1B");
-              infoLpln1 = mylogCpdlc.match(motifVemgsa);
-              //CAS 1B: que le reqid comme information  ex : EZY928J
-              let motif = /(.*)(-REQID)(.*)/;
-              reqid = infoLpln1.toString().replace("$5").trim();
-              //console.log("reqid : "+reqid);
-              break;
-            }
+            do {
+              mylogCpdlc = readline.fgets(r);
+              mylogCpdlc = mylogCpdlc.toString();
+              if ((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") !== null)) {
+                //console.log("cas 1A");
+                infoLpln1 = mylogCpdlc.match(motifVemgsa);
+                //CAS 1A :  reqid et plnid en info  ex : GMI39SL PLNID 7893-REQID 01099
+                let motif = /(.*)(-PLNID)(.*)(-REQID)(.*)/;
+                reqid = infoLpln1.toString().replace(motif, "$5").trim();
+                plnid = infoLpln1.toString().replace(motif, "$3").trim();
+                //console.log("plnid : "+plnid);
+                //console.log("reqid : "+reqid);
+                break;
+              }
+              if ((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") == null)) {
+                console.log("cas 1B");
+                infoLpln1 = mylogCpdlc.match(motifVemgsa);
+                //CAS 1B: que le reqid comme information  ex : EZY928J
+                let motif = /(.*)(-REQID)(.*)/;
+                reqid = infoLpln1.toString().replace("$5").trim();
+                //console.log("reqid : "+reqid);
+                break;
+              }
 
-          } while (!readline.eof(r));
+            } while (!readline.eof(r));
 
-          break;
+            break;
+          }
+          //CAS 2 : arcid envoye en meme temps que le plnid dans le CPCASRES (ex AFR6006)
+          // on en deduit le reqid
+          else {
+            //console.log("cas 2");
+            plnid = infoLpln1.toString().replace(motifCPCASRES, "$5").trim();
+            //console.log("plnid : "+plnid);
+            break;
+          }
         }
-        //CAS 2 : arcid envoye en meme temps que le plnid dans le CPCASRES (ex AFR6006)
-        // on en deduit le reqid
-        else {
-          //console.log("cas 2");
-          plnid = infoLpln1.toString().replace(motifCPCASRES, "$5").trim();
-          //console.log("plnid : "+plnid);
-          break;
-        }
-      }
 
 
       }
@@ -454,46 +446,9 @@ export function orderVemgsa(list: string[]): string[] {
 }
 
 
-export function isPlnid(plnid: number, fichierSourceVemgsa: string[]): boolean {
-  let result: boolean = false;
-  for (let fichier of fichierSourceVemgsa) {
-    let fichierSource = fichier;
-
-    let r = readline.fopen(p.resolve(path.userPath, fichierSource), "r");
-    let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
-    let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;
-    let motif2 = /(.*)(CPCASRES)(.*)(-PLNID )(.*)(-REQID)(.*)/;
-
-    if (r === false) {
-      console.log("Error, can't open ", fichierSource);
-      process.exit(1);
-    }
-    else {
-      do {
-        let mylogCpdlc = readline.fgets(r);
-        mylogCpdlc = mylogCpdlc.toString();
-        if (mylogCpdlc === false) { break; }
 
 
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(plnid) !== null)) {
-          result = true;
-          break;
-        }
-
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif2) !== null) && (mylogCpdlc.match(plnid) !== null)) {
-          result = true;
-          break;
-        }
-      } while (!readline.eof(r));
-
-    }
-    readline.fclose(r);
-
-  }
-  return result;
-}
-
-export function isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[] ): dates.arrayDatesFile {
+export function isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[]): dates.arrayDatesFile {
 
   let result = <dates.arrayDatesFile>{};
   result.dates = new Array;
@@ -501,6 +456,7 @@ export function isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: strin
 
   let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
   let motifPlnid = "-PLNID " + plnid;
+  let regexPlnid = /\d\d\d\d/;
   let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
   let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
 
@@ -517,7 +473,7 @@ export function isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: strin
         let mylogCpdlc = readline.fgets(r);
         if (mylogCpdlc === false) { break; }
 
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null)) {
+        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null) && (plnid.toString().match(regexPlnid))) {
           mylogCpdlc = mylogCpdlc.match(motifVemgsa);
           result.existe = true;
 
@@ -544,39 +500,6 @@ export function isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: strin
 }
 
 
-export function isArcid(arcid: string, fichierSourceVemgsa: string[]): boolean {
-  let result: boolean = false;
-  for (let fichier of fichierSourceVemgsa) {
-    let fichierSource = fichier;
-
-    let r = readline.fopen(p.resolve(path.userPath, fichierSource), "r");
-    let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
-    let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;
-
-    if (r === false) {
-      console.log("Error, can't open ", fichierSource);
-      process.exit(1);
-    }
-    else {
-      do {
-        let mylogCpdlc = readline.fgets(r);
-        mylogCpdlc = mylogCpdlc.toString();
-        if (mylogCpdlc === false) { break; }
-
-
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(arcid) !== null)) {
-          result = true;
-          break;
-        }
-
-      } while (!readline.eof(r));
-
-    }
-    readline.fclose(r);
-
-  }
-  return result;
-}
 
 export function isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: string[]): dates.arrayDatesFile {
 
@@ -585,7 +508,9 @@ export function isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: strin
   result.existe = false;
 
   let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
-  let motifArcid = "-ARCID " + arcid;
+  let motifArcid1 = /(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-ATNLOGON)(.*)/;
+  let motifArcid2 = /(.*)(-ARCID )(.*)(-ATNLOGON)(.*)/;
+
 
   let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
   let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
@@ -603,24 +528,38 @@ export function isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: strin
         let mylogCpdlc = readline.fgets(r);
         if (mylogCpdlc === false) { break; }
 
-        if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifArcid) !== null) ) {
-          console.log("mylogCpdlc: ",mylogCpdlc);
-          mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-          result.existe = true;
-
-          if (mylogCpdlc.toString().match(motifDate) !== null) {
-            let date = mylogCpdlc.toString().replace(motifDate, "$1");
-            //  console.log("date a: ",date);
-
-            if (date.match(motifDateHeure) !== null) {
-              const jour = date.toString().replace(motifDateHeure, "$1");
-              const heure = date.toString().replace(motifDateHeure, "$3");
-              const minutes = date.toString().replace(motifDateHeure, "$5");
-              const secondes = date.toString().replace(motifDateHeure, "$7");
-              const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
-              result.dates.push(dateToStore);
-            }
+        if ((mylogCpdlc.match(motifVemgsa) !== null) && ((mylogCpdlc.match(arcid) !== null))) {
+          let arcidTrouve: string="";      
+          
+          if (mylogCpdlc.match(motifArcid1) !== null){
+            mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+            arcidTrouve = mylogCpdlc.toString().replace(motifArcid1, "$3").trim();
           }
+          else if (mylogCpdlc.match(motifArcid2) !== null){
+            mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+            arcidTrouve = mylogCpdlc.toString().replace(motifArcid2, "$3").trim();
+          }
+
+          if (arcid == arcidTrouve) {
+            result.existe = true;
+
+            if (mylogCpdlc.toString().match(motifDate) !== null) {
+              let date = mylogCpdlc.toString().replace(motifDate, "$1");
+              //  console.log("date a: ",date);
+
+              if (date.match(motifDateHeure) !== null) {
+                const jour = date.toString().replace(motifDateHeure, "$1");
+                const heure = date.toString().replace(motifDateHeure, "$3");
+                const minutes = date.toString().replace(motifDateHeure, "$5");
+                const secondes = date.toString().replace(motifDateHeure, "$7");
+                const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
+                result.dates.push(dateToStore);
+              }
+            }
+
+          }
+
+
         }
       } while (!readline.eof(r));
     }

@@ -114,7 +114,7 @@ export function grepArcidFromPlnid ( plnid:number, fichierSourceLpln:string):str
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL: AIX)(.*)/;
+  let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
   let arcid ="";
   //Test de l'ouverture du fichier
   if (r === false) {
@@ -148,7 +148,7 @@ export function grepPlnidFromArcid ( arcid:string, fichierSourceLpln:string):num
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
   //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
+  let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
   let plnid =0;
   //Test de l'ouverture du fichier
   if (r === false) {
@@ -179,7 +179,7 @@ export function isArcid ( arcid:string, fichierSourceLpln:string):boolean {
   let result:boolean = false;
   let fichierSource = fichierSourceLpln;
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
+  let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
   let plnid =0;
   //Test de l'ouverture du fichier
   if (r === false) {
@@ -194,9 +194,14 @@ if (mylogCpdlc === false) { break;}
 //Test du début des logs concernant le vol dans le SL AIX
 let info1Lpln = mylogCpdlc.match(motif);
 let info2Lpln = mylogCpdlc.match(arcid);
+
 if  ((info1Lpln !== null) && (info2Lpln !== null) ){
-  result = true;
-  break;
+  let arcidTrouve:string;
+  arcidTrouve = mylogCpdlc.toString().replace(motif, "$5").trim();
+  if(arcid == arcidTrouve){
+    result = true;
+    break;
+  }
 }
 
 }while (!readline.eof(r));
@@ -209,7 +214,7 @@ export function isPlnid ( plnid:number, fichierSourceLpln:string):boolean {
   let result:boolean =false;
   let fichierSource = fichierSourceLpln;
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
-  let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF)(.*)(NOM SL: AIX)(.*)/;
+  let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
   let arcid ="";
   //Test de l'ouverture du fichier
   if (r === false) {
@@ -225,8 +230,12 @@ if (mylogCpdlc === false) { break;}
 let info1Lpln = mylogCpdlc.match(motif);
 let info2Lpln = mylogCpdlc.match(plnid);
 if  ((info1Lpln !== null) && (info2Lpln !== null) ){
-  result =true;
+  let plnidTrouve:number;
+  plnidTrouve = mylogCpdlc.toString().replace(motif, "$3").trim();
+  if(plnid == plnidTrouve){
+    result = true;
     break;
+  }
 }
 
 }while (!readline.eof(r));
@@ -236,37 +245,3 @@ return result;
 }
 
 
-//this.grepPlnIdLPLN(7183);
-
-/*
-*/
-
-
-/*
-var info5Lpln = mylogCpdlc.match("TRANSFERT DATA LINK");
-if (info5Lpln !== null){
-do {
-var nbSep =0;
-var info3Lpln = mylogCpdlc.match(/EQUIPEMENT CPDLC|ETAT CONN CPDLC|DONNEES LOGON/);
-if (mylogCpdlc.match("--------------------------------") !== null) {
-nbSep ++;
-}
-if (info3Lpln !== null){
-fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
-console.log(mylogCpdlc);
-}
-}while ( (mylogCpdlc.match("--------------------------------") == null) && (nbSep !== 2));
-}
-
-
-
-var info4Lpln = mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE");
-if (info4Lpln !== null){
-do {
-var info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
-if (info3Lpln !== null){
-fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
-console.log(mylogCpdlc);
-}
-}while ( mylogCpdlc.match("Separateur d'impression") == null);
-}*/

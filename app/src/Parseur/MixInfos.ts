@@ -23,98 +23,101 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
 
 
 
-    //Initialisation du vol issu des donnees VEMGSA
-    let monvolVemgsa = new Vol(arcid, plnid);
-    let pv = new parseurVemgsa();
-    //pv.identification(arcid, plnid, fichierSourceVemgsa);
+  //Initialisation du vol issu des donnees VEMGSA
+  let monvolVemgsa = new Vol(arcid, plnid);
+  let pv = new parseurVemgsa();
+  //pv.identification(arcid, plnid, fichierSourceVemgsa);
 
-    monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
+  monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
 
-    //Initialisation du vol issu des donnees LPLN
-    let monvolLpln = new Vol(arcid, plnid);
-    let pl = new parseurLpln();
-    //pl.identification(arcid, plnid, fichierSourceLpln);
-    monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
+  //Initialisation du vol issu des donnees LPLN
+  let monvolLpln = new Vol(arcid, plnid);
+  let pl = new parseurLpln();
+  //pl.identification(arcid, plnid, fichierSourceLpln);
+  monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
-    //Initialisation du vol final issu des donnees LPLN et VEMGSA
-    let monvolFinal = new Vol(arcid, plnid);
-    const uneMinute: number = 60000;
-
-    
-
-
-    monvolVemgsa.getListeLogs().forEach((elt, key) => {
-      let heureTransfert = "";
-      let positionTransfert = "";
-      monvolFinal.addElt(elt);
-      //console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure());
-
-      //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
-      if (elt.getTitle() == 'CPCFREQ') {
-
-        monvolLpln.getListeLogs().forEach((eltL, keyL) => {
-          if (eltL.getTitle() == 'CPCFREQ') {
-            if (dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
-              // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
-              heureTransfert = eltL.getHeure();
-              // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
+  //Initialisation du vol final issu des donnees LPLN et VEMGSA
+  let monvolFinal = new Vol(arcid, plnid);
+  const uneMinute: number = 60000;
 
 
 
-            }
 
-            //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
-            monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+  monvolVemgsa.getListeLogs().forEach((elt, key) => {
+    let heureTransfert = "";
+    let positionTransfert = "";
+    monvolFinal.addElt(elt);
+    //console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure());
 
-              if (eltL.getTitle() == 'TRFDL') {
-                if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= uneMinute) {
-                  //console.log("eltL", eltL.getTitle());
-                  positionTransfert = eltL.getDetaillog()['POSITION'];
-                  //console.log("Position", positionTransfert);
-                  //console.log(" heure de transfert: ", heureTransfert);
-                  monvolFinal.addElt(eltL);
-                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
+    //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
+    if (elt.getTitle() == 'CPCFREQ') {
 
-                }
-              }
-              if (eltL.getTitle() == 'FIN TRFDL') {
-                if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2*uneMinute) {
-                  //console.log("eltL", eltL.getTitle());
-                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
-                  monvolFinal.addElt(eltL);
-                }
-              }
-              if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
-                if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2*uneMinute) {
-                  //console.log("eltL", eltL.getTitle());
-                  //console.log("eltL", eltL);
-                  monvolFinal.addElt(eltL);
-                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
-                }
-              }
-            })
+      monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+        if (eltL.getTitle() == 'CPCFREQ') {
+          if (dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
+            // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
+            heureTransfert = eltL.getHeure();
+            // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
+
+
 
           }
 
-        })
+          //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
+          monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+
+            if (eltL.getTitle() == 'TRFDL') {
+              if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= uneMinute) {
+                //console.log("eltL", eltL.getTitle());
+                positionTransfert = eltL.getDetaillog()['POSITION'];
+                //console.log("Position", positionTransfert);
+                //console.log(" heure de transfert: ", heureTransfert);
+                monvolFinal.addElt(eltL);
+                //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
+
+              }
+            }
+            if (eltL.getTitle() == 'FIN TRFDL') {
+              if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * uneMinute) {
+                //console.log("eltL", eltL.getTitle());
+                //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
+                monvolFinal.addElt(eltL);
+              }
+            }
+            if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
+              if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * uneMinute) {
+                //console.log("eltL", eltL.getTitle());
+                //console.log("eltL", eltL);
+                monvolFinal.addElt(eltL);
+                //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
+              }
+            }
+          })
+
+        }
+
+      })
 
 
-      }
+    }
 
-    })
+  })
 
-    console.log("resultat vol final : ");
-    let graphe = new grapheEtat();
-    let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
-    /** console.log("debut logs collectes non tries");
-    monvolFinal.getListeLogs().forEach(etatCpdlc => {
-      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    });
-    console.log("fin logs collectes non tries"); */
-    let trie: boolean = false;
-    let changement: boolean;
+  console.log("resultat vol final : ");
+  let graphe = new grapheEtat();
+  let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
+  /** console.log("debut logs collectes non tries");
+  monvolFinal.getListeLogs().forEach(etatCpdlc => {
+    //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
+    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+  });
+  console.log("fin logs collectes non tries"); */
+  let trie: boolean = false;
+  let changement: boolean;
+
+  if (arrayLogTemp.length > 1) {
     while (!trie) {
+
       for (let i = 0; i < arrayLogTemp.length - 1; i++) {
         changement = false;
 
@@ -130,19 +133,20 @@ export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string
       }
       if (changement == false) { trie = true; }
     }
-    monvolFinal.setListeLogs(arrayLogTemp);
+  }
+  monvolFinal.setListeLogs(arrayLogTemp);
 
 
 
-    monvolFinal = graphe.grapheMix(monvolFinal);
-    console.log("debut logs collectes et tries");
+  monvolFinal = graphe.grapheMix(monvolFinal);
+  console.log("debut logs collectes et tries");
 
-    monvolFinal.getListeLogs().forEach(etatCpdlc => {
-      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    });
-    console.log("fin logs collectes et tries");
-    return monvolFinal;
+  monvolFinal.getListeLogs().forEach(etatCpdlc => {
+    //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
+    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+  });
+  console.log("fin logs collectes et tries");
+  return monvolFinal;
 }
 
 
@@ -157,13 +161,13 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
   monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
 
-    console.log("debut logs collectes et tries");
+  console.log("debut logs collectes et tries");
 
-    monvolLpln.getListeLogs().forEach(etatCpdlc => {
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    });
-    console.log("fin logs collectes et tries");
-    return monvolLpln;
+  monvolLpln.getListeLogs().forEach(etatCpdlc => {
+    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+  });
+  console.log("fin logs collectes et tries");
+  return monvolLpln;
 
 
 }
@@ -180,15 +184,15 @@ export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: s
 
   monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
 
-  
 
-    console.log("debut logs collectes et tries");
 
-    monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    });
-    console.log("fin logs collectes et tries");
-    return monvolVemgsa;
+  console.log("debut logs collectes et tries");
+
+  monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
+    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+  });
+  console.log("fin logs collectes et tries");
+  return monvolVemgsa;
 }
 
 

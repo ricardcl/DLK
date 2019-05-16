@@ -121,7 +121,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                 result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
 
 
-                if ((grepL.isPlnid(plnid, fichierSourceLpln) == true) && (result.existe == true)) {
+                if ((grepL.isPlnid(plnid, fichierSourceLpln) == true) && (result.existe == true) ) {
                     let creneau = new Array(<dates.datesFile>{});
                     creneau = dates.getCreneaux(result.dates);
                     if (creneau.length > 1) {
@@ -135,13 +135,16 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                 }
             }
             break;
+            case Contexte.NONE:
+            console.log(" Contexte NONE ");
+            break;
         default:
             console.log(" Contexte.default ");
             break;
     }
 
 
-    console.log("answer: ", answer);
+    console.log("checkInitial: ", answer);
     return answer;
 }
 export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): checkAnswer {
@@ -156,23 +159,20 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
 
 
     id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, horaire);
-
+    
     answer.arcid = id.arcid;
     answer.plnid = id.plnid;
+    answer.valeurRetour = 0;
+    answer.MessageRetour = "cas non etudie"
     if (id.identifie == true) {
         answer.valeurRetour = 1;
+        answer.MessageRetour = "Vol trouve";
     }
     if (id.identifie == false) {
         answer.valeurRetour = 0;
         answer.MessageRetour = "Pas de vol correspondant trouve"
     }
-
-    else {
-        answer.valeurRetour = 0;
-        answer.MessageRetour = "cas non etudie"
-    }
-
-
+    console.log("check: ", answer);
     return answer;
 }
 

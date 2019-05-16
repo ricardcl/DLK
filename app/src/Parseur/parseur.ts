@@ -25,7 +25,6 @@ export class parseurVemgsa {
   identification = function (arcid:string, plnid:number, fichierSourceVemgsa:string[],  horaire?: dates.datesFile):Identifiants {
     console.log("identification VEMGSA");
     
-    //console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceVemgsa) );
     
     let id = <Identifiants>{};
     id.identifie=false;

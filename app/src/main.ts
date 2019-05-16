@@ -7,7 +7,10 @@ import { check, checkInitial, checkAnswer, evaluationContexte } from './Parseur/
 import { getListeVols } from './Parseur/MixInfos';
 import * as grep from "./Parseur/grep";
 import { Contexte } from "./Modele/enumContexte";
+import { log } from "util";
 
+
+const fs = require('fs');
 
 
 
@@ -34,6 +37,7 @@ const system = p.resolve(input, 'system');
 console.log("debut main");
 export const path = new Path(dist, assets, input, output, user, system);
 
+//try {
 
 /**
  * console.log("debug");
@@ -61,8 +65,8 @@ console.log("systemPath: "+systemPath);
 // VEMGSA5.OPP.stpv1_040519_0941_050519_0642
 
 
-let arcid = "";//"FIN6RM"; //"EWG6LB"
-let plnid = 8549;//3727;
+let arcid = "AFR21QN";//"FIN6RM"; //"EWG6LB"
+let plnid = 0;
 //8977 = lpln   9694= lpln2   
 //5854= lpln3 &  5491 = lpln4 pas de vemgsa
 //3124 entre le 30.04 et le 01.05 : test vol sur deux fichiers vemgsa , fichier lpln : 3124_EJU38QK
@@ -72,35 +76,64 @@ console.log("resulat mixinfos: ");
 //mixInfos(arcid,plnid,  "lpln3", ["vemgsa3"]);
 
 
-let lpln = "";
+let lpln = "lpln2";
 
 //EJU261N 8549
+let listVemgsaInput ="../user/vemgsa2";//["../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706","../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716"];
+let listVemgsa = new  Array;
 
-let listVemgsa: string[] = grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716", "../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"]);
+
+
+if ( typeof listVemgsaInput == "string") {
+  listVemgsa[0] = listVemgsaInput;
+}
+if ( typeof listVemgsaInput == "object") {
+  listVemgsa= grep.orderVemgsa(listVemgsaInput);
+}
+//TODO traiter le cas else typeof ni string ni object
+
+
+
 let contexte: Contexte = evaluationContexte(arcid, plnid, lpln, listVemgsa);
+
+
 
 let resultCheckInitial = <checkAnswer>{};
 resultCheckInitial = checkInitial(arcid, plnid, lpln, listVemgsa, contexte);
 
+
 if (resultCheckInitial.valeurRetour == 1) {
-  check(arcid, plnid, lpln, listVemgsa);
+  
+  let resultCheck:checkAnswer = check(arcid, plnid, lpln, listVemgsa);
+  
+  if (resultCheck.valeurRetour == 1){
+    if (contexte == Contexte.LPLNVEMGSA) {
+      mixInfos(resultCheck.arcid, resultCheck.plnid, lpln, listVemgsa);
+    }
+    if (contexte == Contexte.LPLN) {
+      InfosLpln(resultCheck.arcid, resultCheck.plnid, lpln);
+    }
+    if (contexte == Contexte.VEMGSA) {     
+      InfosVemgsa(resultCheck.arcid, resultCheck.plnid, listVemgsa);
+    }
+    
+  }
+  else {
+    console.log("resultCheck : ", resultCheck.valeurRetour);
+    
+  }
 }
 if (resultCheckInitial.valeurRetour == 2) {
-  check(arcid, plnid, lpln, listVemgsa);
+ // check(arcid, plnid, lpln, listVemgsa);
 }
 
-if (contexte == Contexte.LPLNVEMGSA) {
-  mixInfos(arcid, plnid, lpln, listVemgsa);
-}
-if (contexte == Contexte.LPLN) {
-  InfosLpln(arcid, plnid, lpln);
-}
-if (contexte == Contexte.VEMGSA) {
-  InfosVemgsa(arcid, plnid, listVemgsa);
-}
 
 
 
 
 new Formulaire();
+
+//} catch (exception) {
+//  console.log("erreur trouvee:", exception.code); //TO DO recuperer les exceptions pour indiquer a lutilisateur qu'il y a un pbm
+//}
 
