@@ -3,7 +3,6 @@ import { Formulaire } from "./Formulaire";
 import { split } from "./Parseur/split";
 import { Path } from './Modele/path';
 import { mixInfos, InfosLpln, InfosVemgsa } from './Parseur/MixInfos';
-import { check, checkInitial, checkAnswer, evaluationContexte } from './Parseur/check';
 import { getListeVols } from './Parseur/MixInfos';
 import * as grep from "./Parseur/grep";
 import { Contexte } from "./Modele/enumContexte";
@@ -64,8 +63,8 @@ console.log("systemPath: "+systemPath);
 // VEMGSA4.OPP.stpv1_030519_0625_040519_0941
 // VEMGSA5.OPP.stpv1_040519_0941_050519_0642
 
-
-let arcid = "AFR21QN";//"FIN6RM"; //"EWG6LB"
+/** 
+let arcid = "AFR21Q";//"FIN6RM"; //"EWG6LB"
 let plnid = 0;
 //8977 = lpln   9694= lpln2   
 //5854= lpln3 &  5491 = lpln4 pas de vemgsa
@@ -90,6 +89,7 @@ if ( typeof listVemgsaInput == "string") {
 if ( typeof listVemgsaInput == "object") {
   listVemgsa= grep.orderVemgsa(listVemgsaInput);
 }
+
 //TODO traiter le cas else typeof ni string ni object
 
 
@@ -130,6 +130,7 @@ if (resultCheckInitial.valeurRetour == 2) {
 
 
 
+*/
 
 new Formulaire();
 

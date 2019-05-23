@@ -6,16 +6,9 @@ import * as dates from './date';
 import * as grepV from "./grep";
 import * as grepL from "./grepLPLN";
 import { Contexte } from '../Modele/enumContexte';
+import { checkAnswer } from '../Modele/checkAnswer';
 
 
-
-export interface checkAnswer {
-    valeurRetour: number;
-    MessageRetour: string
-    plnid?: number;
-    arcid?: string;
-    // creneauHoraire?:dates.datesFile;
-}
 
 
 
@@ -59,19 +52,32 @@ export function evaluationContexte(fichierSourceLpln: string, fichierSourceVemgs
  * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut)
  * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max)
  * @param contexte : le contexte d'exécution lié aux types de fichiers logs en entrée
- * @returns {valeurRetour,MessageRetour } 
+ * @returns {valeurRetour,messageRetour } 
  *   où valeurRetour indique si le checkInitial s'est bien déroulé :
- *   0: arcid ou plnid trouvé ou probleme d'ouverture de fichier, 1 : arcid et plnid trouvés, 2 : arcid ou plnid trouvés dans desplages horaires distinctes
- *   et où MessageRetour donne une explication en cas d'echec
+ *   0: arcid et plnid trouvés, 
+ *   1 : arcid ou plnid non trouvé 
+ *   2 : arcid ou plnid trouvés dans desplages horaires distinctes
+ *   3 :  probleme d'ouverture de fichier,  
+ *   4 : format arcid ou plnid invalide
+ *   et où messageRetour donne une explication en cas d'echec
  */
 export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte): checkAnswer {
-
+    let regexpPlnid : RegExp = /^\d{4}$/;
+    let regexpArcid : RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
     let id = <Identifiants>{};
     let result = <dates.arrayDatesFile>{};
     let answer = <checkAnswer>{};
-    answer.valeurRetour = 0;
-    answer.MessageRetour = "Vol non trouve";
+    answer.valeurRetour = 1;
+    answer.messageRetour = "arcid ou plnid non trouvé";
 
+    console.log("fichierSourceVemgsa: ",fichierSourceVemgsa);
+    
+    
+    if ( ((arcid !== "") && (plnid == 0) && ( !arcid.match(regexpArcid))) || ((arcid == "") && (plnid !== 0) && ( !plnid.toString().match(regexpPlnid)))) {    
+        answer.valeurRetour = 4;
+        answer.messageRetour = "format arcid ou plnid invalide";      
+        return answer;
+    }
 
     switch (contexte) {
         case Contexte.LPLN:
@@ -79,20 +85,20 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                 console.log(" Contexte.LPLN ");
                 if ((arcid !== "") && (plnid == 0)) {
                     if (grepL.isArcid(arcid, fichierSourceLpln) == true) {
-                        answer.valeurRetour = 1;
-                        answer.MessageRetour = "Vol trouve";
+                        answer.valeurRetour = 0;
+                        answer.messageRetour = "Vol trouve";
                     }
                 }
                 if ((arcid == "") && (plnid !== 0)) {
                     if (grepL.isPlnid(plnid, fichierSourceLpln) == true) {
-                        answer.valeurRetour = 1;
-                        answer.MessageRetour = "Vol trouve";
+                        answer.valeurRetour = 0;
+                        answer.messageRetour = "Vol trouve";
                     }
                 }
             } catch (exception) {
                 console.log("erreur lors de l'ouverture du fichier LPLN:", exception.code);
-                answer.valeurRetour = 0;
-                answer.MessageRetour = "Erreur lors de l'ouverture du fichier LPLN";
+                answer.valeurRetour = 3;
+                answer.messageRetour = "Erreur lors de l'ouverture du fichier LPLN";
             }
             break;
         case Contexte.VEMGSA:
@@ -106,11 +112,11 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         console.log("creneaux trouves:", result.dates);
                         if (result.dates.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.MessageRetour = "trop de creneaux trouves";
+                            answer.messageRetour = "trop de creneaux trouves";
                         }
                         else {
-                            answer.valeurRetour = 1;
-                            answer.MessageRetour = "Vol trouve";
+                            answer.valeurRetour = 0;
+                            answer.messageRetour = "Vol trouve";
                         }
                     }
                 }
@@ -121,18 +127,18 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         creneau = dates.getCreneaux(result.dates);
                         if (creneau.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.MessageRetour = "trop de creneaux trouves";
+                            answer.messageRetour = "trop de creneaux trouves";
                         }
                         else {
-                            answer.valeurRetour = 1;
-                            answer.MessageRetour = "Vol trouve";
+                            answer.valeurRetour = 0;
+                            answer.messageRetour = "Vol trouve";
                         }
                     }
                 }
             } catch (exception) {
                 console.log("erreur lors de l'ouverture du fichier VEMGSA:", exception.code);
-                answer.valeurRetour = 0;
-                answer.MessageRetour = "Erreur lors de l'ouverture du fichier VEMGSA";
+                answer.valeurRetour = 3;
+                answer.messageRetour = "Erreur lors de l'ouverture du fichier VEMGSA";
             }
             break;
         case Contexte.LPLNVEMGSA:
@@ -141,17 +147,18 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                 result.dates = new Array;
                 if ((arcid !== "") && (plnid == 0)) {
                     result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
-
+                    console.log("result",result);
+                    
                     if ((grepL.isArcid(arcid, fichierSourceLpln) == true) && (result.existe == true)) {
                         let creneau = new Array(<dates.datesFile>{});
                         console.log("creneaux trouves:", result.dates);
                         if (result.dates.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.MessageRetour = "trop de creneaux trouves";
+                            answer.messageRetour = "trop de creneaux trouves";
                         }
                         else {
-                            answer.valeurRetour = 1;
-                            answer.MessageRetour = "Vol trouve";
+                            answer.valeurRetour = 0;
+                            answer.messageRetour = "Vol trouve";
                         }
                     }
                 }
@@ -164,18 +171,18 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         creneau = dates.getCreneaux(result.dates);
                         if (creneau.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.MessageRetour = "trop de creneaux trouves";
+                            answer.messageRetour = "trop de creneaux trouves";
                         }
                         else {
-                            answer.valeurRetour = 1;
-                            answer.MessageRetour = "Vol trouve";
+                            answer.valeurRetour = 0;
+                            answer.messageRetour = "Vol trouve";
                         }
                     }
                 }
             } catch (exception) {
                 console.log("erreur lors de l'ouverture des fichiers LPLN et VEMGSA:", exception.code);
-                answer.valeurRetour = 0;
-                answer.MessageRetour = "Erreur lors de l'ouverture des fichiers LPLN et VEMGSA";
+                answer.valeurRetour = 3;
+                answer.messageRetour = "Erreur lors de l'ouverture des fichiers LPLN et VEMGSA";
             }
             break;
         case Contexte.NONE:
@@ -200,9 +207,9 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
  * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut)
  * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max)
  * @param horaire : horaire permettant de restreindre les informations à traiter dans les fichiers de logs fournis (facultatif) 
- * @returns { valeurRetour,MessageRetour,arcid, plnid } 
+ * @returns { valeurRetour,messageRetour,arcid, plnid } 
  *   où valeurRetour indique si le check s'est bien déroulé : 0: COUPLE TROUVE, 1 : COUPLE NON TROUVE, 2: creneau horaire necessaire
- *   et où MessageRetour donne une explication en cas d'echec
+ *   et où messageRetour donne une explication en cas d'echec
  */
 export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): checkAnswer {
 
@@ -210,22 +217,22 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
     let answer = <checkAnswer>{};
     answer.arcid = arcid;
     answer.plnid = plnid;
-    answer.valeurRetour = 0;
-    answer.MessageRetour = "Vol non trouve";
+    answer.valeurRetour = 1;
+    answer.messageRetour = "Vol non trouve";
 
     id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, horaire);
 
     answer.arcid = id.arcid;
     answer.plnid = id.plnid;
     answer.valeurRetour = 0;
-    answer.MessageRetour = "cas non etudie"
+    answer.messageRetour = "cas non etudie"
     if (id.identifie == true) {
-        answer.valeurRetour = 1;
-        answer.MessageRetour = "Vol trouve";
+        answer.valeurRetour = 0;
+        answer.messageRetour = "Vol trouve";
     }
     if (id.identifie == false) {
-        answer.valeurRetour = 0;
-        answer.MessageRetour = "Pas de vol correspondant trouve"
+        answer.valeurRetour = 1;
+        answer.messageRetour = "Pas de vol correspondant trouve"
     }
     console.log("check: ", answer);
     return answer;
