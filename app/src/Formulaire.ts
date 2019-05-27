@@ -69,7 +69,7 @@ export class Formulaire {
                 let resultCheckInitial = <checkAnswer>{};
                 resultCheckInitial = checkInitial(arcid, plnid, lpln, listVemgsa, contexte);
                 if (resultCheckInitial.valeurRetour == 0) {
-                    let resultCheck: checkAnswer = check(arcid, plnid, lpln, listVemgsa);
+                    let resultCheck: checkAnswer = check(arcid, plnid, lpln, listVemgsa, resultCheckInitial.creneauHoraire);
                         socket.emit("check", resultCheck)
                 }
                 else  {

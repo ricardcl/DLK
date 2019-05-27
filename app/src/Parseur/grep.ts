@@ -110,6 +110,8 @@ export function grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, h
   let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
   let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;
   let motif2 = /(.*)(CPCASRES)(.*)(-PLNID )(.*)(-REQID)(.*)/;
+  console.log('horaire: ',horaire);
+  
 
   if (r === false) {
     console.log("Error, can't open ", fichierSource);
@@ -122,6 +124,7 @@ export function grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, h
       if (mylogCpdlc === false) { break; }
 
       if ((horaire == undefined) || ((horaire != undefined) && (dates.isInCreneauxVemgsa(horaire, mylogCpdlc, diffMax) == true))) {
+        
         if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(plnid) !== null)) {
           mylogCpdlc = mylogCpdlc.match(motifVemgsa);
           let plnidTrouve: number;

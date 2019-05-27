@@ -56,8 +56,8 @@ export function evaluationContexte(fichierSourceLpln: string, fichierSourceVemgs
  *   où valeurRetour indique si le checkInitial s'est bien déroulé :
  *   0: arcid et plnid trouvés, 
  *   1 : arcid ou plnid non trouvé 
- *   2 : arcid ou plnid trouvés dans desplages horaires distinctes
- *   3 :  probleme d'ouverture de fichier,  
+ *   2 : arcid ou plnid trouvés dans des plages horaires distinctes
+ *   3 : probleme d'ouverture de fichier,  
  *   4 : format arcid ou plnid invalide
  *   et où messageRetour donne une explication en cas d'echec
  */
@@ -112,11 +112,12 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         console.log("creneaux trouves:", result.dates);
                         if (result.dates.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.messageRetour = "trop de creneaux trouves";
+                            answer.messageRetour = "trop de creneaux trouves: "+creneau;
                         }
                         else {
                             answer.valeurRetour = 0;
                             answer.messageRetour = "Vol trouve";
+                            answer.creneauHoraire = creneau[0];
                         }
                     }
                 }
@@ -127,11 +128,12 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         creneau = dates.getCreneaux(result.dates);
                         if (creneau.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.messageRetour = "trop de creneaux trouves";
+                            answer.messageRetour = "trop de creneaux trouves: "+creneau;
                         }
                         else {
                             answer.valeurRetour = 0;
                             answer.messageRetour = "Vol trouve";
+                            answer.creneauHoraire = creneau[0];
                         }
                     }
                 }
@@ -154,11 +156,12 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         console.log("creneaux trouves:", result.dates);
                         if (result.dates.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.messageRetour = "trop de creneaux trouves";
+                            answer.messageRetour = "trop de creneaux trouves: "+creneau;
                         }
                         else {
                             answer.valeurRetour = 0;
                             answer.messageRetour = "Vol trouve";
+                            answer.creneauHoraire = creneau[0];
                         }
                     }
                 }
@@ -171,11 +174,12 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         creneau = dates.getCreneaux(result.dates);
                         if (creneau.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.messageRetour = "trop de creneaux trouves";
+                            answer.messageRetour = "trop de creneaux trouves: "+creneau;
                         }
                         else {
                             answer.valeurRetour = 0;
                             answer.messageRetour = "Vol trouve";
+                            answer.creneauHoraire = creneau[0];
                         }
                     }
                 }
