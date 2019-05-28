@@ -23,11 +23,10 @@ import { checkAnswer } from '../Modele/checkAnswer';
  */
 export function evaluationContexte(fichierSourceLpln: string, fichierSourceVemgsa: string[]): Contexte {
 
-
     let contexte: Contexte = Contexte.NONE;
 
     if ((fichierSourceLpln != "")) { // et test que le fichier s'ouvre
-        if ((fichierSourceVemgsa[0] != "")) {
+        if ((fichierSourceVemgsa.length !== 0)) {
             contexte = Contexte.LPLNVEMGSA;
         }
         else {
@@ -35,7 +34,7 @@ export function evaluationContexte(fichierSourceLpln: string, fichierSourceVemgs
         }
     }
     else {
-        if ((fichierSourceVemgsa[0] != "")) {
+        if ((fichierSourceVemgsa.length !== 0)) {
             contexte = Contexte.VEMGSA;
         }
 
@@ -62,44 +61,44 @@ export function evaluationContexte(fichierSourceLpln: string, fichierSourceVemgs
  *   et où messageRetour donne une explication en cas d'echec
  */
 export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte): checkAnswer {
-    let regexpPlnid : RegExp = /^\d{4}$/;
-    let regexpArcid : RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
+    let regexpPlnid: RegExp = /^\d{4}$/;
+    let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
     let id = <Identifiants>{};
     let result = <dates.arrayDatesFile>{};
     let answer = <checkAnswer>{};
     answer.valeurRetour = 1;
     answer.messageRetour = "arcid ou plnid non trouvé";
 
-    console.log("fichierSourceVemgsa: ",fichierSourceVemgsa);
-    
-    
-    if ( ((arcid !== "") && (plnid == 0) && ( !arcid.match(regexpArcid))) || ((arcid == "") && (plnid !== 0) && ( !plnid.toString().match(regexpPlnid)))) {    
+    console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
+
+
+    if (((arcid !== "") && (plnid == 0) && (!arcid.match(regexpArcid))) || ((arcid == "") && (plnid !== 0) && (!plnid.toString().match(regexpPlnid)))) {
         answer.valeurRetour = 4;
-        answer.messageRetour = "format arcid ou plnid invalide";      
+        answer.messageRetour = "format arcid ou plnid invalide";
         return answer;
     }
 
     switch (contexte) {
         case Contexte.LPLN:
-            try {
-                console.log(" Contexte.LPLN ");
-                if ((arcid !== "") && (plnid == 0)) {
-                    if (grepL.isArcid(arcid, fichierSourceLpln) == true) {
-                        answer.valeurRetour = 0;
-                        answer.messageRetour = "Vol trouve";
-                    }
+            //   try {
+            console.log(" Contexte.LPLN ");
+            if ((arcid !== "") && (plnid == 0)) {
+                if (grepL.isArcid(arcid, fichierSourceLpln) == true) {
+                    answer.valeurRetour = 0;
+                    answer.messageRetour = "Vol trouve";
                 }
-                if ((arcid == "") && (plnid !== 0)) {
-                    if (grepL.isPlnid(plnid, fichierSourceLpln) == true) {
-                        answer.valeurRetour = 0;
-                        answer.messageRetour = "Vol trouve";
-                    }
-                }
-            } catch (exception) {
-                console.log("erreur lors de l'ouverture du fichier LPLN:", exception.code);
-                answer.valeurRetour = 3;
-                answer.messageRetour = "Erreur lors de l'ouverture du fichier LPLN";
             }
+            if ((arcid == "") && (plnid !== 0)) {
+                if (grepL.isPlnid(plnid, fichierSourceLpln) == true) {
+                    answer.valeurRetour = 0;
+                    answer.messageRetour = "Vol trouve";
+                }
+            }
+            /**  } catch (exception) {
+                  console.log("erreur lors de l'ouverture du fichier LPLN:", exception.code);
+                  answer.valeurRetour = 3;
+                  answer.messageRetour = "Erreur lors de l'ouverture du fichier LPLN";
+              }*/
             break;
         case Contexte.VEMGSA:
             try {
@@ -112,7 +111,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         console.log("creneaux trouves:", result.dates);
                         if (result.dates.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.messageRetour = "trop de creneaux trouves: "+creneau;
+                            answer.messageRetour = "trop de creneaux trouves: " + creneau;
                         }
                         else {
                             answer.valeurRetour = 0;
@@ -128,7 +127,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         creneau = dates.getCreneaux(result.dates);
                         if (creneau.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.messageRetour = "trop de creneaux trouves: "+creneau;
+                            answer.messageRetour = "trop de creneaux trouves: " + creneau;
                         }
                         else {
                             answer.valeurRetour = 0;
@@ -149,14 +148,14 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                 result.dates = new Array;
                 if ((arcid !== "") && (plnid == 0)) {
                     result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
-                    console.log("result",result);
-                    
+                    console.log("result", result);
+
                     if ((grepL.isArcid(arcid, fichierSourceLpln) == true) && (result.existe == true)) {
                         let creneau = new Array(<dates.datesFile>{});
                         console.log("creneaux trouves:", result.dates);
                         if (result.dates.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.messageRetour = "trop de creneaux trouves: "+creneau;
+                            answer.messageRetour = "trop de creneaux trouves: " + creneau;
                         }
                         else {
                             answer.valeurRetour = 0;
@@ -174,7 +173,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         creneau = dates.getCreneaux(result.dates);
                         if (creneau.length > 1) {
                             answer.valeurRetour = 2;
-                            answer.messageRetour = "trop de creneaux trouves: "+creneau;
+                            answer.messageRetour = "trop de creneaux trouves: " + creneau;
                         }
                         else {
                             answer.valeurRetour = 0;
@@ -215,7 +214,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
  *   où valeurRetour indique si le check s'est bien déroulé : 0: COUPLE TROUVE, 1 : COUPLE NON TROUVE, 2: creneau horaire necessaire
  *   et où messageRetour donne une explication en cas d'echec
  */
-export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): checkAnswer {
+export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, horaire?: dates.datesFile): checkAnswer {
 
     let id = <Identifiants>{};
     let answer = <checkAnswer>{};
@@ -224,7 +223,7 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
     answer.valeurRetour = 1;
     answer.messageRetour = "Vol non trouve";
 
-    id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, horaire);
+    id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, contexte, horaire);
 
     answer.arcid = id.arcid;
     answer.plnid = id.plnid;
@@ -288,38 +287,42 @@ export function identificationVemgsa(arcid: string, plnid: number, fichierSource
  * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
  *                  et où plnid, arcid représent le couple s'il a pu être identifié
  */
-export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): Identifiants {
+export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, horaire?: dates.datesFile): Identifiants {
     let idL, idV = <Identifiants>{};
 
-    if ((fichierSourceLpln != "") && (fichierSourceVemgsa[0] != "")) {
-        console.log("cas 1")
-        idL = identificationLpln(arcid, plnid, fichierSourceLpln);
-        idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, horaire);
-        if (sameIdent(idL, idV) == true) {
-            return idL;
-        }
-        else {
-            idL.identifie = false;
-            return idL;
-        }
-    }
-    else {
-        if (fichierSourceLpln != "") {
+    switch (contexte) {
+        case Contexte.LPLN:
             console.log("cas 2")
             idL = identificationLpln(arcid, plnid, fichierSourceLpln);
             return idL;
-        }
-        if (fichierSourceVemgsa[0] != "") {
+
+            break;
+        case Contexte.VEMGSA:
             console.log("cas 3")
             idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, horaire);
             return idV;
-        }
-        else {
+
+            break;
+        case Contexte.LPLNVEMGSA:
+            console.log("cas 1")
+            idL = identificationLpln(arcid, plnid, fichierSourceLpln);
+            idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, horaire);
+            if (sameIdent(idL, idV) == true) {
+                return idL;
+            }
+            else {
+                idL.identifie = false;
+                return idL;
+            }
+            break;
+        default:
             console.log("cas 4")
             idL.identifie = false;
             return idL;
-        }
+            break;
+
     }
+
 
 }
 

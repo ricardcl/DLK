@@ -1,8 +1,8 @@
-import { mixInfos } from './Parseur/MixInfos';
+import { mixInfos, InfosLpln, InfosVemgsa } from './Parseur/MixInfos';
 import { getListeVols } from './Parseur/MixInfos';
 import { path } from './main'
 import { Contexte } from './Modele/enumContexte';
-import {  evaluationContexte, checkInitial, check } from './Parseur/check';
+import { evaluationContexte, checkInitial, check } from './Parseur/check';
 const p = require('path');
 
 
@@ -20,6 +20,7 @@ export class Formulaire {
 
     private app = require('http').createServer();
     private io = require('socket.io')(this.app);
+    private contexte: Contexte;
 
     constructor() {
         console.log("hello");
@@ -53,34 +54,48 @@ export class Formulaire {
                 console.log("typeof fileLpln", typeof lpln);
                 console.log("analyseDataInput", "fileVemgsa", listVemgsaInput);
                 console.log("typeof listVemgsaInput", typeof listVemgsaInput);
-                console.log("typeof listVemgsaInput.length",  listVemgsaInput.length);
+                console.log("typeof listVemgsaInput.length", listVemgsaInput.length);
                 console.log("analyseDataInput", "arcid", arcid);
                 console.log("analyseDataInput", "plnid", plnid);
-                let listVemgsa = new  Array;
-                if ( listVemgsaInput.length >= 2) {
-                    listVemgsa= grep.orderVemgsa(listVemgsaInput);
-                                     }
-                  else {
-                    listVemgsa[0] = listVemgsaInput[0];
-                  }
-
-                  
-                let contexte: Contexte = evaluationContexte(lpln, listVemgsa);
-                let resultCheckInitial = <checkAnswer>{};
-                resultCheckInitial = checkInitial(arcid, plnid, lpln, listVemgsa, contexte);
-                if (resultCheckInitial.valeurRetour == 0) {
-                    let resultCheck: checkAnswer = check(arcid, plnid, lpln, listVemgsa, resultCheckInitial.creneauHoraire);
-                        socket.emit("check", resultCheck)
+                let listVemgsa = new Array;
+                if (listVemgsaInput.length >= 2) {
+                    listVemgsa = grep.orderVemgsa(listVemgsaInput);
                 }
-                else  {
+                else if (listVemgsaInput.length == 1){
+                    listVemgsa[0] = listVemgsaInput[0];
+                }
+
+
+
+                this.contexte = evaluationContexte(lpln, listVemgsa);
+                let resultCheckInitial = <checkAnswer>{};
+                resultCheckInitial = checkInitial(arcid, plnid, lpln, listVemgsa, this.contexte);
+                if (resultCheckInitial.valeurRetour == 0) {
+                    let resultCheck: checkAnswer = check(arcid, plnid, lpln, listVemgsa,this.contexte,  resultCheckInitial.creneauHoraire);
+                    socket.emit("check", resultCheck)
+                }
+                else {
                     socket.emit("checkInitial", resultCheckInitial)
                 }
             });
 
             socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename) => {
-                console.log("analysedVol", "arcid: ",arcid,"plnid: ", plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename);
-                console.log("resulat mixinfos: ", mixInfos(arcid, plnid, lplnfilename, vemgsafilename));
-                socket.emit("analysedVol", mixInfos(arcid, plnid, lplnfilename, vemgsafilename));
+                console.log("analysedVol", "arcid: ", arcid, "plnid: ", plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename);
+                switch (this.contexte) {
+                    case Contexte.LPLN: 
+                    socket.emit("analysedVol", InfosLpln(arcid, plnid, lplnfilename));
+                    break;
+                    case Contexte.VEMGSA: 
+                    socket.emit("analysedVol", InfosVemgsa(arcid, plnid, vemgsafilename));
+
+                    break;
+                    case Contexte.LPLNVEMGSA: 
+                    socket.emit("analysedVol", mixInfos(arcid, plnid, lplnfilename, vemgsafilename));
+                    break;
+
+                }
+                    
+               
             });
 
 
