@@ -54,8 +54,6 @@ console.log("systemPath: "+systemPath);
 */
 
 
-//grep.grepDifferentsVolsVemgsaTrouves(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706"], 3727);
-//grep.orderVemgsa(["../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716","../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706","../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716"]);
 
 // VEMGSA5.OPP.stpv1_300419_0708_010519_0706
 // VEMGSA2.OPP.stpv1_010519_0706_020519_0716
@@ -73,64 +71,9 @@ let plnid = 0;
 // fichiers lpln concernes : 3727_FIN6RM et 3727_30mai 
 console.log("resulat mixinfos: ");
 //mixInfos(arcid,plnid,  "lpln3", ["vemgsa3"]);
-
-
-let lpln = "lpln2";
-
-//EJU261N 8549
-let listVemgsaInput ="../user/vemgsa2";//["../user/VEMGSA5.OPP.stpv1_300419_0708_010519_0706","../user/VEMGSA2.OPP.stpv1_010519_0706_020519_0716"];
-let listVemgsa = new  Array;
-
-
-
-if ( typeof listVemgsaInput == "string") {
-  listVemgsa[0] = listVemgsaInput;
-}
-if ( typeof listVemgsaInput == "object") {
-  listVemgsa= grep.orderVemgsa(listVemgsaInput);
-}
-
-//TODO traiter le cas else typeof ni string ni object
-
-
-
-let contexte: Contexte = evaluationContexte(lpln, listVemgsa);
-
-
-
-let resultCheckInitial = <checkAnswer>{};
-resultCheckInitial = checkInitial(arcid, plnid, lpln, listVemgsa, contexte);
-
-
-if (resultCheckInitial.valeurRetour == 1) {
-  
-  let resultCheck:checkAnswer = check(arcid, plnid, lpln, listVemgsa);
-  
-  if (resultCheck.valeurRetour == 1){
-    if (contexte == Contexte.LPLNVEMGSA) {
-      mixInfos(resultCheck.arcid, resultCheck.plnid, lpln, listVemgsa);
-    }
-    if (contexte == Contexte.LPLN) {
-      InfosLpln(resultCheck.arcid, resultCheck.plnid, lpln);
-    }
-    if (contexte == Contexte.VEMGSA) {     
-      InfosVemgsa(resultCheck.arcid, resultCheck.plnid, listVemgsa);
-    }
-    
-  }
-  else {
-    console.log("resultCheck : ", resultCheck.valeurRetour);
-    
-  }
-}
-if (resultCheckInitial.valeurRetour == 2) {
- // check(arcid, plnid, lpln, listVemgsa);
-}
-
-
-
-
 */
+
+
 
 new Formulaire();
 

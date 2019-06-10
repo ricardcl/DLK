@@ -83,14 +83,14 @@ export class Formulaire {
                 console.log("analysedVol", "arcid: ", arcid, "plnid: ", plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename);
                 switch (this.contexte) {
                     case Contexte.LPLN: 
-                    socket.emit("analysedVol", InfosLpln(arcid, plnid, lplnfilename));
+                    socket.emit("analysedVol", "LPLN",  InfosLpln(arcid, plnid, lplnfilename));
                     break;
                     case Contexte.VEMGSA: 
-                    socket.emit("analysedVol", InfosVemgsa(arcid, plnid, vemgsafilename));
+                    socket.emit("analysedVol", "VEMGSA",InfosVemgsa(arcid, plnid, vemgsafilename));
 
                     break;
                     case Contexte.LPLNVEMGSA: 
-                    socket.emit("analysedVol", mixInfos(arcid, plnid, lplnfilename, vemgsafilename));
+                    socket.emit("analysedVolMix",InfosLpln(arcid, plnid, lplnfilename),InfosVemgsa(arcid, plnid, vemgsafilename),  mixInfos(arcid, plnid, lplnfilename, vemgsafilename));
                     break;
 
                 }

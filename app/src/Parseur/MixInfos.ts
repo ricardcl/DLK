@@ -161,12 +161,12 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
   monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
 
-  console.log("debut logs collectes et tries");
+  console.log("debut logs LPLN collectes et tries");
 
   monvolLpln.getListeLogs().forEach(etatCpdlc => {
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
   });
-  console.log("fin logs collectes et tries");
+  console.log("fin logs LPLN collectes et tries");
   return monvolLpln;
 
 
@@ -186,12 +186,12 @@ export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: s
 
 
 
-  console.log("debut logs collectes et tries");
+  console.log("debut logs VEMGSA collectes et tries");
 
   monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
   });
-  console.log("fin logs collectes et tries");
+  console.log("fin logs VEMGSA collectes et tries");
   return monvolVemgsa;
 }
 
