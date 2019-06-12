@@ -33,7 +33,7 @@ export class Formulaire {
     private initSocket() {
         this.io.on("connection", (socket) => {
             console.log('connexion d un client, ouverture d une socket pour la recuperation de fichier');
-            var uploader = new SocketIOFileUpload();
+            let uploader  = new SocketIOFileUpload();
             uploader.dir = path.userPath;
             uploader.listen(socket);
             console.log('socket pour la recuperation de fichier cree');
@@ -46,6 +46,18 @@ export class Formulaire {
             uploader.on("complete", function (event) {
                 console.log("upload complete", event.file.name);
                 //mixInfos("",0, event.file.name, null);
+            });
+
+            socket.on('fermeture_socket_demandee',() => {
+
+                console.log("fermeture_socket_demandee");
+                if (uploader !== null){
+                    uploader.destroy;
+                    uploader = null;
+                }
+                else {
+                    console.log("socket deja fermee");
+                }
             });
 
             socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput) => {
