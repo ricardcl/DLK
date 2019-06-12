@@ -80,7 +80,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
 
     switch (contexte) {
         case Contexte.LPLN:
-            //   try {
+              try {
             console.log(" Contexte.LPLN ");
             if ((arcid !== "") && (plnid == 0)) {
                 if (grepL.isArcid(arcid, fichierSourceLpln) == true) {
@@ -94,11 +94,11 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                     answer.messageRetour = "Vol trouve";
                 }
             }
-            /**  } catch (exception) {
+              } catch (exception) {
                   console.log("erreur lors de l'ouverture du fichier LPLN:", exception.code);
                   answer.valeurRetour = 3;
                   answer.messageRetour = "Erreur lors de l'ouverture du fichier LPLN";
-              }*/
+              }
             break;
         case Contexte.VEMGSA:
             try {

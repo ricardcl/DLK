@@ -506,6 +506,7 @@ export function isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: strin
 
 export function isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: string[]): dates.arrayDatesFile {
 
+
   let result = <dates.arrayDatesFile>{};
   result.dates = new Array;
   result.existe = false;

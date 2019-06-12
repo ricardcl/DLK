@@ -178,6 +178,7 @@ return plnid;
 export function isArcid ( arcid:string, fichierSourceLpln:string):boolean {
   let result:boolean = false;
   let fichierSource = fichierSourceLpln;
+  
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
   let plnid =0;
@@ -213,6 +214,7 @@ return result;
 export function isPlnid ( plnid:number, fichierSourceLpln:string):boolean {
   let result:boolean =false;
   let fichierSource = fichierSourceLpln;
+
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
   let arcid ="";
