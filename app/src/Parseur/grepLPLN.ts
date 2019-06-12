@@ -37,8 +37,9 @@ let mylogCpdlc = readline.fgets(r);
 if (mylogCpdlc === false) { break;}
 //Test du début des logs concernant le vol dans le SL AIX
 let info1Lpln = mylogCpdlc.match("NUMERO PLN: "+plnid);
+let info1Lplnbis = mylogCpdlc.match("NUMERO PLN:  "+Math.round(plnid));
 let info2Lpln = mylogCpdlc.match("NOM SL: AIX");
-if  ((info1Lpln !== null) && (info2Lpln !== null) ){
+if  (((info1Lpln !== null) ||(info1Lplnbis !== null) ) && (info2Lpln !== null) ){
   fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
   //console.log(mylogCpdlc);
   //Lecture des logs concernant le vol dans le SL AIX
@@ -128,7 +129,7 @@ var mylogCpdlc = readline.fgets(r);
 if (mylogCpdlc === false) { break;}
 //Test du début des logs concernant le vol dans le SL AIX
 let info1Lpln = mylogCpdlc.match(motif);
-let info2Lpln = mylogCpdlc.match(plnid);
+let info2Lpln = mylogCpdlc.match(Math.round(plnid));
 if  ((info1Lpln !== null) && (info2Lpln !== null) ){
   arcid =  mylogCpdlc.toString().replace(motif, "$5").trim();
   
@@ -211,13 +212,14 @@ readline.fclose(r);
 return result;
 }
 
-export function isPlnid ( plnid:number, fichierSourceLpln:string):boolean {
+export function isPlnid ( plnidSource:number, fichierSourceLpln:string):boolean {
+
+  let plnid = Math.round(plnidSource);
   let result:boolean =false;
   let fichierSource = fichierSourceLpln;
 
   let r = readline.fopen(p.resolve(path.userPath,fichierSource), "r");
   let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
-  let arcid ="";
   //Test de l'ouverture du fichier
   if (r === false) {
   console.log("Error, can't open ", fichierSource);

@@ -83,9 +83,13 @@ export class parseurLpln {
 
     if ((arcid == "") && (plnid !== 0)) {
       arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
+      console.log("cas impossible");
+      
     }
     if ((arcid !== "") && (plnid == 0)) {
       plnid = grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
+      console.log("cas impossible");
+
     }
 
 
