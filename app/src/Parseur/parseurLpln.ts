@@ -36,41 +36,41 @@ import { Identifiants } from '../Modele/identifiants';
 
 export class parseurLpln {
 
-  identification = function (arcid:string, plnid:number, fichierSourceLpln:string):Identifiants {
+  identification = function (arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
     console.log("identification LPLN");
-    
+
     //console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceLpln) );
-    
+
     let id = <Identifiants>{};
-    id.identifie=false;
+    id.identifie = false;
 
     //console.log("arcid : "+arcid);
     //console.log("plnid : "+plnid);
-    if ((arcid == "") && (plnid !== 0)){
-               
-        arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
-        console.log(arcid);
-        if(arcid !== ""){
-            //console.log("arcid trouve : "+arcid);
-            id.identifie=true;
-        }   
+    if ((arcid == "") && (plnid !== 0)) {
+
+      arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
+      console.log(arcid);
+      if (arcid !== "") {
+        //console.log("arcid trouve : "+arcid);
+        id.identifie = true;
+      }
     }
 
-    if ((arcid !== "") && (plnid == 0)){
-        plnid = grep.grepPlnidFromArcid(arcid,fichierSourceLpln );
-        if(plnid !== 0){
-            //console.log("plnid trouve : "+plnid);
-            id.identifie=true;
+    if ((arcid !== "") && (plnid == 0)) {
+      plnid = grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
+      if (plnid !== 0) {
+        //console.log("plnid trouve : "+plnid);
+        id.identifie = true;
 
-        }
       }
+    }
 
 
 
-    id.plnid=plnid;
-    id.arcid=arcid;
+    id.plnid = plnid;
+    id.arcid = arcid;
 
-    console.log(" id.arcid: ",id.arcid," id.plnid: ",id.plnid," id.identifie: ",id.identifie);
+    console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
     return id;
   }
 
@@ -84,7 +84,7 @@ export class parseurLpln {
     if ((arcid == "") && (plnid !== 0)) {
       arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
       console.log("cas impossible");
-      
+
     }
     if ((arcid !== "") && (plnid == 0)) {
       plnid = grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
@@ -117,7 +117,7 @@ export class parseurLpln {
     let dateTemp: string = "";
     let mois: string = "";
     let jour: string = "";
-  
+
     let monvol = new Vol(arcid, plnid);
 
 
@@ -138,12 +138,12 @@ export class parseurLpln {
         if (mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE") !== null) {
           let motif = /(\*)(.*)(\*)(.*)(CHAMP)(.*)/;
           //console.log(mylogCpdlc);
-          
+
           dateTemp = mylogCpdlc.replace(motif, "$2").trim();
           let motifDate = /(.*)( )(.*)/;
-          if  (dateTemp.match(motifDate) !== null) {
-             jour = dateTemp.toString().replace(motifDate, "$1");
-             mois = dates.MonthLetterToNumber(dateTemp.toString().replace(motifDate, "$3"));
+          if (dateTemp.match(motifDate) !== null) {
+            jour = dateTemp.toString().replace(motifDate, "$1");
+            mois = dates.MonthLetterToNumber(dateTemp.toString().replace(motifDate, "$3"));
           }
 
         }
@@ -170,14 +170,14 @@ export class parseurLpln {
 
           let motifDateHeure = /(.*)( )(.*)(H)(.*)/;
           let dateHeure = infoGen.match(motifDateHeure);
-          if  (dateHeure !== null) {
+          if (dateHeure !== null) {
             const heure = dateHeure.toString().replace(motifDateHeure, "$3");
             const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
-            const dateToStore = jour+ "-" + mois+ " " +heure+" "+minutes;
-            const momentDate = moment(dateToStore,'DD-MM HH mm');
-            
-           log.setDate( moment(momentDate).format('DD-MM'));
-          log.setHeure( moment(momentDate).format('HH mm'));
+            const dateToStore = jour + "-" + mois + " " + heure + " " + minutes;
+            const momentDate = moment(dateToStore, 'DD-MM HH mm');
+
+            log.setDate(moment(momentDate).format('DD-MM'));
+            log.setHeure(moment(momentDate).format('HH mm'));
           }
 
 
@@ -353,6 +353,32 @@ export class parseurLpln {
           console.log("freq recuperee : "+log.getFrequence());
           console.log("Transfert vers : "+ frequences.freqToSecteur(log.getFrequence()));
           }*/
+        }
+      }
+      else {
+
+        if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) {
+          let motif = /(.*)(ADR. DEPOSEE   :)(.*)(EVEIL)(.*)/;
+          let transaction = mylogCpdlc.replace(motif, "$3").trim();
+          console.log("info:", transaction);
+          monvol.setadrDeposee(transaction);
+
+
+        }
+        if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {
+          let motif = /(.*)(ADRESSE MODE S :)(.*)(EVEIL)(.*)/;
+          let transaction = mylogCpdlc.replace(motif, "$3").trim();
+          console.log("info:", transaction);
+          monvol.setadrModeS(transaction);
+
+
+        }
+        if (mylogCpdlc.match("ADR MODE S INF :") !== null) {
+          let motif = /(.*)(ADR MODE S INF :)(.*)(EVEIL)(.*)/;
+          let transaction = mylogCpdlc.replace(motif, "$3").trim();
+          console.log("info:", transaction);
+          monvol.setadrModeSInf(transaction);
+
         }
       }
 
@@ -551,7 +577,6 @@ export class parseurLpln {
       mymap['POSITION'] = position.trim();
 
     }
-
 
 
 
