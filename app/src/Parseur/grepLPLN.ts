@@ -54,6 +54,13 @@ if  (((info1Lpln !== null) ||(info1Lplnbis !== null) ) && (info2Lpln !== null) )
   //console.log(mylogCpdlc);
   }
 
+  //Recuperation des infos DLK liees aux adresses Mode S et déposees
+  let info7Lpln = mylogCpdlc.match(/ADR. DEPOSEE|ADR MODE S INF|ADRESSE MODE S/);
+  if (info7Lpln !== null){
+    fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
+  //console.log(mylogCpdlc);
+  }
+  
   //Recuperation du resume des tranferts DLK
   let info5Lpln = mylogCpdlc.match("TRANSFERT DATA LINK");
   if (info5Lpln !== null){
