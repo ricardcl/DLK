@@ -68,6 +68,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
     let answer = <checkAnswer>{};
     answer.valeurRetour = 1;
     answer.messageRetour = "arcid ou plnid non trouvé";
+    answer.creneauHoraire = undefined;
 
     console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
 
@@ -108,7 +109,10 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                     result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
                     if (result.existe == true) {
                         let creneau = new Array(<dates.datesFile>{});
-                        console.log("creneaux trouves:", result.dates);
+                        creneau = dates.getCreneaux(result.dates);
+                        console.log("creneaux trouves 1:",creneau);
+
+                        console.log("creneaux trouves 2 :", result.dates);
                         if (result.dates.length > 1) {
                             answer.valeurRetour = 2;
                             answer.messageRetour = "trop de creneaux trouves: " + creneau;
@@ -116,7 +120,8 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         else {
                             answer.valeurRetour = 0;
                             answer.messageRetour = "Vol trouve";
-                            answer.creneauHoraire = creneau[0];
+                          //  answer.creneauHoraire = creneau[0];
+                          //  console.log("creneaux trouves [0]:",creneau);
                         }
                     }
                 }
@@ -132,7 +137,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         else {
                             answer.valeurRetour = 0;
                             answer.messageRetour = "Vol trouve";
-                            answer.creneauHoraire = creneau[0];
+                         //   answer.creneauHoraire = creneau[0];
                         }
                     }
                 }
@@ -153,6 +158,9 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                     if ((grepL.isArcid(arcid, fichierSourceLpln) == true) && (result.existe == true)) {
                         let creneau = new Array(<dates.datesFile>{});
                         console.log("creneaux trouves:", result.dates);
+                        console.log("A:", result.dates[0]);        
+                        creneau = dates.getCreneaux(result.dates);
+                        console.log("B:", creneau[0]);                                   
                         if (result.dates.length > 1) {
                             answer.valeurRetour = 2;
                             answer.messageRetour = "trop de creneaux trouves: " + creneau;
@@ -160,7 +168,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         else {
                             answer.valeurRetour = 0;
                             answer.messageRetour = "Vol trouve";
-                            answer.creneauHoraire = creneau[0];
+                         //   answer.creneauHoraire = creneau[0];
                         }
                     }
                 }
@@ -178,7 +186,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                         else {
                             answer.valeurRetour = 0;
                             answer.messageRetour = "Vol trouve";
-                            answer.creneauHoraire = creneau[0];
+                         //   answer.creneauHoraire = creneau[0];
                         }
                     }
                 }

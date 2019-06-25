@@ -241,10 +241,12 @@ export function grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, h
       let infoLpln1 = mylogCpdlc.match(motifVemgsa);
       let infoLpln2 = mylogCpdlc.match(arcid);
       if ((infoLpln1 !== null) && (infoLpln2 !== null)) {
-        //console.log("infolpln 1 :"+infoLpln1);
-
+        console.log("infolpln 1 :"+infoLpln1);
+        console.log("horaire:",horaire);
+        console.log("test :",horaire == undefined);
         if ((horaire == undefined) || ((horaire != undefined) && (dates.isInCreneauxVemgsa(horaire, mylogCpdlc, diffMax) == true))) {
-
+          console.log("test1");
+          
           //CAS 1 : arcid envoye en meme temps que le reqId dans le CPCASREQ
           // on en deduit le reqid
           if (mylogCpdlc.match("CPCASREQ") !== null) {
@@ -258,7 +260,7 @@ export function grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, h
               mylogCpdlc = readline.fgets(r);
               mylogCpdlc = mylogCpdlc.toString();
               if ((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") !== null)) {
-                //console.log("cas 1A");
+                console.log("cas 1A");
                 infoLpln1 = mylogCpdlc.match(motifVemgsa);
                 //CAS 1A :  reqid et plnid en info  ex : GMI39SL PLNID 7893-REQID 01099
                 let motif = /(.*)(-PLNID)(.*)(-REQID)(.*)/;
@@ -285,7 +287,7 @@ export function grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, h
           //CAS 2 : arcid envoye en meme temps que le plnid dans le CPCASRES (ex AFR6006)
           // on en deduit le reqid
           else {
-            //console.log("cas 2");
+            console.log("cas 2");
             plnid = infoLpln1.toString().replace(motifCPCASRES, "$5").trim();
             //console.log("plnid : "+plnid);
             break;
@@ -533,9 +535,11 @@ export function isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: strin
         if (mylogCpdlc === false) { break; }
 
         if ((mylogCpdlc.match(motifVemgsa) !== null) && ((mylogCpdlc.match(arcid) !== null))) {
+          
           let arcidTrouve: string="";      
           
           if (mylogCpdlc.match(motifArcid1) !== null){
+            
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             arcidTrouve = mylogCpdlc.toString().replace(motifArcid1, "$3").trim();
           }
