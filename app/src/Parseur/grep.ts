@@ -142,6 +142,8 @@ export function grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, h
           if (plnid == plnidTrouve) {
             reqid = mylogCpdlc.toString().replace(motif2, "$7").trim();
             reqid = Number(String(reqid).substr(1));
+            console.log("reqid trouve: ",reqid);
+            
             arcid = grepArcidFromReqid(reqid, fichierSourceVemgsa, horaire);
             break;
           }
@@ -166,7 +168,7 @@ export function grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, h
   //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
   let fichierDestination = p.resolve(path.outputPath, "result.htm");
   let arcid = "";
-
+  let reqidTest = 0
   const uneMinute: number = 60000;
   const diffMax: number = 60 * uneMinute;
 
@@ -193,13 +195,24 @@ export function grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, h
 
         if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null)  && (mylogCpdlc.match(motif1) !== null)) {
           mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-          arcid = mylogCpdlc.toString().replace(motif1, "$3").trim();
-          break;
+
+          reqidTest=mylogCpdlc.toString().replace(motif1, "$9").trim();
+          if(reqidTest == reqid){
+            arcid = mylogCpdlc.toString().replace(motif1, "$3").trim();
+            break;
+          }
+          
         }
         else if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null)  && (mylogCpdlc.match(motif2) !== null)) {
+
           mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-          arcid = mylogCpdlc.toString().replace(motif2, "$3").trim();
-          break;
+        
+          reqidTest=mylogCpdlc.toString().replace(motif2, "$7").trim();
+          if(reqidTest == reqid){
+            arcid = mylogCpdlc.toString().replace(motif2, "$3").trim();
+            break;
+          }
+
         }
       }
     } while (!readline.eof(r));

@@ -36,7 +36,7 @@ export class Formulaire {
             let uploader  = new SocketIOFileUpload();
             uploader.dir = path.userPath;
             uploader.listen(socket);
-            console.log('socket pour la recuperation de fichier cree');
+
 
 
 
@@ -52,6 +52,7 @@ export class Formulaire {
 
                 console.log("fermeture_socket_demandee");
                 if (uploader !== null){
+                    console.log("socket encore ouverte");
                     uploader.destroy;
                     uploader = null;
                 }
@@ -108,6 +109,7 @@ export class Formulaire {
                 }
                     
                
+
             });
 
 

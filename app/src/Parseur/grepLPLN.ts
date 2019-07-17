@@ -220,8 +220,10 @@ return result;
 }
 
 export function isPlnid ( plnidSource:number, fichierSourceLpln:string):boolean {
+console.log("plnidSource:",plnidSource);
 
   let plnid = Math.round(plnidSource);
+  console.log("plnid:",plnid);
   let result:boolean =false;
   let fichierSource = fichierSourceLpln;
 
@@ -241,8 +243,11 @@ if (mylogCpdlc === false) { break;}
 let info1Lpln = mylogCpdlc.match(motif);
 let info2Lpln = mylogCpdlc.match(plnid);
 if  ((info1Lpln !== null) && (info2Lpln !== null) ){
+
   let plnidTrouve:number;
   plnidTrouve = mylogCpdlc.toString().replace(motif, "$3").trim();
+  console.log("plnidTrouve",plnidTrouve);
+  
   if(plnid == plnidTrouve){
     result = true;
     break;
