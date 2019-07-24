@@ -165,7 +165,7 @@ export class parseurLpln {
 
           //Creation de l objet logCpdlc et etatCpdlc
           let log = new EtatCpdlc(numeroLigne);
-
+          log.setLog(infoLog);
           //Stockage de la date/heure
 
           let motifDateHeure = /(.*)( )(.*)(H)(.*)/;

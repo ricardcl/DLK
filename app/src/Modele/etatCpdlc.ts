@@ -8,6 +8,7 @@ export class EtatCpdlc {
   private heure: string = "";
   private etat: Etat = Etat.NonLogue;
   private associable: boolean = false;
+  private log:string = "";
   private detailLog : DetailCpdlc[];
 
 
@@ -88,9 +89,12 @@ export class EtatCpdlc {
   }
 
   getEtat(): Etat {
-    return this.etat
+    return this.etat;
   }
 
+  getLog(): string{
+    return this.log;
+  }
   //SETTERS
   setTitle(title: string) {
     this.title = title;
@@ -110,7 +114,9 @@ export class EtatCpdlc {
     this.associable = associable;
   }
 
-
+  setLog(log: string) {
+    this.log = log;
+  }
 
   getDetaillog(){
     return this.detailLog;
