@@ -18,23 +18,23 @@ export function getListeVols(arcid: string, plnid: number, fichierSourceLpln: st
 
 
 //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
-export function mixInfos(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Vol {
+export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number): Vol {
 
 
 
 
   //Initialisation du vol issu des donnees VEMGSA
-  let monvolVemgsa = new Vol(arcid, plnid);
-  let pv = new parseurVemgsa();
+  let monvolVemgsa = volVemgsa;
+  //let pv = new parseurVemgsa();
   //pv.identification(arcid, plnid, fichierSourceVemgsa);
 
-  monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
+  //monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
 
   //Initialisation du vol issu des donnees LPLN
-  let monvolLpln = new Vol(arcid, plnid);
-  let pl = new parseurLpln();
+  let monvolLpln = volLpln;
+  //let pl = new parseurLpln();
   //pl.identification(arcid, plnid, fichierSourceLpln);
-  monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
+  //monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
   //Initialisation du vol final issu des donnees LPLN et VEMGSA
   let monvolFinal = new Vol(arcid, plnid);
@@ -164,10 +164,22 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
   console.log("debut logs LPLN collectes et tries");
 
   monvolLpln.getListeLogs().forEach(etatCpdlc => {
+    if (etatCpdlc.getTitle() == 'CPCASREQ') {
+      monvolLpln.setLogonInitie(true);
+    }
+    if ((etatCpdlc.getTitle() == 'CPCASRES')  && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'S')){
+      monvolLpln.setLogonAccepte(true);
+    }
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
     console.log("LogLPLN: ", etatCpdlc.getLog());
   });
   console.log("fin logs LPLN collectes et tries");
+
+  
+console.log("LogonInitie: ",monvolLpln.getLogonInitie(),"\nLogonAccepte: ",monvolLpln.getLogonAccepte(),
+ "\nAdep: ",monvolLpln.getAdep(), "\nAdes: ",monvolLpln.getAdes());
+
+
   return monvolLpln;
 
 

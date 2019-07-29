@@ -9,37 +9,69 @@ export class Vol {
     private plnid: number;
     /**nom du secteur logique traverse */
     private sl: string;
+    /**Aeroport de depart*/
+    private adep: string;
+    /**Aeroport de destination*/
+    private ades: string;
     /*liste des logs concernant le vol */
     private listeLogs: EtatCpdlc[];
-    /**Adresse  Mode S envoyee par ?? */
+    /**Adresse  Mode S vide si route ifps = NON ... inutile a traiter -> a supprimer */
+
+
+    // PARAMETRES LIES AU LOGON
     private adrModeS: string;
     /**Adresse Mode S envoyee par l'equipement bord */
     private adrModeSInf: string;
     /**Adresse deposee par le pilote dans son plan de vol */
     private adrDeposee: string;
+    /**Indique si le vol est declare equipe cpdlc */
+    private equipementCpdlc: string;
+    /**Reception d'une demande de logon */
+    private logonInitie: boolean;
+    /**Acceptation du logon par le STPV*/
+    private logonAccepte: boolean;
 
     constructor(arcid: string, plnid: number) {
         this.arcid = arcid;
         this.plnid = plnid;
         this.listeLogs = [];
+        this.logonInitie = false;
+        this.logonAccepte = false;
     }
 
-    public setadrModeS(adrModeS: string): void {
+
+    //SETTERS
+    public setAdrModeS(adrModeS: string): void {
         this.adrModeS = adrModeS;
     }
 
-    public setadrModeSInf(adrModeSInf: string): void {
+    public setAdrModeSInf(adrModeSInf: string): void {
         this.adrModeSInf = adrModeSInf;
     }
 
-    public setadrDeposee(adrDeposee: string): void {
+    public setAdrDeposee(adrDeposee: string): void {
         this.adrDeposee = adrDeposee;
     }
 
-    public setSL(sl: string): void {
-        this.sl = sl;
+    public setEquipementCpdlc(equipementCpdlc: string): void {
+        this.equipementCpdlc = equipementCpdlc;
     }
 
+    public setAdep(adep: string): void {
+        this.adep = adep;
+    }
+
+    public setAdes(ades: string): void {
+        this.ades = ades;
+    }
+
+    public setLogonInitie(logonInitie: boolean): void {
+        this.logonInitie = logonInitie;
+    }
+
+    public setLogonAccepte(logonAccepte: boolean): void {
+        this.logonAccepte = logonAccepte;
+    }
     public setArcid(arcid: string): void {
         this.arcid = arcid;
     }
@@ -52,6 +84,17 @@ export class Vol {
         this.listeLogs = listeLogs;
     }
 
+    public setSL(sl: string): void {
+        this.sl = sl;
+    }
+
+
+    public addElt(elt: EtatCpdlc): void {
+        this.getListeLogs().push(elt);
+    }
+
+
+    //GETTERS
     public getVol(vol: Vol): string {
         console.log(vol.reqid);
         return "InfosVol :  " + vol.reqid;
@@ -65,22 +108,39 @@ export class Vol {
         return this.arcid;
     }
 
-    public getadrModeS(): string {
+    public getAdrModeS(): string {
         return this.adrModeS;
     }
 
-    public getadrModeSInf(): string {
+    public getAdrModeSInf(): string {
         return this.adrModeSInf;
     }
 
-    public getadrDeposee(): string {
+    public getEdrDeposee(): string {
         return this.adrDeposee;
     }
 
-
-
-    public addElt(elt: EtatCpdlc): void {
-        this.getListeLogs().push(elt);
+    public getEquipementCpdlc(): string {
+        return this.equipementCpdlc;
     }
+
+    public getAdep(): string {
+        return this.adep;
+    }
+
+    public getAdes(): string {
+        return this.ades;
+    }
+
+    public getLogonInitie(): boolean {
+        return this.logonInitie;
+    }
+
+    public getLogonAccepte(): boolean {
+        return this.logonAccepte;
+    }
+
+
+
 
 }

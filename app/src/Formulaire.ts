@@ -9,6 +9,7 @@ const p = require('path');
 var SocketIOFileUpload = require("socketio-file-upload");
 import * as grep from "./Parseur/grep";
 import { checkAnswer } from './Modele/checkAnswer';
+import { Vol } from './Modele/vol';
 let readline = require("./scripts/node-readline/node-readline");
 
 
@@ -103,7 +104,9 @@ export class Formulaire {
 
                     break;
                     case Contexte.LPLNVEMGSA: 
-                    socket.emit("analysedVolMix",InfosLpln(arcid, plnid, lplnfilename),InfosVemgsa(arcid, plnid, vemgsafilename),  mixInfos(arcid, plnid, lplnfilename, vemgsafilename));
+                    let volLpln: Vol = InfosLpln(arcid, plnid, lplnfilename);
+                    let volVemgsa: Vol = InfosVemgsa(arcid, plnid, vemgsafilename);                   
+                    socket.emit("analysedVolMix",volLpln,volVemgsa,  mixInfos(volLpln, volVemgsa, arcid, plnid));
                     break;
 
                 }
@@ -137,7 +140,6 @@ export class Formulaire {
 
 
 
-                console.log(mixInfos(arcid, plnid, fichierLpln, fichierVemgsa));
             });
 
             /** socket.on('identifyingWithPlnid', function (arcid, plnid, fichierLpln, fichierVemgsa) {
