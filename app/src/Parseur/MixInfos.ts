@@ -173,11 +173,13 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
     console.log("LogLPLN: ", etatCpdlc.getLog());
   });
+    
+console.log("LogonInitie: ",monvolLpln.getLogonInitie(),"\nLogonAccepte: ",monvolLpln.getLogonAccepte(),
+"\nAdep: ",monvolLpln.getAdep(), "\nAdes: ",monvolLpln.getAdes());
+
   console.log("fin logs LPLN collectes et tries");
 
-  
-console.log("LogonInitie: ",monvolLpln.getLogonInitie(),"\nLogonAccepte: ",monvolLpln.getLogonAccepte(),
- "\nAdep: ",monvolLpln.getAdep(), "\nAdes: ",monvolLpln.getAdes());
+
 
 
   return monvolLpln;
@@ -202,10 +204,29 @@ export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: s
   console.log("debut logs VEMGSA collectes et tries");
 
   monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
+    if (etatCpdlc.getTitle() == 'CPCASREQ') {
+      monvolVemgsa.setAdep(etatCpdlc.getDetail('ADEP'));
+      monvolVemgsa.setAdes(etatCpdlc.getDetail('ADES'));
+      monvolVemgsa.setAdrDeposee(etatCpdlc.getDetail('ARCADDR'));
+      monvolVemgsa.setArcid(etatCpdlc.getDetail('ARCID'));
+      monvolVemgsa.setLogonInitie(true);
+    }
+    
+    if ((etatCpdlc.getTitle() == 'CPCASRES') && ( (etatCpdlc.getDetail('ATNASSOC') == 'S') ||  (etatCpdlc.getDetail('ATNASSOC') == 'L'))){
+      monvolVemgsa.setLogonAccepte(true);
+    }
+
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
     console.log("LogVEMGSA: ", etatCpdlc.getLog());
 
   });
+
+    
+console.log("ARCADDR: ",monvolVemgsa.getAdrDeposee(),"\nARCID: ",monvolVemgsa.getArcid(),
+"\nAdep: ",monvolVemgsa.getAdep(), "\nAdes: ",monvolVemgsa.getAdes(), "\nLogonInitie: ",
+monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ",monvolVemgsa.getLogonAccepte() );
+
+
   console.log("fin logs VEMGSA collectes et tries");
   return monvolVemgsa;
 }

@@ -116,7 +116,7 @@ export class Vol {
         return this.adrModeSInf;
     }
 
-    public getEdrDeposee(): string {
+    public getAdrDeposee(): string {
         return this.adrDeposee;
     }
 
