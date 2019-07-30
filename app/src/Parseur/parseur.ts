@@ -113,7 +113,7 @@ export class parseurVemgsa {
 
       //Creation de l objet logCpdlc et etatCpdlc
       let  log = new EtatCpdlc(numeroLigne);
-      log.setLog(infoLog);
+      log.setLog(mylogCpdlc);
       //Stockage de la date/heure
       //let dateHeure = fsplit.splitString(ingoGen, " ");
 

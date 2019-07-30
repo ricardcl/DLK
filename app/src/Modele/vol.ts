@@ -15,10 +15,10 @@ export class Vol {
     private ades: string;
     /*liste des logs concernant le vol */
     private listeLogs: EtatCpdlc[];
-    /**Adresse  Mode S vide si route ifps = NON ... inutile a traiter -> a supprimer */
 
 
     // PARAMETRES LIES AU LOGON
+    /**Adresse  Mode S vide si route ifps = NON ... inutile a traiter -> a supprimer */
     private adrModeS: string;
     /**Adresse Mode S envoyee par l'equipement bord */
     private adrModeSInf: string;
@@ -27,16 +27,34 @@ export class Vol {
     /**Indique si le vol est declare equipe cpdlc */
     private equipementCpdlc: string;
     /**Reception d'une demande de logon */
-    private logonInitie: boolean;
+    private logonInitie: string;   //0: NA, 1:true , 2:false
     /**Acceptation du logon par le STPV*/
-    private logonAccepte: boolean;
+    private logonAccepte: string;
+    /**adrDeposee et cmpAdrModeSInf identique (entre Lpln et Vemgsa)  */
+    private cmpAdrModeS: string;
+    /**adep identique entre Lpln et Vemgsa  */
+    private cmpAdep: string;
+    /**ades identique entre Lpln et Vemgsa  */
+    private cmpAdes: string;
+    /**arcid identique entre Lpln et Vemgsa  */
+    private cmpArcid: string;
+    /**conditions du logon remplies/ logon effectue  */
+    private conditionsLogon: string;
+    /** */
+
+
 
     constructor(arcid: string, plnid: number) {
         this.arcid = arcid;
         this.plnid = plnid;
         this.listeLogs = [];
-        this.logonInitie = false;
-        this.logonAccepte = false;
+        this.logonInitie = "NA";
+        this.logonAccepte = "NA";
+        this.cmpAdrModeS = "NA";
+        this.cmpAdep = "NA";
+        this.cmpAdes = "NA";      
+        this.cmpArcid = "NA";
+        this.conditionsLogon = "NA";      
     }
 
 
@@ -65,11 +83,11 @@ export class Vol {
         this.ades = ades;
     }
 
-    public setLogonInitie(logonInitie: boolean): void {
+    public setLogonInitie(logonInitie: string): void {
         this.logonInitie = logonInitie;
     }
 
-    public setLogonAccepte(logonAccepte: boolean): void {
+    public setLogonAccepte(logonAccepte: string): void {
         this.logonAccepte = logonAccepte;
     }
     public setArcid(arcid: string): void {
@@ -88,6 +106,25 @@ export class Vol {
         this.sl = sl;
     }
 
+    public setCmpAdrModeS(cmpAdrModeS: string): void {
+        this.cmpAdrModeS = cmpAdrModeS;
+    }
+
+    public setCmpAdep(cmpAdep: string): void {
+        this.cmpAdep = cmpAdep;
+    }   
+    
+    public setCmpAdes(cmpAdes: string): void {
+        this.cmpAdes = cmpAdes;
+    }    
+
+    public setCmpArcid(cmpArcid: string): void {
+        this.cmpArcid = cmpArcid;
+    }       
+
+    public setConditionsLogon(conditionsLogon: string): void {
+        this.conditionsLogon = conditionsLogon;
+    }           
 
     public addElt(elt: EtatCpdlc): void {
         this.getListeLogs().push(elt);
@@ -132,15 +169,33 @@ export class Vol {
         return this.ades;
     }
 
-    public getLogonInitie(): boolean {
+    public getLogonInitie(): string {
         return this.logonInitie;
     }
 
-    public getLogonAccepte(): boolean {
+    public getLogonAccepte(): string {
         return this.logonAccepte;
     }
 
+    public getCmpAdrModeS(): string {
+        return this.cmpAdrModeS;
+    }
 
+    public getCmpAdep(): string {
+        return this.cmpAdep;
+    }   
+    
+    public getCmpAdes(): string {
+        return this.cmpAdes;
+    }    
+
+    public getCmpArcid(): string {
+        return this.cmpArcid;
+    }       
+
+    public getConditionsLogon(): string {
+        return this.conditionsLogon;
+    } 
 
 
 }

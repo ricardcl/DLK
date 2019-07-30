@@ -20,30 +20,69 @@ export function getListeVols(arcid: string, plnid: number, fichierSourceLpln: st
 //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
 export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number): Vol {
 
-
-
-
-  //Initialisation du vol issu des donnees VEMGSA
-  let monvolVemgsa = volVemgsa;
-  //let pv = new parseurVemgsa();
-  //pv.identification(arcid, plnid, fichierSourceVemgsa);
-
-  //monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
-
-  //Initialisation du vol issu des donnees LPLN
-  let monvolLpln = volLpln;
-  //let pl = new parseurLpln();
-  //pl.identification(arcid, plnid, fichierSourceLpln);
-  //monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
-
   //Initialisation du vol final issu des donnees LPLN et VEMGSA
   let monvolFinal = new Vol(arcid, plnid);
   const uneMinute: number = 60000;
 
+  //RECUPERATION DES ATTRIBUTS
+  if (volLpln.getAdep() == volVemgsa.getAdep()) {
+    monvolFinal.setAdep(volLpln.getAdep());
+    monvolFinal.setCmpAdep("OK");
+  }
+  else { monvolFinal.setCmpAdep("KO"); }
+
+  if (volLpln.getAdes() == volVemgsa.getAdes()) {
+    monvolFinal.setAdes(volLpln.getAdes());
+    monvolFinal.setCmpAdes("OK");
+  }
+  else { monvolFinal.setCmpAdes("KO"); }
+
+  if (volLpln.getArcid() == volVemgsa.getArcid()) {
+    monvolFinal.setCmpArcid("OK");
+  }
+  else { monvolFinal.setCmpArcid("KO"); }
+
+  if (volLpln.getEquipementCpdlc() == "EQUIPE") {
+    monvolFinal.setEquipementCpdlc("EQUIPE");
+  }
+  else {
+    monvolFinal.setEquipementCpdlc("NON EQUIPE");
+  }
+
+  if (volLpln.getAdrDeposee() == volLpln.getAdrModeSInf()) {
+    monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
+    monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
+    monvolFinal.setCmpAdrModeS("OK");
+  }
+  else {
+    monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
+    monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
+    monvolFinal.setCmpAdrModeS("KO");
+  }
+
+  if ((volLpln.getLogonInitie()) || (volVemgsa.getLogonInitie())) {
+    monvolFinal.setLogonInitie("OK");
+  }
+  else { monvolFinal.setLogonInitie("KO"); }
+
+  if ((volLpln.getLogonAccepte()) || (volVemgsa.getLogonAccepte())) {
+    monvolFinal.setLogonAccepte("OK");
+  }
+  else {
+    monvolFinal.setLogonAccepte("KO");
+  }
+
+  if ((monvolFinal.getLogonAccepte()) || (monvolFinal.getCmpAdep() && monvolFinal.getCmpAdes()
+    && monvolFinal.getCmpAdrModeS() && monvolFinal.getCmpArcid() && monvolFinal.getEquipementCpdlc())) {
+    monvolFinal.setConditionsLogon("OK");
+  }
+  else {
+    monvolFinal.setConditionsLogon("KO");
+  }
 
 
-
-  monvolVemgsa.getListeLogs().forEach((elt, key) => {
+  //RECUPERATION DES LOGS
+  volVemgsa.getListeLogs().forEach((elt, key) => {
     let heureTransfert = "";
     let positionTransfert = "";
     monvolFinal.addElt(elt);
@@ -52,7 +91,7 @@ export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: num
     //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
     if (elt.getTitle() == 'CPCFREQ') {
 
-      monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+      volLpln.getListeLogs().forEach((eltL, keyL) => {
         if (eltL.getTitle() == 'CPCFREQ') {
           if (dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
             // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
@@ -64,7 +103,7 @@ export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: num
           }
 
           //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
-          monvolLpln.getListeLogs().forEach((eltL, keyL) => {
+          volLpln.getListeLogs().forEach((eltL, keyL) => {
 
             if (eltL.getTitle() == 'TRFDL') {
               if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= uneMinute) {
@@ -106,12 +145,7 @@ export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: num
   console.log("resultat vol final : ");
   let graphe = new grapheEtat();
   let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
-  /** console.log("debut logs collectes non tries");
-  monvolFinal.getListeLogs().forEach(etatCpdlc => {
-    //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-  });
-  console.log("fin logs collectes non tries"); */
+
   let trie: boolean = false;
   let changement: boolean;
 
@@ -146,6 +180,7 @@ export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: num
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
   });
   console.log("fin logs collectes et tries");
+
   return monvolFinal;
 }
 
@@ -161,21 +196,38 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
   monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
 
+
+  //RECUPERATION DES ATTRIBUTS
+
+  if (monvolLpln.getAdrDeposee() == monvolLpln.getAdrModeSInf()) {
+    monvolLpln.setCmpAdrModeS("OK");
+  } else { monvolLpln.setCmpAdrModeS("KO"); }
+
+
+  if (monvolLpln.getLogonAccepte()) {
+    monvolLpln.setConditionsLogon("OK");
+  }
+
+
+
+
+
   console.log("debut logs LPLN collectes et tries");
 
   monvolLpln.getListeLogs().forEach(etatCpdlc => {
     if (etatCpdlc.getTitle() == 'CPCASREQ') {
-      monvolLpln.setLogonInitie(true);
+      monvolLpln.setLogonInitie("OK");
     }
-    if ((etatCpdlc.getTitle() == 'CPCASRES')  && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'S')){
-      monvolLpln.setLogonAccepte(true);
-    }
+    if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'S')) {
+      monvolLpln.setLogonAccepte("OK");
+    } else { monvolLpln.setLogonAccepte("KO"); }
+
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
     console.log("LogLPLN: ", etatCpdlc.getLog());
   });
-    
-console.log("LogonInitie: ",monvolLpln.getLogonInitie(),"\nLogonAccepte: ",monvolLpln.getLogonAccepte(),
-"\nAdep: ",monvolLpln.getAdep(), "\nAdes: ",monvolLpln.getAdes());
+
+  console.log("LogonInitie: ", monvolLpln.getLogonInitie(), "\nLogonAccepte: ", monvolLpln.getLogonAccepte(),
+    "\nAdep: ", monvolLpln.getAdep(), "\nAdes: ", monvolLpln.getAdes());
 
   console.log("fin logs LPLN collectes et tries");
 
@@ -200,6 +252,12 @@ export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: s
   monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
 
 
+  //RECUPERATION DES ATTRIBUTS
+
+  if (monvolVemgsa.getLogonAccepte()) {
+    monvolVemgsa.setConditionsLogon("OK")
+  }
+  else { monvolVemgsa.setConditionsLogon("KO"); }
 
   console.log("debut logs VEMGSA collectes et tries");
 
@@ -209,22 +267,22 @@ export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: s
       monvolVemgsa.setAdes(etatCpdlc.getDetail('ADES'));
       monvolVemgsa.setAdrDeposee(etatCpdlc.getDetail('ARCADDR'));
       monvolVemgsa.setArcid(etatCpdlc.getDetail('ARCID'));
-      monvolVemgsa.setLogonInitie(true);
+      monvolVemgsa.setLogonInitie("OK");
     }
-    
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && ( (etatCpdlc.getDetail('ATNASSOC') == 'S') ||  (etatCpdlc.getDetail('ATNASSOC') == 'L'))){
-      monvolVemgsa.setLogonAccepte(true);
-    }
+
+    if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetail('ATNASSOC') == 'S') || (etatCpdlc.getDetail('ATNASSOC') == 'L'))) {
+      monvolVemgsa.setLogonAccepte("OK");
+    } else { monvolVemgsa.setLogonAccepte("KO"); }
 
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
     console.log("LogVEMGSA: ", etatCpdlc.getLog());
 
   });
 
-    
-console.log("ARCADDR: ",monvolVemgsa.getAdrDeposee(),"\nARCID: ",monvolVemgsa.getArcid(),
-"\nAdep: ",monvolVemgsa.getAdep(), "\nAdes: ",monvolVemgsa.getAdes(), "\nLogonInitie: ",
-monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ",monvolVemgsa.getLogonAccepte() );
+
+  console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),
+    "\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",
+    monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte());
 
 
   console.log("fin logs VEMGSA collectes et tries");

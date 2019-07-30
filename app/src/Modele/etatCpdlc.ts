@@ -33,17 +33,24 @@ export class EtatCpdlc {
 
 
 
-  isDetail(key : string):boolean{
+isDetail(key : string):boolean{
+
+
     let trouve:boolean =false;
-  
-    this.detailLog.forEach(element => {
-         
-      if ( key === element.key) trouve =true;;
-    });
+ 
+    this.detailLog.forEach(element => {        
+      if ( key === element.key) {
+        trouve =true;
+      }
+
+      
+});
     
     return trouve;
-  }
+  } 
 
+
+  //a utiliser pour VEMGSA !!
   getDetail(key : string){
 
     if (this.isDetail ( key)) {
@@ -118,6 +125,8 @@ export class EtatCpdlc {
     this.log = log;
   }
 
+  
+  //a utiliser pour LPLN !!
   getDetaillog(){
     return this.detailLog;
   }
