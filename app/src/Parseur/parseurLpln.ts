@@ -357,17 +357,20 @@ export class parseurLpln {
       }
       else {
 
-        if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) {
-          let motif = /(.*)(AERODROME DEST.:)(.*)(RANG)(.*)(ADR. DEPOSEE   :)(.*)(EVT)(.*)/;
-          let transaction1 = mylogCpdlc.replace(motif, "$3").trim();
-          console.log("info ades:", transaction1);
-          monvol.setAdes(transaction1);
-          let transaction2 = mylogCpdlc.replace(motif, "$7").trim();
-          console.log("info adrDeposee:", transaction2);
-          monvol.setAdrDeposee(transaction2);
+        if (mylogCpdlc.match("AERODROME  DEP.:") !== null) {
+          console.log("mattch DEP");
+          console.log(mylogCpdlc);         
+          let motif = /(.*)(AERODROME  DEP.:)(.*)(NIVEAU)(.*)/;
+          let transaction = mylogCpdlc.replace(motif, "$3").trim();
+          console.log("info adep:", transaction);
+          monvol.setAdep(transaction);
         }
 
-        if (mylogCpdlc.match("AERODROME  DEST") !== null) {
+
+
+        if (mylogCpdlc.match("AERODROME DEST.:") !== null) {
+          console.log("mattch DEST");
+          console.log(mylogCpdlc);     
           let motif = /(.*)(AERODROME DEST.:)(.*)(RANG)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info ades:", transaction);
@@ -375,7 +378,9 @@ export class parseurLpln {
         }
 
         if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {
-          let motif = /(.*)(ADRESSE MODE S :)(.*)(EVEIL|EVT)(.*)/;
+          console.log("mattch MODE S");
+          console.log(mylogCpdlc);     
+          let motif = /(.*)(ADRESSE MODE S :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrModeS:", transaction);
           monvol.setAdrModeS(transaction);
@@ -383,12 +388,24 @@ export class parseurLpln {
 
         }
         if (mylogCpdlc.match("ADR MODE S INF :") !== null) {
-          let motif = /(.*)(ADR MODE S INF :)(.*)(EVEIL|EVT)(.*)/;
+          console.log("mattch MODE S INF");
+          console.log(mylogCpdlc);     
+          let motif = /(.*)(ADR MODE S INF :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrModeSInf:", transaction);
           monvol.setAdrModeSInf(transaction);
 
         }
+
+        if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) {
+          console.log("mattch ADR DEP");
+          console.log(mylogCpdlc);     
+          let motif = /(.*)(ADR. DEPOSEE   :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
+          let transaction = mylogCpdlc.replace(motif, "$3").trim();
+          console.log("info adrDeposee:", transaction);
+          monvol.setAdrDeposee(transaction);
+        }
+
 
         if (mylogCpdlc.match("EQUIPEMENT CPDLC") !== null) {
           let motif = /(.*)(EQUIPEMENT CPDLC :)(.*)/;
@@ -398,12 +415,7 @@ export class parseurLpln {
 
         }
 
-        if (mylogCpdlc.match("AERODROME  DEP") !== null) {
-          let motif = /(.*)(AERODROME  DEP.:)(.*)(NIVEAU)(.*)/;
-          let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          console.log("info adep:", transaction);
-          monvol.setAdep(transaction);
-        }
+
 
 
       }
