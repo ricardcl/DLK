@@ -357,9 +357,7 @@ export class parseurLpln {
       }
       else {
 
-        if (mylogCpdlc.match("AERODROME  DEP.:") !== null) {
-          console.log("mattch DEP");
-          console.log(mylogCpdlc);         
+        if (mylogCpdlc.match("AERODROME  DEP.:") !== null) {        
           let motif = /(.*)(AERODROME  DEP.:)(.*)(NIVEAU)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adep:", transaction);
@@ -368,18 +366,14 @@ export class parseurLpln {
 
 
 
-        if (mylogCpdlc.match("AERODROME DEST.:") !== null) {
-          console.log("mattch DEST");
-          console.log(mylogCpdlc);     
+        if (mylogCpdlc.match("AERODROME DEST.:") !== null) { 
           let motif = /(.*)(AERODROME DEST.:)(.*)(RANG)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info ades:", transaction);
           monvol.setAdes(transaction);
         }
 
-        if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {
-          console.log("mattch MODE S");
-          console.log(mylogCpdlc);     
+        if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {  
           let motif = /(.*)(ADRESSE MODE S :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrModeS:", transaction);
@@ -387,9 +381,7 @@ export class parseurLpln {
 
 
         }
-        if (mylogCpdlc.match("ADR MODE S INF :") !== null) {
-          console.log("mattch MODE S INF");
-          console.log(mylogCpdlc);     
+        if (mylogCpdlc.match("ADR MODE S INF :") !== null) {   
           let motif = /(.*)(ADR MODE S INF :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrModeSInf:", transaction);
@@ -397,9 +389,7 @@ export class parseurLpln {
 
         }
 
-        if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) {
-          console.log("mattch ADR DEP");
-          console.log(mylogCpdlc);     
+        if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) { 
           let motif = /(.*)(ADR. DEPOSEE   :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrDeposee:", transaction);
