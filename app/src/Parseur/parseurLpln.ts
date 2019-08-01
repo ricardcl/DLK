@@ -375,7 +375,7 @@ export class parseurLpln {
         }
 
         if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {
-          let motif = /(.*)(ADRESSE MODE S :)(.*)(EVEIL)(.*)/;
+          let motif = /(.*)(ADRESSE MODE S :)(.*)(EVEIL|EVT)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrModeS:", transaction);
           monvol.setAdrModeS(transaction);
@@ -383,7 +383,7 @@ export class parseurLpln {
 
         }
         if (mylogCpdlc.match("ADR MODE S INF :") !== null) {
-          let motif = /(.*)(ADR MODE S INF :)(.*)(EVEIL)(.*)/;
+          let motif = /(.*)(ADR MODE S INF :)(.*)(EVEIL|EVT)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrModeSInf:", transaction);
           monvol.setAdrModeSInf(transaction);
