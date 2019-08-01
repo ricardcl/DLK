@@ -62,7 +62,7 @@ if  (((info1Lpln !== null) ||(info1Lplnbis !== null) ) && (info2Lpln !== null) )
   }
 
     //Recuperation des infos liees a l aeroport de depart
-    let info8Lpln = mylogCpdlc.match(/AERODROME  DEP/);
+    let info8Lpln = mylogCpdlc.match(/AERODROME  DEP|AERODROME DEST/);
     if (info8Lpln !== null){
       fs.writeSync(w, mylogCpdlc+"\n", null, 'utf8') ;
     //console.log(mylogCpdlc);
