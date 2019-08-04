@@ -10,6 +10,7 @@ var SocketIOFileUpload = require("socketio-file-upload");
 import * as grep from "./Parseur/grep";
 import { checkAnswer } from './Modele/checkAnswer';
 import { Vol } from './Modele/vol';
+import { UsersRepository } from './Users';
 let readline = require("./scripts/node-readline/node-readline");
 
 
@@ -21,45 +22,36 @@ export class Formulaire {
 
     private app = require('http').createServer();
     private io = require('socket.io')(this.app);
+    private users : UsersRepository;
     private contexte: Contexte;
 
     constructor() {
-        console.log("hello");
+        this.users = new UsersRepository (path.userPath);
+        this.users.deleteAllUsers();
+
         this.app.listen(4000);
         this.initSocket();
-
-
     }
 
     private initSocket() {
         this.io.on("connection", (socket) => {
-            console.log('connexion d un client, ouverture d une socket pour la recuperation de fichier');
+            console.log('connexion d un client, ouverture d une socket pour la recuperation de fichier', socket.id);
+            let clientId : string = socket.id;
+            this.users.createUser(clientId);
+
             let uploader  = new SocketIOFileUpload();
-            uploader.dir = path.userPath;
+            uploader.dir = path.userPath + "/" + clientId;
             uploader.listen(socket);
 
 
-
-
-
-
+            socket.on("disconnect", (socket) => {
+                console.log('disconnect', clientId);
+                this.users.deleteUser (clientId);
+            });
 
             uploader.on("complete", function (event) {
                 console.log("upload complete", event.file.name);
                 //mixInfos("",0, event.file.name, null);
-            });
-
-            socket.on('fermeture_socket_demandee',() => {
-
-                console.log("fermeture_socket_demandee");
-                if (uploader !== null){
-                    console.log("socket encore ouverte");
-                    uploader.destroy;
-                    uploader = null;
-                }
-                else {
-                    console.log("socket deja fermee");
-                }
             });
 
             socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput) => {
@@ -110,8 +102,6 @@ export class Formulaire {
                     break;
 
                 }
-                    
-               
 
             });
 
