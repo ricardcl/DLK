@@ -8,6 +8,7 @@
     "fs": "0.0.1-security",
     "moment": "^2.24.0",
     "nodemon": "^1.18.9",
+    "rimraf": "^2.6.3",
     "shelljs": "^0.8.2",
     "socket.io": "^2.2.0",
     "socketio-file-upload": "^0.7.0",

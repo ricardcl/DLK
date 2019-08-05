@@ -1,9 +1,9 @@
 import { Vol } from '../Modele/vol';
 import { parseurLpln } from './parseurLpln';
-import { parseurVemgsa } from './parseur';
+import { parseurVemgsa } from './parseurVEMGSA';
 import { Identifiants, sameIdent } from '../Modele/identifiants';
 import * as dates from './date';
-import * as grepV from "./grep";
+import * as grepV from "./grepVEMGSA";
 import * as grepL from "./grepLPLN";
 import { Contexte } from '../Modele/enumContexte';
 import { checkAnswer } from '../Modele/checkAnswer';
@@ -60,7 +60,7 @@ export function evaluationContexte(fichierSourceLpln: string, fichierSourceVemgs
  *   4 : format arcid ou plnid invalide
  *   et où messageRetour donne une explication en cas d'echec
  */
-export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte): checkAnswer {
+export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN:grepL.GrepLPLN, grepVEMGSA: grepV.GrepVEMGSA,): checkAnswer {
     let regexpPlnid: RegExp = /^\d{4}$/;
     let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
     let id = <Identifiants>{};
@@ -84,13 +84,13 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
               try {
             console.log(" Contexte.LPLN ");
             if ((arcid !== "") && (plnid == 0)) {
-                if (grepL.isArcid(arcid, fichierSourceLpln) == true) {
+                if (grepLPLN.isArcid(arcid, fichierSourceLpln) == true) {
                     answer.valeurRetour = 0;
                     answer.messageRetour = "Vol trouve";
                 }
             }
-            if ((arcid == "") && (plnid !== 0)) {
-                if (grepL.isPlnid(plnid, fichierSourceLpln) == true) {
+            if ((arcid == "") && (plnid !== 0)) {               
+                if (grepLPLN.isPlnid(plnid, fichierSourceLpln) == true) {
                     answer.valeurRetour = 0;
                     answer.messageRetour = "Vol trouve";
                 }
@@ -106,7 +106,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                 console.log(" Contexte.VEMGSA ");
                 result.dates = new Array;
                 if ((arcid !== "") && (plnid == 0)) {
-                    result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
+                    result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
                     if (result.existe == true) {
                         let creneau = new Array(<dates.datesFile>{});
                         creneau = dates.getCreneaux(result.dates);
@@ -126,7 +126,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                     }
                 }
                 if ((arcid == "") && (plnid !== 0)) {
-                    result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+                    result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
                     if (result.existe == true) {
                         let creneau = new Array(<dates.datesFile>{});
                         creneau = dates.getCreneaux(result.dates);
@@ -152,10 +152,10 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                 console.log(" Contexte.LPLNVEMGSA ");
                 result.dates = new Array;
                 if ((arcid !== "") && (plnid == 0)) {
-                    result = grepV.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
+                    result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
                     console.log("result", result);
 
-                    if ((grepL.isArcid(arcid, fichierSourceLpln) == true) && (result.existe == true)) {
+                    if ((grepLPLN.isArcid(arcid, fichierSourceLpln) == true) && (result.existe == true)) {
                         let creneau = new Array(<dates.datesFile>{});
                         console.log("creneaux trouves:", result.dates);
                         console.log("A:", result.dates[0]);        
@@ -173,10 +173,10 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
                     }
                 }
                 if ((arcid == "") && (plnid !== 0)) {
-                    result = grepV.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+                    result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
 
 
-                    if ((grepL.isPlnid(plnid, fichierSourceLpln) == true) && (result.existe == true)) {
+                    if ((grepLPLN.isPlnid(plnid, fichierSourceLpln) == true) && (result.existe == true)) {
                         let creneau = new Array(<dates.datesFile>{});
                         creneau = dates.getCreneaux(result.dates);
                         if (creneau.length > 1) {
@@ -222,7 +222,7 @@ export function checkInitial(arcid: string, plnid: number, fichierSourceLpln: st
  *   où valeurRetour indique si le check s'est bien déroulé : 0: COUPLE TROUVE, 1 : COUPLE NON TROUVE, 2: creneau horaire necessaire
  *   et où messageRetour donne une explication en cas d'echec
  */
-export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, horaire?: dates.datesFile): checkAnswer {
+export function check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN:grepL.GrepLPLN, grepVEMGSA: grepV.GrepVEMGSA,  horaire?: dates.datesFile): checkAnswer {
 
     let id = <Identifiants>{};
     let answer = <checkAnswer>{};
@@ -231,7 +231,7 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
     answer.valeurRetour = 1;
     answer.messageRetour = "Vol non trouve";
 
-    id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, contexte, horaire);
+    id = identificationF(arcid, plnid, fichierSourceLpln, fichierSourceVemgsa, contexte,grepLPLN,  grepVEMGSA, horaire);
 
     answer.arcid = id.arcid;
     answer.plnid = id.plnid;
@@ -258,10 +258,10 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
  * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
  *                  et où plnid, arcid représent le couple s'il a pu être identifié
  */
-export function identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
+export function identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: grepL.GrepLPLN): Identifiants {
     //Initialisation du vol issu des donnees LPLN
     let monvolLpln = new Vol(arcid, plnid);
-    let pl = new parseurLpln();
+    let pl = new parseurLpln(grepLPLN);
     let idL = <Identifiants>{};
     idL = pl.identification(arcid, plnid, fichierSourceLpln);
     return idL;
@@ -276,10 +276,10 @@ export function identificationLpln(arcid: string, plnid: number, fichierSourceLp
  * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
  *                  et où plnid, arcid représent le couple s'il a pu être identifié
  */
-export function identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], horaire?: dates.datesFile): Identifiants {
+export function identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: grepV.GrepVEMGSA,  horaire?: dates.datesFile): Identifiants {
     //Initialisation du vol issu des donnees VEMGSA
     let monvolVemgsa = new Vol(arcid, plnid);
-    let pv = new parseurVemgsa();
+    let pv = new parseurVemgsa(grepVEMGSA);
     let idV = <Identifiants>{};
     idV = pv.identification(arcid, plnid, fichierSourceVemgsa, horaire);
     return idV;
@@ -295,26 +295,26 @@ export function identificationVemgsa(arcid: string, plnid: number, fichierSource
  * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
  *                  et où plnid, arcid représent le couple s'il a pu être identifié
  */
-export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, horaire?: dates.datesFile): Identifiants {
+export function identificationF(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN:grepL.GrepLPLN, grepVEMGSA: grepV.GrepVEMGSA, horaire?: dates.datesFile): Identifiants {
     let idL, idV = <Identifiants>{};
 
     switch (contexte) {
         case Contexte.LPLN:
             console.log("cas 2")
-            idL = identificationLpln(arcid, plnid, fichierSourceLpln);
+            idL = identificationLpln(arcid, plnid, fichierSourceLpln,grepLPLN);
             return idL;
 
             break;
         case Contexte.VEMGSA:
             console.log("cas 3")
-            idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, horaire);
+            idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa,grepVEMGSA,  horaire);
             return idV;
 
             break;
         case Contexte.LPLNVEMGSA:
             console.log("cas 1")
-            idL = identificationLpln(arcid, plnid, fichierSourceLpln);
-            idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, horaire);
+            idL = identificationLpln(arcid, plnid, fichierSourceLpln,grepLPLN);
+            idV = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, horaire);
             if (sameIdent(idL, idV) == true) {
                 return idL;
             }

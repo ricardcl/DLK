@@ -1,12 +1,12 @@
+import { Path } from "../Modele/path";
+
 const fs = require('fs');
 
 
 var readline = require("../scripts/node-readline/node-readline");
-import {path}  from '../main'
 const p = require('path');
 
-const fichierGbdi = p.resolve(path.inputPath,"STPV_G2910_CA20180816_13082018__1156");
-const fichierFreq =  p.resolve(path.outputPath,"freq.htm");
+const fichierFreq = p.resolve(Path.systemPath, "freq.htm");
 
 //process.exit(1) : pour sortir de la fonctionet
 // break pour sortir du test en restant dans la fonction
@@ -18,68 +18,54 @@ Il teste au préalabre la date de génération de la bds pour éviter de mettre 
 Parametres en entrée :
 fichierSource : le  fichier gbdi STPV a traiter
 */
-exports.GbdiToFreq = function(fichierSource) {
+exports.GbdiToFreq = function (fichierSource) {
 
 
 
 
   var dateFichierSource = fichierSource;
-  var dateFichierDest= "Pas de date definie";
+  var dateFichierDest = "Pas de date definie";
 
   //Test de la date du fichier gbdi pour vérifier s'il y a besoin de mettre à jour la liste des fréquences
   var r = readline.fopen(fichierSource, "r");
-  var w = readline.fopen(fichierFreq, "r");
-  if (w === false) {
-    console.log("Error, can't open ", fichierFreq);
+
+  if (r === false) {
+    console.log("Error, can't open ", fichierSource);
     process.exit(1);
   }
   else {
-    dateFichierDest = readline.fgets(w);
-    readline.fclose(w);
 
-    if (dateFichierSource !== dateFichierDest){
-      //console.log("dates differentes "+dateFichierDest+"  "+dateFichierSource );
-      if (r === false) {
-      console.log("Error, can't open ", fichierSource);
-      process.exit(1);
-    }
-    else {
-
-      var motif =/SECT [5|8]/;
-      var motifSect =/[A-Z|0-9]{2}.{10}[0-9]{3}.[0-9]{1,3}/;
+    var motif = /SECT [5|8]/;
+    var motifSect = /[A-Z|0-9]{2}.{10}[0-9]{3}.[0-9]{1,3}/;
 
 
 
-      var w2 = fs.openSync(fichierFreq, "w");
-      fs.writeSync(w2, dateFichierDest+"\n", null, 'utf8') ;
+    var w2 = fs.openSync(fichierFreq, "w");
+    fs.writeSync(w2, dateFichierDest + "\n", null, 'utf8');
 
 
 
 
-      do {
-        var ligneGbdi = readline.fgets(r);
-        if (ligneGbdi === false) { break;}
-        var infoLigneGbdi = ligneGbdi.match(motif);
+    do {
+      var ligneGbdi = readline.fgets(r);
+      if (ligneGbdi === false) { break; }
+      var infoLigneGbdi = ligneGbdi.match(motif);
 
 
-        if  (infoLigneGbdi !== null){
-          ligneGbdi = ligneGbdi.match(motifSect);
-          if (ligneGbdi != null){
-            fs.writeSync(w2, ligneGbdi+"\n", null, 'utf8') ;
-          }
-
+      if (infoLigneGbdi !== null) {
+        ligneGbdi = ligneGbdi.match(motifSect);
+        if (ligneGbdi != null) {
+          fs.writeSync(w2, ligneGbdi + "\n", null, 'utf8');
         }
-      }while (!readline.eof(r));
 
-      readline.fclose(r);
-      fs.closeSync(w2);
+      }
+    } while (!readline.eof(r));
 
-    }
+    readline.fclose(r);
+    fs.closeSync(w2);
+
   }
-  else {
-    console.log("pas de changement");
-  }
-}
+
 
 
 }
@@ -97,8 +83,8 @@ et renvoie le secteur associe a une frequence donnee
 Parametres en entrée :
 freq : une frequence de transfert
 */
-exports.freqToSecteur = function( freq) {
-  
+exports.freqToSecteur = function (freq) {
+
   var r = readline.fopen(fichierFreq, "r");
   if (r === false) {
     console.log("Error, can't open ", fichierFreq);
@@ -106,17 +92,17 @@ exports.freqToSecteur = function( freq) {
   }
   else {
     var secteur = null;
-    var motifSecteur =/[A-Z|0-9][A-Z|0-9]/;
+    var motifSecteur = /[A-Z|0-9][A-Z|0-9]/;
     do {
       var ligne = readline.fgets(r);
-      if (ligne === false) { break;}
-      if  (ligne.match(freq) !== null){
-        console.log("ligne lue : "+ligne);
+      if (ligne === false) { break; }
+      if (ligne.match(freq) !== null) {
+        console.log("ligne lue : " + ligne);
         secteur = ligne.match(motifSecteur);
         //console.log("secteur  : "+secteur);
 
       }
-    }while (!readline.eof(r));
+    } while (!readline.eof(r));
     readline.fclose(r);
 
   }
@@ -129,8 +115,8 @@ et la convertit en une frequence au format bds
 ex : 135930 devient 135.930
 freq : une frequence de transfert
 */
-exports.conversionFreq = function(freq) {
-  
+exports.conversionFreq = function (freq) {
+
   var motifFreq = /(\d\d\d)(\d+)/;
   var frequence = freq.replace(motifFreq, "$1.$2");
   return frequence;

@@ -19,10 +19,15 @@ gulp.task("tslint", () =>
         .pipe(tslint.report())
 );
 
+gulp.task("assets", () => {
+    gulp.src('app/assets/**')
+    .pipe(gulp.dest("app/dist/assets"));
+});
+
 gulp.task("start", () => {
     exec('node app/dist/main.js');
 });
 
-gulp.task('build', ['tslint', 'ts']);
+gulp.task('build', ['tslint', 'ts', "assets"]);
 
 gulp.task('run', ['build', 'start']);

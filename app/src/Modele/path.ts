@@ -1,19 +1,20 @@
-
+const p = require('path');
 
 export class Path {
-    readonly distPath : string;
-    readonly assetsPath: string;
-    readonly inputPath: string;
-    readonly outputPath : string;
-    readonly userPath : string;
-    readonly  systemPath : string;
+    static get distPath () : string {
+        return p.dirname(require.main.filename);
+    }
 
-    constructor(distPath : string, assetsPath: string, inputPath: string, outputPath : string,  userPath : string, systemPath : string){
-        this.distPath = distPath;
-        this.assetsPath = assetsPath;
-        this.inputPath = inputPath;
-        this.outputPath = outputPath;
-        this.userPath = userPath;
-        this.systemPath = systemPath;
+    static get userPath () : string {
+        return Path.distPath + "/tmpUsers";
+    }
+
+    static get systemPath () : string {
+        return Path.distPath + "/assets/system";
+    }
+
+    static get STPVFilePath () : string {
+        // TODO : C'est dégeulasse ! Merci de refactorer cela. Si on change le nom ca marche plus.
+        return p.resolve(Path.systemPath,"STPV_G2910_CA20180816_13082018__1156")
     }
   }
