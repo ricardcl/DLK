@@ -1,32 +1,26 @@
 import { mixInfos, InfosLpln, InfosVemgsa } from './Parseur/MixInfos';
-import { getListeVols } from './Parseur/MixInfos';
-import { path } from './main'
 import { Contexte } from './Modele/enumContexte';
 import { evaluationContexte, checkInitial, check } from './Parseur/check';
 const p = require('path');
-
-
 var SocketIOFileUpload = require("socketio-file-upload");
-import * as grep from "./Parseur/grep";
 import { checkAnswer } from './Modele/checkAnswer';
 import { Vol } from './Modele/vol';
 import { UsersRepository } from './Users';
+import { GrepVEMGSA } from './Parseur/grepVEMGSA';
+import { GrepLPLN } from './Parseur/grepLPLN';
+import { Path } from './Modele/path';
 let readline = require("./scripts/node-readline/node-readline");
 
-
-
-
-
-
 export class Formulaire {
-
     private app = require('http').createServer();
     private io = require('socket.io')(this.app);
     private users : UsersRepository;
     private contexte: Contexte;
+    private grepVEMGSA : GrepVEMGSA;
+    private grepLPLN : GrepLPLN;
 
     constructor() {
-        this.users = new UsersRepository (path.userPath);
+        this.users = new UsersRepository (Path.userPath);
         this.users.deleteAllUsers();
 
         this.app.listen(4000);
@@ -38,9 +32,11 @@ export class Formulaire {
             console.log('connexion d un client, ouverture d une socket pour la recuperation de fichier', socket.id);
             let clientId : string = socket.id;
             this.users.createUser(clientId);
+            this.grepVEMGSA = new GrepVEMGSA ( Path.userPath + "/" + clientId);
+            this.grepLPLN = new GrepLPLN ( Path.userPath + "/" + clientId);
 
             let uploader  = new SocketIOFileUpload();
-            uploader.dir = path.userPath + "/" + clientId;
+            uploader.dir = Path.userPath + "/" + clientId;
             uploader.listen(socket);
 
 
@@ -65,7 +61,7 @@ export class Formulaire {
                 console.log("analyseDataInput", "plnid", plnid);
                 let listVemgsa = new Array;
                 if (listVemgsaInput.length >= 2) {
-                    listVemgsa = grep.orderVemgsa(listVemgsaInput);
+                    listVemgsa = this.grepVEMGSA.orderVemgsa(listVemgsaInput);
                 }
                 else if (listVemgsaInput.length == 1){
                     listVemgsa[0] = listVemgsaInput[0];
@@ -75,9 +71,9 @@ export class Formulaire {
 
                 this.contexte = evaluationContexte(lpln, listVemgsa);
                 let resultCheckInitial = <checkAnswer>{};
-                resultCheckInitial = checkInitial(arcid, plnid, lpln, listVemgsa, this.contexte);
+                resultCheckInitial = checkInitial(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA);
                 if (resultCheckInitial.valeurRetour == 0) {
-                    let resultCheck: checkAnswer = check(arcid, plnid, lpln, listVemgsa,this.contexte,  resultCheckInitial.creneauHoraire);
+                    let resultCheck: checkAnswer = check(arcid, plnid, lpln, listVemgsa,this.contexte, this.grepLPLN, this.grepVEMGSA, resultCheckInitial.creneauHoraire);
                     socket.emit("check", resultCheck)
                 }
                 else {
@@ -89,55 +85,22 @@ export class Formulaire {
                 console.log("analysedVol", "arcid: ", arcid, "plnid: ", plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename);
                 switch (this.contexte) {
                     case Contexte.LPLN: 
-                    socket.emit("analysedVol", "LPLN",  InfosLpln(arcid, plnid, lplnfilename));
+                    console.log ("->", this.grepLPLN);
+                    socket.emit("analysedVol", "LPLN",  InfosLpln(arcid, plnid, lplnfilename, this.grepLPLN));
                     break;
                     case Contexte.VEMGSA: 
-                    socket.emit("analysedVol", "VEMGSA",InfosVemgsa(arcid, plnid, vemgsafilename));
+                    socket.emit("analysedVol", "VEMGSA",InfosVemgsa(arcid, plnid, vemgsafilename, this.grepVEMGSA));
 
                     break;
                     case Contexte.LPLNVEMGSA: 
-                    let volLpln: Vol = InfosLpln(arcid, plnid, lplnfilename);
-                    let volVemgsa: Vol = InfosVemgsa(arcid, plnid, vemgsafilename);                   
+                    let volLpln: Vol = InfosLpln(arcid, plnid, lplnfilename, this.grepLPLN);
+                    let volVemgsa: Vol = InfosVemgsa(arcid, plnid, vemgsafilename, this.grepVEMGSA);                   
                     socket.emit("analysedVolMix",volLpln,volVemgsa,  mixInfos(volLpln, volVemgsa, arcid, plnid));
                     break;
 
                 }
 
             });
-
-
-            // Quand le serveur reçoit un signal de type "chargement Fichier" du client    
-            socket.on('chargement_des_fichiers', function (arcid, plnid, fichierLpln, fichierVemgsa) {
-                console.log("demande chargement fichiers ");
-                console.log("lpln : " + fichierLpln);
-                console.log("vemgsa : " + fichierVemgsa);
-                console.log("vemgsa 1: " + fichierVemgsa[0]);
-
-                //Test de l'ouverture du fichier              
-                let r = readline.fopen(p.resolve(path.userPath, fichierLpln), "r")
-                if (r === false) {
-                    console.log("Error, can't open ", fichierLpln);
-                } else {
-                    console.log("ok lpln");
-                }
-                let r2 = readline.fopen(p.resolve(path.userPath, fichierVemgsa), "r")
-                if (r2 === false) {
-                    console.log("Error, can't open ", fichierVemgsa);
-                } else {
-                    console.log("ok vemgsa");
-                }
-
-
-
-
-            });
-
-            /** socket.on('identifyingWithPlnid', function (arcid, plnid, fichierLpln, fichierVemgsa) {
-                console.log("identifying");
-                console.log(identificationF(arcid, plnid, fichierLpln, fichierVemgsa));
-                socket.emit("identified",identificationF(arcid, plnid, fichierLpln, fichierVemgsa));
-            }); */
-
         });
     }
 }

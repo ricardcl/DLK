@@ -1,21 +1,11 @@
 import { Vol } from '../Modele/vol';
 import { parseurLpln } from './parseurLpln';
-import { parseurVemgsa } from './parseur';
+import { parseurVemgsa } from './parseurVEMGSA';
 import { grapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
-import * as moment from 'moment';
 import * as dates from './date';
-
-export function getListeVols(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[]): Vol[] {
-  let monvolFinal: Vol;
-  let monvolVemgsa: Vol;
-  let monvolLpln: Vol;
-  let pl = new parseurLpln();
-  console.log(pl.grepListeVolFromLpln(fichierSourceLpln));
-  return pl.grepListeVolFromLpln(fichierSourceLpln);
-}
-
-
+import { GrepLPLN } from './grepLPLN';
+import { GrepVEMGSA } from './grepVEMGSA';
 
 //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
 export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number): Vol {
@@ -188,11 +178,12 @@ export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: num
 
 
 
-export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string): Vol {
+export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN : GrepLPLN): Vol {
 
   //Initialisation du vol issu des donnees LPLN
   let monvolLpln = new Vol(arcid, plnid);
-  let pl = new parseurLpln();
+  console.log ("->->", grepLPLN);
+  let pl = new parseurLpln(grepLPLN);
   monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
 
@@ -239,14 +230,14 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
 
 }
 
-export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[]): Vol {
+export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA : GrepVEMGSA): Vol {
 
 
 
 
   //Initialisation du vol issu des donnees VEMGSA
   let monvolVemgsa = new Vol(arcid, plnid);
-  let pv = new parseurVemgsa();
+  let pv = new parseurVemgsa(grepVEMGSA);
   //pv.identification(arcid, plnid, fichierSourceVemgsa);
 
   monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);

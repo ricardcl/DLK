@@ -1,4 +1,3 @@
-
 import { Vol } from '../Modele/vol';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
@@ -8,35 +7,26 @@ import * as moment from 'moment';
 import * as dates from './date';
 
 let fsplit = new split();
-
-
-
-//let plnid = 6461;
-//7183
-
 let readline = require("../scripts/node-readline/node-readline");
+let frequences = require("./frequences");
 import * as grep from "./grepLPLN";
 import { isUndefined } from 'util';
 
 const p = require('path');
-import { path } from '../main'
 import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { Identifiants } from '../Modele/identifiants';
-
-
-
-
-
-
-
-
-
-
-
+import { GrepLPLN } from './grepLPLN';
+import { Path } from '../Modele/path';
 
 export class parseurLpln {
 
-  identification = function (arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
+  private grep: GrepLPLN;
+
+  constructor(grep: GrepLPLN) {
+    this.grep = grep;
+  }
+
+  public identification (arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
     console.log("identification LPLN");
 
     //console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceLpln) );
@@ -48,7 +38,7 @@ export class parseurLpln {
     //console.log("plnid : "+plnid);
     if ((arcid == "") && (plnid !== 0)) {
 
-      arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
+      arcid = this.grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
       console.log(arcid);
       if (arcid !== "") {
         //console.log("arcid trouve : "+arcid);
@@ -57,7 +47,7 @@ export class parseurLpln {
     }
 
     if ((arcid !== "") && (plnid == 0)) {
-      plnid = grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
+      plnid = this.grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
       if (plnid !== 0) {
         //console.log("plnid trouve : "+plnid);
         id.identifie = true;
@@ -74,29 +64,29 @@ export class parseurLpln {
     return id;
   }
 
-  parseur = function (arcid: string, plnid: number, fichierSourceLpln: string): Vol {
+  public parseur (arcid: string, plnid: number, fichierSourceLpln: string): Vol {
 
-    const fichierGbdi = p.resolve(path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
-    const source = p.resolve(path.outputPath, "resultLPLN.htm"); //Fichier en entree a analyser
+    const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
+    const source = p.resolve(this.grep.getUserPath(), "resultLPLN.htm"); //Fichier en entree a analyser
 
-    fichierSourceLpln = p.resolve(path.userPath, fichierSourceLpln);
+    fichierSourceLpln = p.resolve(this.grep.getUserPath(), fichierSourceLpln);
 
     if ((arcid == "") && (plnid !== 0)) {
-      arcid = grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
+      arcid = this.grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
       console.log("cas impossible");
 
     }
     if ((arcid !== "") && (plnid == 0)) {
-      plnid = grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
+      plnid = this.grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
       console.log("cas impossible");
 
     }
 
 
-    grep.grepLogLPLN(arcid, plnid, fichierSourceLpln);
+    this.grep.grepLogLPLN(arcid, plnid, fichierSourceLpln);
 
     //TODO : partie a mettre en commun avec l'autre parseur
-    let frequences = require("./frequences");
+
 
     //let fichierDest = "../Output/freq.htm";
     frequences.GbdiToFreq(fichierGbdi);
@@ -424,8 +414,8 @@ export class parseurLpln {
   }
 
 
-  recuperationCPC = function (infoLog: string): string[] {
-    let mymap: string[] = [];
+  private recuperationCPC (infoLog: string): DetailCpdlc[] {
+    let mymap: DetailCpdlc[] = [];
 
     if (infoLog.match("ENVOI MSG") !== null) {
       let motif = /(ENVOI MSG )(.*)(AU SERVEUR AIR)/;
@@ -617,9 +607,9 @@ export class parseurLpln {
     return mymap;
   }
 
-  grepListeVolFromLpln = function (fichierSourceLpln: string): Vol[] {
+  public grepListeVolFromLpln (fichierSourceLpln: string): Vol[] {
     console.log("coucou");
-    let fichierSource = p.resolve(path.userPath, fichierSourceLpln);
+    let fichierSource = p.resolve(this.grep.getUserPath(), fichierSourceLpln);
     let fd = this.isFichierLisible(fichierSource); //Test de l'ouverture du fichier et recuperation du file descriptor
 
     //let motif = /(-)(.*)(\/)(.*)(H)(.*)(MN)(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL:)(.*)(RANG SL:)(.*)(PLN)(.*)(-)/;
@@ -662,7 +652,7 @@ export class parseurLpln {
     return listeVolsUniques;
   }
 
-  isFichierLisible = function (fichier: string): number {
+  private isFichierLisible (fichier: string): number {
     let fd = readline.fopen(fichier, "r");
     //Test de l'ouverture du fichier
     if (fd === false) {
