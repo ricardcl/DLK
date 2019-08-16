@@ -77,7 +77,7 @@ export class Formulaire {
                     socket.emit("check", resultCheck)
                 }
                 else {
-                    socket.emit("checkInitial", resultCheckInitial)
+                    socket.emit("check", resultCheckInitial)
                 }
             });
 
