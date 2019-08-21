@@ -100,6 +100,8 @@ function checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, cont
     let answer = <checkAnswerInitial>{};
     answer.valeurRetour = 2;
     answer.messageRetour = "arcid ou plnid non trouvé";
+    answer.plnid = 0;
+    answer.arcid = "";
     answer.creneauHoraire = undefined;
 
 
@@ -187,6 +189,8 @@ function checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[]
     let answer = <checkAnswerInitial>{};
     answer.valeurRetour = 2;
     answer.messageRetour = "arcid ou plnid non trouvé";
+    answer.plnid = 0;
+    answer.arcid = "";
     answer.creneauHoraire = undefined;
 
 

@@ -78,6 +78,14 @@ export function diffHeuresVemgsaEgales(hV1: string, hV2: string): number {
     else { return false; }
 }
 
+export function isHeureInf(h1: string, h2: string): boolean {
+    const momentDate1 = moment(h1, 'HH mm ss');
+    const momentDate2 = moment(h2, 'HH mm ss');
+    const diff: number =momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
+    if (diff < 0) { return true; }
+    else { return false; }
+}
+
 export function isDateSup(d1: string, d2: string): boolean {
     const momentDate1 = moment(d1, 'DD-MM-YYYY HH mm ss');
     const momentDate2 = moment(d2, 'DD-MM-YYYY HH mm ss');
@@ -85,6 +93,7 @@ export function isDateSup(d1: string, d2: string): boolean {
     if (diff > 0) { return true; }
     else { return false; }
 }
+
 
 export function getCreneaux(dates: string[]): datesFile[] {
     let arrayHeuresTrouvees: string[] = dates;

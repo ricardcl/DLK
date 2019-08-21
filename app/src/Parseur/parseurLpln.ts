@@ -163,11 +163,11 @@ export class parseurLpln {
           if (dateHeure !== null) {
             const heure = dateHeure.toString().replace(motifDateHeure, "$3");
             const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
-            const dateToStore = jour + "-" + mois + " " + heure + " " + minutes;
+            const dateToStore = jour + "-" + mois + " " + heure + " " + minutes+ " OO";
             const momentDate = moment(dateToStore, 'DD-MM HH mm');
 
             log.setDate(moment(momentDate).format('DD-MM'));
-            log.setHeure(moment(momentDate).format('HH mm'));
+            log.setHeure(moment(momentDate).format('HH mm ss'));
           }
 
 

@@ -87,9 +87,6 @@ export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: num
             // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
             heureTransfert = eltL.getHeure();
             // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
-
-
-
           }
 
           //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
@@ -131,6 +128,20 @@ export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: num
     }
 
   })
+
+  //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA
+  let creneau = <dates.datesFile>{};
+  creneau.dateMin = volVemgsa.getListeLogs()[0].getHeure();
+  creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getHeure();
+  console.log("creneau.dateMin: ", creneau.dateMin);
+  console.log("creneau.dateMax: ", creneau.dateMax);
+  volLpln.getListeLogs().forEach((eltL, key) => {
+    if ((dates.isHeureInf(eltL.getHeure() , creneau.dateMin)) || (dates.isHeureSup(eltL.getHeure(),creneau.dateMax))) {
+      monvolFinal.addElt(eltL);
+      console.log("ajout supp LPLN: ",eltL.getEtat() );
+      
+    }
+  });
 
   console.log("resultat vol final : ");
   let graphe = new grapheEtat();
@@ -178,11 +189,11 @@ export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: num
 
 
 
-export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN : GrepLPLN): Vol {
+export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Vol {
 
   //Initialisation du vol issu des donnees LPLN
   let monvolLpln = new Vol(arcid, plnid);
-  console.log ("->->", grepLPLN);
+  console.log("->->", grepLPLN);
   let pl = new parseurLpln(grepLPLN);
   monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
@@ -209,12 +220,12 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
     if (etatCpdlc.getTitle() == 'CPCASREQ') {
       monvolLpln.setLogonInitie("OK");
     }
-    
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {     
+
+    if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
       monvolLpln.setLogonAccepte("OK");
 
     }
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F'))  {
+    if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F')) {
       monvolLpln.setLogonAccepte("KO");
     }
 
@@ -236,11 +247,11 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
 
 }
 
-export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA : GrepVEMGSA): Vol {
+export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA): Vol {
 
 
-  console.log("Je rentre dans InfosVemgsa de MixInfo" );
-  console.log("fichierSourceVemgsa: ", fichierSourceVemgsa );
+  console.log("Je rentre dans InfosVemgsa de MixInfo");
+  console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
   //Initialisation du vol issu des donnees VEMGSA
   let monvolVemgsa = new Vol(arcid, plnid);
   let pv = new parseurVemgsa(grepVEMGSA);
@@ -284,7 +295,7 @@ export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: s
 
   console.log("fin logs VEMGSA collectes et tries");
 
-    
+
 
   return monvolVemgsa;
 }
