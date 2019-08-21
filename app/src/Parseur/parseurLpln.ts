@@ -430,13 +430,19 @@ export class parseurLpln {
           case 'CPCASRES': {
             console.log("je rentre dans CPCASRES", etatCpc[1].trim());
             
-            if (etatCpc[1].trim() == "(S)") {
-              console.log("je rentre dans CPCASRES S");          
+            if (etatCpc[1].trim() == "(S)") {    
               mymap['ATNASSOC'] = 'S';
             }
+            
             else {
-              mymap['ATNASSOC'] = 'F';
-              //TODO verifier quil ny a pas dautres valeurs possibles
+              if  (etatCpc[1].trim() == "(L)"){
+                mymap['ATNASSOC'] = 'L';
+              }
+              else {
+                mymap['ATNASSOC'] = 'F';
+                //TODO verifier quil ny a pas dautres valeurs possibles
+              }
+
             }
             break;
           }

@@ -24,11 +24,15 @@ recuperer uniquement les informations relatives a un PLNID et un ARCID donne
 copier le resultat dans un fichier texte en enlevant les caracteres speciaux et verifiant que le format est correct
 */
   public grepLog(arcid: string, plnid: number, fichierSourceVemgsa: string[], horaire?: string): void {
-
+    console.log("Je rentre dans grepLog de grepVEMGSA" );
+    console.log("arcid: ", arcid );
+    console.log("plnid: ", plnid );
+    console.log("fichierSourceVemgsa: ", fichierSourceVemgsa );
     let fichierDestination = p.resolve(this.userPath, "result.htm");
     let w = fs.openSync(fichierDestination, "w");
 
     for (let fichier of fichierSourceVemgsa) {
+      console.log("fichier : ", fichier );
       let fichierSource = fichier;
       let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
       let motif = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
@@ -49,7 +53,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
             mylogCpdlc = mylogCpdlc.match(motif);
 
             if (!horaire) {
-              if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0)) {
+              if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0)) {               
                 fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
               }
               else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois

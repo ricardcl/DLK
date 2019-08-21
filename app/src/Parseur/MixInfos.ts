@@ -209,9 +209,15 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
     if (etatCpdlc.getTitle() == 'CPCASREQ') {
       monvolLpln.setLogonInitie("OK");
     }
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'S')) {
+    
+    if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {     
       monvolLpln.setLogonAccepte("OK");
-    } else { monvolLpln.setLogonAccepte("KO"); }
+
+    }
+    if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F'))  {
+      monvolLpln.setLogonAccepte("KO");
+    }
+
 
     console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
     console.log("LogLPLN: ", etatCpdlc.getLog());
@@ -233,8 +239,8 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
 export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA : GrepVEMGSA): Vol {
 
 
-
-
+  console.log("Je rentre dans InfosVemgsa de MixInfo" );
+  console.log("fichierSourceVemgsa: ", fichierSourceVemgsa );
   //Initialisation du vol issu des donnees VEMGSA
   let monvolVemgsa = new Vol(arcid, plnid);
   let pv = new parseurVemgsa(grepVEMGSA);
@@ -277,6 +283,9 @@ export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: s
 
 
   console.log("fin logs VEMGSA collectes et tries");
+
+    
+
   return monvolVemgsa;
 }
 

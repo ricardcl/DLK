@@ -1,6 +1,9 @@
 import { EtatCpdlc } from './etatCpdlc';
+import moment = require('moment');
 
 export class Vol {
+     /** identifiant unique d'un vol (heure en ms ?) */
+    private id: string;
     /** identifiant echange entre le serveur air et le STPV pour designer un vol */
     private reqid: number;
     /**Identifiant du vol (code OACI ?) */
@@ -45,6 +48,7 @@ export class Vol {
 
 
     constructor(arcid: string, plnid: number) {
+        this.id=moment().format(); 
         this.arcid = arcid;
         this.plnid = plnid;
         this.listeLogs = [];

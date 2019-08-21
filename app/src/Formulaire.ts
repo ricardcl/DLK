@@ -1,6 +1,6 @@
 import { mixInfos, InfosLpln, InfosVemgsa } from './Parseur/MixInfos';
 import { Contexte } from './Modele/enumContexte';
-import { evaluationContexte, checkInitial, check } from './Parseur/check';
+import { evaluationContexte,  check } from './Parseur/check';
 const p = require('path');
 var SocketIOFileUpload = require("socketio-file-upload");
 import { checkAnswer } from './Modele/checkAnswer';
@@ -70,32 +70,30 @@ export class Formulaire {
 
 
                 this.contexte = evaluationContexte(lpln, listVemgsa);
-                let resultCheckInitial = <checkAnswer>{};
-                resultCheckInitial = checkInitial(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA);
-                if (resultCheckInitial.valeurRetour == 0) {
-                    let resultCheck: checkAnswer = check(arcid, plnid, lpln, listVemgsa,this.contexte, this.grepLPLN, this.grepVEMGSA, resultCheckInitial.creneauHoraire);
-                    socket.emit("check", resultCheck)
-                }
-                else {
-                    socket.emit("check", resultCheckInitial)
-                }
+                let resultCheck= <checkAnswer>{};
+                resultCheck = check(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA);
+                socket.emit("check", resultCheck)
+
             });
 
-            socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename) => {
-                console.log("analysedVol", "arcid: ", arcid, "plnid: ", plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename);
+            socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer) => {
+                console.log("analysedVol");
                 switch (this.contexte) {
                     case Contexte.LPLN: 
-                    console.log ("->", this.grepLPLN);
-                    socket.emit("analysedVol", "LPLN",  InfosLpln(arcid, plnid, lplnfilename, this.grepLPLN));
+                    console.log("analysedVol Contexte.LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
+                    socket.emit("analysedVol", "LPLN",  InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN));
                     break;
                     case Contexte.VEMGSA: 
-                    socket.emit("analysedVol", "VEMGSA",InfosVemgsa(arcid, plnid, vemgsafilename, this.grepVEMGSA));
-
+                    console.log("analysedVol Contexte.VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
+                    socket.emit("analysedVol", "VEMGSA",  InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA));
                     break;
                     case Contexte.LPLNVEMGSA: 
-                    let volLpln: Vol = InfosLpln(arcid, plnid, lplnfilename, this.grepLPLN);
-                    let volVemgsa: Vol = InfosVemgsa(arcid, plnid, vemgsafilename, this.grepVEMGSA);                   
-                    socket.emit("analysedVolMix",volLpln,volVemgsa,  mixInfos(volLpln, volVemgsa, arcid, plnid));
+                    console.log("analysedVol Contexte.LPLN et VEMGSA : données LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
+                    console.log("analysedVol Contexte.LPLN et VEMGSA : données VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
+
+                    let volLpln: Vol = InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN);
+                    let volVemgsa: Vol = InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA);                   
+                    socket.emit("analysedVolMix",volLpln,volVemgsa,  mixInfos(volLpln, volVemgsa, checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid));
                     break;
 
                 }

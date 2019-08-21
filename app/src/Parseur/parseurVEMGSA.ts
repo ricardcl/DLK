@@ -78,6 +78,8 @@ export class parseurVemgsa {
 
 
   public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[]): Vol {
+    console.log("Je rentre dans parseur de parseurVEMGSA" );
+    console.log("fichierSourceVemgsa: ", fichierSourceVemgsa );
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser
 
@@ -292,18 +294,7 @@ export class parseurVemgsa {
         }
 
       }
-      //console.log("affichage : "+ log.afficheLogCpdlc());
       log.setEtat(monEtat);
-      /*console.log(log.getHeureLogCpdlc()+ " --> "+log.title + " Etat calcule : "+monEtat);
-      if ((log.title == "CPCFREQ")  || (log.title == "CPCNXTCNTR") || ((log.title == "CPCCLOSLNK") && (log.getInfoMap().get("FREQ") !== undefined))){
-        console.log("vers  : "+log.getInfoMap().get("UNITID"));
-      }
-      if (log.getFrequence() !== null) {
-      
-        console.log("freq recuperee : "+log.getFrequence());
-        console.log("Transfert vers : "+ frequences.freqToSecteur(log.getFrequence()));
-      
-      }*/
 
 
       numeroLigne += 1;
