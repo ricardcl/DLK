@@ -4,7 +4,7 @@ import { DetailCpdlc } from "../Modele/detailCpdlc";
 var espace = " ";
 
 
-export class split {
+export class Split {
 
   /*
   objectif : Fonction qui prend en entree une chaine de caractere,
@@ -14,14 +14,13 @@ export class split {
   stringToSplit : la chaine de caractere a separer
   separateur : le caractere delimiteur
   */
-  splitString = function (stringToSplit, separator) {
-    var arrayOfStrings = new Array();
-    arrayOfStrings = stringToSplit.toString().split(separator);
-    /*for (var i=0; i < arrayOfStrings.length; i++)
-    console.log(arrayOfStrings[i] + " / ");*/
-    return arrayOfStrings;
-
-  }
+ public splitString( stringToSplit: string, separator: string): string[] {
+  var arrayOfStrings = new Array();
+  arrayOfStrings = stringToSplit.toString().split(separator);
+  /*for (var i=0; i < arrayOfStrings.length; i++)
+  console.log(arrayOfStrings[i] + " / ");*/
+  return arrayOfStrings;
+}
 
   /*
   objectif : Fonction qui prend en entree une chaine de caractere,
@@ -30,7 +29,7 @@ export class split {
   Parametres en entrée :
   stringToSplit : la chaine de caractere a separer
   */
-  stringToTuple = function (stringToSplit){
+ private stringToTuple( stringToSplit) {
 
     //declaration d'une table de hashage
     //let mymap : string[] = [];
@@ -59,7 +58,7 @@ export class split {
   Parametres en entrée :
   stringToSplit : la chaine de caractere a separer
   */
- stringToDetailCpdlc = function (stringToSplit){
+ public stringToDetailCpdlc( stringToSplit: string):DetailCpdlc[] {
   
   let mymap : DetailCpdlc[] = new Array();
 

@@ -5,8 +5,7 @@ import { Etat } from '../Modele/enumEtat';
 import * as moment from 'moment';
 import * as dates from './date';
 
-import { split } from './split';
-let fsplit = new split();
+import { Split } from './split';
 
 
 
@@ -24,9 +23,11 @@ const p = require('path');
 
 export class parseurVemgsa {
   private grep: GrepVEMGSA;
+  private split: Split;
 
   constructor(grep: GrepVEMGSA) {
     this.grep = grep;
+    this.split = new Split();
   }
 
   public identification(arcid: string, plnid: number, fichierSourceVemgsa: string[], horaire?: dates.datesFile): Identifiants {
@@ -112,7 +113,7 @@ export class parseurVemgsa {
 
 
       //Recuperation de la date/heure et des infos suivantes
-      let mylogCpdlcDecompose = fsplit.splitString(mylogCpdlc, 'TITLE');
+      let mylogCpdlcDecompose = this.split.splitString(mylogCpdlc, 'TITLE');
       let infoGen = mylogCpdlcDecompose[0];
       let infoLog = mylogCpdlcDecompose[1];
 
@@ -120,8 +121,6 @@ export class parseurVemgsa {
       let log = new EtatCpdlc(numeroLigne);
       log.setLog(infoLog);
       //Stockage de la date/heure
-      //let dateHeure = fsplit.splitString(ingoGen, " ");
-
       let motifDateHeure = /(\d\d\/\d\d\/\d\d\d\d)( )(\d\d)(H)(\d\d)(')(\d\d)(.*)/;
 
 
@@ -138,13 +137,12 @@ export class parseurVemgsa {
         log.setDate(moment(momentDate).format('DD-MM-YYYY'));
         log.setHeure(moment(momentDate).format('HH mm ss'));
 
-        log.setAssociable(infoGen.toString().replace(motifDateHeure, "$8"));
+        log.setAssociable(Boolean(infoGen.toString().replace(motifDateHeure, "$8")));
 
       }
       //Stockage des infos suivantes
 
-      //let myMap = fsplit.stringToTuple (infoLog);
-      let myMap: DetailCpdlc[] = fsplit.stringToDetailCpdlc(infoLog);
+      let myMap: DetailCpdlc[] = this.split.stringToDetailCpdlc(infoLog);
 
 
 

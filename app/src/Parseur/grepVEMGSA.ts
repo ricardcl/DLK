@@ -2,9 +2,9 @@ const fs = require('fs');
 const p = require('path');
 let readline = require("../scripts/node-readline/node-readline");
 
-import { split } from './split';
+
 import * as dates from './date';
-let fsplit = new split();
+
 
 export class GrepVEMGSA {
   private userPath: string;

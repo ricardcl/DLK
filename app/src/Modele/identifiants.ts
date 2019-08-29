@@ -3,7 +3,8 @@
 export interface Identifiants {
     plnid: number ;
     arcid: string;
-    identifie: boolean;
+    identifie?: boolean;
+    tabId?: Identifiants[];
 }
 
 

@@ -1,10 +1,11 @@
 import { datesFile } from "../Parseur/date";
+import { Identifiants } from "./identifiants";
 
 export interface checkAnswerInitial {
     valeurRetour: number;
-    messageRetour: string
-    plnid?: number;
-    arcid?: string;
+    arcid: string;
+    plnid: number;
+    tabId?: Identifiants[];
     creneauHoraire?: datesFile; 
 }
 

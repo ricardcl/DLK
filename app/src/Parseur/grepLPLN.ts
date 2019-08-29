@@ -1,3 +1,6 @@
+import { Identifiants } from "../Modele/identifiants";
+import {  Split } from './split';
+
 /*
 OBJECTIF DE CETTE FONCTION :
 Lire le contenu d un fichier LPLN donne en entree
@@ -13,16 +16,19 @@ const p = require('path');
 //console.log("path.outputPath: "+path.outputPath);
 
 export class GrepLPLN {
-  private userPath : string;
+  private userPath: string;
+  private split: Split;
 
-  constructor (userPath : string) {
+  constructor(userPath: string) {
     this.userPath = userPath;
+    this.split = new Split ();
   }
 
-  public getUserPath () : string {
+
+  public getUserPath(): string {
     return this.userPath;
   }
-  
+
   public grepLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): void {
     let fichierDestination = p.resolve(this.userPath, "resultLPLN.htm");
     let fichierSource = fichierSourceLpln;
@@ -195,6 +201,55 @@ export class GrepLPLN {
 
     return plnid;
   }
+
+  public grepPlnidAndArcid(fichierSource: string): Identifiants[] {
+    console.log("grepPlnidAndArcid ");
+
+    let tabPlnid= [];
+    let tabArcid= [];
+    let tabId=[];
+    let id = <Identifiants>{};
+    id.arcid = "";
+    id.plnid = 0;
+    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
+    let arcidTemp;
+
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
+      process.exit(1);
+    }
+    //Traitement du fichier
+    do {
+      //Test de la fin de fichier
+      var mylogCpdlc = readline.fgets(r);
+      if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match(motif);
+      if (info1Lpln !== null) {
+        console.log("coucou: ");
+      //  let fsplit = new split();
+        arcidTemp = this.split.splitString( mylogCpdlc.toString().replace(motif, "$5").trim(), " ");
+        console.log("arcidTemp: ",arcidTemp);
+        
+        id.arcid = arcidTemp[0];
+        console.log("arcid: ",id.arcid);
+        id.plnid = mylogCpdlc.toString().replace(motif, "$3").trim();
+        if (!(tabArcid.includes( id.arcid)) || !(tabPlnid.includes( id.plnid))) {
+          tabArcid.push( id.arcid);
+          tabPlnid.push( id.plnid);
+          tabId.push(id)        
+        }
+      }
+
+    } while (!readline.eof(r));
+    readline.fclose(r);
+
+
+    return tabId;
+  }
+
 
 
   public isArcid(arcid: string, fichierSourceLpln: string): boolean {

@@ -85,11 +85,12 @@ export function identificationVemgsa(arcid: string, plnid: number, fichierSource
  * @param plnid : plnid rentré par l'utilisateur (0 par défaut)
  * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut)
  * @param contexte : le contexte d'exécution lié aux types de fichiers logs en entrée
- * @returns {valeurRetour,messageRetour } 
+ * @returns {valeurRetour,arcid, plnid } 
  *   où valeurRetour indique si le checkInitial s'est bien déroulé :
- *   0: LPLN OK
- *   1 : LPLN incomplet 
- *   2 : LPLN KO 
+ *   0 : LPLN OK : arcid et plnid identifies
+ *   1 : LPLN incomplet , arcid ou plnid non trouve
+ *   2 : format arcid ou plnid invalide
+ *   3 : erreur a louverture du fichier LPLN
  *   et où messageRetour donne une explication en cas d'echec
  */
 function checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, contexte: Contexte, grepLPLN: grepL.GrepLPLN): checkAnswerInitial {
@@ -99,68 +100,53 @@ function checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, cont
     //let result = <dates.arrayDatesFile>{};
     let answer = <checkAnswerInitial>{};
     answer.valeurRetour = 2;
-    answer.messageRetour = "arcid ou plnid non trouvé";
-    answer.plnid = 0;
     answer.arcid = "";
+    answer.plnid = 0;
     answer.creneauHoraire = undefined;
 
 
     if (((arcid !== "") && (plnid == 0) && (!arcid.match(regexpArcid))) || ((arcid == "") && (plnid !== 0) && (!plnid.toString().match(regexpPlnid)))) {
-        answer.valeurRetour = 2;
-        answer.messageRetour = "format arcid ou plnid invalide";
         return answer;
     }
 
     try {
         console.log(" Contexte.LPLN ");
         if ((arcid !== "") && (plnid == 0)) {
-            answer.arcid=arcid;
-            if (grepLPLN.isArcid(arcid, fichierSourceLpln) == true) {
-                id = identificationLpln(arcid, plnid, fichierSourceLpln,grepLPLN);
-                if(id.identifie){
-                    answer.plnid=id.plnid;
-                    answer.valeurRetour = 0;
-                    answer.messageRetour = "Vol trouve: "+id.arcid+" "+id.plnid;                      
-                }
-                else{
-                    answer.valeurRetour = 1;
-                    answer.messageRetour = "Vol Incomplet: "+id.arcid;                      
-                }
+            answer.arcid = arcid;
+
+            id = identificationLpln(arcid, plnid, fichierSourceLpln, grepLPLN);
+            if (id.identifie) {
+                answer.plnid = id.plnid;
+                answer.valeurRetour = 0;
             }
             else {
-                answer.valeurRetour = 2;
-                answer.messageRetour = "Arcid " + arcid + " non trouvé ";
+                answer.valeurRetour = 1;
+                answer.tabId = id.tabId;
+                console.log("answer.tabId trouvee : ", answer.tabId);
             }
+
         }
         if ((arcid == "") && (plnid !== 0)) {
-            answer.plnid=plnid;
-            if (grepLPLN.isPlnid(plnid, fichierSourceLpln) == true) {
-                id = identificationLpln(arcid, plnid, fichierSourceLpln,grepLPLN);
-                if(id.identifie){
-                    answer.arcid=id.arcid;
-                    answer.valeurRetour = 0;
-                    answer.messageRetour = "Vol trouve: "+id.arcid+" "+id.plnid;                      
-                }
-                else{
-                    answer.valeurRetour = 1;
-                    answer.messageRetour = "Vol Incomplet: "+id.plnid;                      
-                }
+            answer.plnid = plnid;
+            id = identificationLpln(arcid, plnid, fichierSourceLpln, grepLPLN);
+            if (id.identifie) {
+                answer.arcid = id.arcid;
+                answer.valeurRetour = 0;
             }
             else {
-                answer.valeurRetour = 2;
-                answer.messageRetour = "Plnid " + plnid + " non trouvé ";
+                answer.valeurRetour = 1;
+                answer.tabId = id.tabId;
+                console.log("answer.tabId trouvee : ", answer.tabId);
             }
         }
     } catch (exception) {
         console.log("erreur lors de l'ouverture du fichier LPLN:", exception.code);
         answer.valeurRetour = 2;
-        answer.messageRetour = "Erreur lors de l'ouverture du fichier LPLN";
     }
     console.log("CHECK LPLN");
     console.log("answer.arcid", answer.arcid);
     console.log("answer.plnid", answer.plnid);
     console.log("answer.valeurRetour", answer.valeurRetour);
-    console.log("answer.messageRetour", answer.messageRetour);  
     return answer;
 }
 
@@ -174,12 +160,17 @@ function checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, cont
  * @returns {valeurRetour,messageRetour } 
  *   où valeurRetour indique si le checkInitial s'est bien déroulé :
  *   0: VEMGSA complet
- *   1 : VEMGSA incomplet ( trop de créneaux VEMGSA trouvés )
- *   2 : VEMGSA NOK
- *   3 : VEMGSA OK mais creneau horaire à définir
+ *   1 : VEMGSA incomplet ( plnid non trouve )
+ *   2 : VEMGSA incomplet ( arcid non trouve)
+ *   3 : VEMGSA incomplet ( plnid non trouve car connexion refusee )
+ *   4 : VEMGSA incomplet ( arcid non trouve car ...)
+ *   5 : VEMGSA NOK ( trop de creneaux horaires trouves)
+ *   6 : VEMGSA NOK ( pas d'info trouvé pour l'id donné)
+ *   7 : VEMGSA NOK ( erreur format identifiant)
+ *   8 : VEMGSA NOK ( pbm ouverture du fichier)
  *   et où messageRetour donne une explication en cas d'echec
  */
-function checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], contexte: Contexte, grepVEMGSA: grepV.GrepVEMGSA, horaire?: dates.datesFile ): checkAnswerInitial {
+function checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], contexte: Contexte, grepVEMGSA: grepV.GrepVEMGSA, horaire?: dates.datesFile): checkAnswerInitial {
     console.log(" Check VEMGSA ");
     let regexpPlnid: RegExp = /^\d{4}$/;
     let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
@@ -187,22 +178,19 @@ function checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[]
     let result = <dates.arrayDatesFile>{};
     result.dates = new Array;
     let answer = <checkAnswerInitial>{};
-    answer.valeurRetour = 2;
-    answer.messageRetour = "arcid ou plnid non trouvé";
+    answer.valeurRetour = 7;
     answer.plnid = 0;
     answer.arcid = "";
     answer.creneauHoraire = undefined;
 
 
     if (((arcid !== "") && (plnid == 0) && (!arcid.match(regexpArcid))) || ((arcid == "") && (plnid !== 0) && (!plnid.toString().match(regexpPlnid)))) {
-        answer.valeurRetour = 2;
-        answer.messageRetour = "format arcid ou plnid invalide";
         return answer;
     }
 
     try {
         if ((arcid !== "") && (plnid == 0)) {
-            answer.arcid=arcid;
+            answer.arcid = arcid;
             //Recherche de l'ARCID dans le fichier VEMGSA
             result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
             if (result.existe == true) {
@@ -212,72 +200,70 @@ function checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[]
 
                 console.log("creneaux trouves 2 :", result.dates);
                 if (result.dates.length > 1) {
-                    answer.valeurRetour = 4;
-                    answer.messageRetour = "trop de creneaux trouves: " + creneau;
+                    answer.valeurRetour = 5;
+                    //TODO renvoyer les creneaux trouves
                 }
                 else {
                     id = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, horaire);
-                    if (id.identifie){
-                        answer.plnid=id.plnid;
+                    if (id.identifie) {
+                        answer.plnid = id.plnid;
                         answer.valeurRetour = 0;
-                        answer.messageRetour = "Vol trouve: "+id.arcid+" "+id.plnid;
                         //  answer.creneauHoraire = creneau[0];
                         //  console.log("creneaux trouves [0]:",creneau);
                     }
                     else {
+                        //TODO cas 1 ou 3 à analyse !!!
                         answer.valeurRetour = 1;
-                        answer.messageRetour = "Vol Incomplet: "+id.arcid;     
+                        //TODO renvoyer la plage horaire etudiee
                     }
 
                 }
             }
             else {
                 console.log("arcid non trouvé");
-                answer.valeurRetour = 2;
-                answer.messageRetour = "arcid " + arcid + " non trouvé ";
+                answer.valeurRetour = 6;
+                //TODO renvoyer la plage horaire etudiee
             }
         }
         if ((arcid == "") && (plnid !== 0)) {
-            answer.plnid=plnid;
+            answer.plnid = plnid;
             result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
             if (result.existe == true) {
                 let creneau = new Array(<dates.datesFile>{});
                 creneau = dates.getCreneaux(result.dates);
                 if (creneau.length > 1) {
-                    answer.valeurRetour = 4;
-                    answer.messageRetour = "trop de creneaux trouves: " + creneau;
+                    answer.valeurRetour = 5;
+                    //TODO renvoyer les creneaux trouves
                 }
                 else {
                     id = identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, horaire);
-                    if (id.identifie){
-                        answer.arcid=id.arcid;
+                    if (id.identifie) {
+                        answer.arcid = id.arcid;
                         answer.valeurRetour = 0;
-                        answer.messageRetour = "Vol trouve: "+id.arcid+" "+id.plnid;
                         //  answer.creneauHoraire = creneau[0];
                         //  console.log("creneaux trouves [0]:",creneau);
                     }
                     else {
-                        answer.valeurRetour = 1;
-                        answer.messageRetour = "Vol Incomplet: "+id.plnid;     
+                        //TODO cas 2 ou 4 à analyse !!!
+                        answer.valeurRetour = 2;
+                        //TODO renvoyer la plage horaire etudiee
                     }
                 }
             }
             else {
                 console.log("plnid non trouvé");
-                answer.valeurRetour = 2;
-                answer.messageRetour = "plnid " + plnid + " non trouvé ";
+                answer.valeurRetour = 6;
+                //TODO renvoyer la plage horaire etudiee
             }
         }
     } catch (exception) {
         console.log("erreur lors de l'ouverture du fichier VEMGSA:", exception.code);
-        answer.valeurRetour = 2;
-        answer.messageRetour = "Erreur lors de l'ouverture du fichier VEMGSA";
+        answer.valeurRetour = 8;
     }
     console.log("CHECK VEMGSA");
     console.log("answer.arcid", answer.arcid);
     console.log("answer.plnid", answer.plnid);
     console.log("answer.valeurRetour", answer.valeurRetour);
-    console.log("answer.messageRetour", answer.messageRetour);  
     return answer;
 }
 
@@ -304,41 +290,66 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
     let id = <Identifiants>{};
     let result = <dates.arrayDatesFile>{};
     let answer = <checkAnswer>{};
-    answer.analysePossible=false;
-    answer.checkLPLN = <checkAnswerInitial>{};
-    answer.checkVEMGSA = <checkAnswerInitial>{};
+    answer.analysePossible = false;
+
+
     answer.creneauHoraire = undefined;
 
     switch (contexte) {
         case Contexte.LPLN:
-                answer.checkLPLN = checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
-                console.log("Contexte LPLN");
-                console.log("resultat du check : "+answer.checkLPLN );
-                console.log("arcid : "+answer.checkLPLN.arcid );
-                console.log("plnid : "+answer.checkLPLN.plnid );
-                console.log("messageRetour : "+answer.checkLPLN.messageRetour );
-                console.log("valeurRetour : "+answer.checkLPLN.valeurRetour );
-               if (answer.checkLPLN.valeurRetour != 2){
-                   answer.analysePossible = true;
-               }                 
+            answer.checkLPLN = <checkAnswerInitial>{};
+            answer.checkLPLN = checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
+            answer.arcid = answer.checkLPLN.arcid;
+            answer.plnid = answer.checkLPLN.plnid;
+            console.log("Contexte LPLN");
+            console.log("resultat du check : " + answer.checkLPLN);
+            console.log("arcid : " + answer.checkLPLN.arcid);
+            console.log("plnid : " + answer.checkLPLN.plnid);
+            console.log("valeurRetour : " + answer.checkLPLN.valeurRetour);
+            if (answer.checkLPLN.valeurRetour == 0) {
+                answer.analysePossible = true;
+            }
             break;
         case Contexte.VEMGSA:
+            answer.checkVEMGSA = <checkAnswerInitial>{};
             answer.checkVEMGSA = checkVEMGSA(arcid, plnid, fichierSourceVemgsa, contexte, grepVEMGSA);
+            answer.arcid = answer.checkVEMGSA.arcid;
+            answer.plnid = answer.checkVEMGSA.plnid;
             console.log("Contexte VEMGSA");
-            console.log("resultat du check : "+answer.checkVEMGSA );
-           if (answer.checkVEMGSA.valeurRetour < 2){
-               answer.analysePossible = true;
-           }  
+            console.log("resultat du check : " + answer.checkVEMGSA);
+            if (answer.checkVEMGSA.valeurRetour <= 4) {
+                answer.analysePossible = true;
+            }
             break;
         case Contexte.LPLNVEMGSA:
+            answer.checkLPLN = <checkAnswerInitial>{};
+            answer.checkVEMGSA = <checkAnswerInitial>{};
             answer.checkLPLN = checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
             answer.checkVEMGSA = checkVEMGSA(arcid, plnid, fichierSourceVemgsa, contexte, grepVEMGSA);
             console.log("Contexte LPLN et VEMGSA");
-            console.log("resultat du check LPLN: "+answer.checkLPLN );
-            console.log("resultat du check VEMGSA: "+answer.checkVEMGSA );
-            if((answer.checkLPLN.valeurRetour != 2) || (answer.checkVEMGSA.valeurRetour < 2)){
+            console.log("resultat du check LPLN: " + answer.checkLPLN);
+            console.log("resultat du check VEMGSA: " + answer.checkVEMGSA);
+            if ((answer.checkLPLN.valeurRetour == 0) || (answer.checkVEMGSA.valeurRetour <= 4)) {
                 answer.analysePossible = true;
             }
+            if (answer.checkLPLN.valeurRetour == 0) {
+                answer.arcid = answer.checkLPLN.arcid;
+                answer.plnid = answer.checkLPLN.plnid;
+                console.log("cas LPLN et VEMGSA : arcid et plnid du LPLN OK");
+
+            }
+            else if ((answer.checkLPLN.valeurRetour !== 0) && (answer.checkVEMGSA.valeurRetour == 0)) {
+                answer.arcid = answer.checkVEMGSA.arcid;
+                answer.plnid = answer.checkVEMGSA.plnid;
+                console.log("cas LPLN et VEMGSA : arcid et plnid du LPLN KO    et arcid et plnid du VEMGSA OK   ");
+            }
+            else {
+                answer.arcid = answer.checkLPLN.arcid;
+                answer.plnid = answer.checkLPLN.plnid;
+                console.log("cas LPLN et VEMGSA : arcid et plnid du LPLN  et du VEMGSA KO");
+            }
+
+
             break;
         case Contexte.NONE:
             console.log(" Contexte NONE ");
@@ -348,7 +359,7 @@ export function check(arcid: string, plnid: number, fichierSourceLpln: string, f
             break;
     }
 
-console.log("Analyse Possible ? : ",+answer.analysePossible);
+    console.log("Analyse Possible ? : ", +answer.analysePossible);
 
     return answer;
 }

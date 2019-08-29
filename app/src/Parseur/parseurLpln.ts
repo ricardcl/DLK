@@ -2,11 +2,11 @@ import { Vol } from '../Modele/vol';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
 import { TSMap } from "typescript-map";
-import { split } from './split';
+import { Split } from './split';
 import * as moment from 'moment';
 import * as dates from './date';
 
-let fsplit = new split();
+//let fsplit = new split();
 let readline = require("../scripts/node-readline/node-readline");
 let frequences = require("./frequences");
 import * as grep from "./grepLPLN";
@@ -21,16 +21,45 @@ import { Path } from '../Modele/path';
 export class parseurLpln {
 
   private grep: GrepLPLN;
+  private split: Split;
 
   constructor(grep: GrepLPLN) {
     this.grep = grep;
+    this.split = new Split();
   }
 
   public identification (arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
-    console.log("identification LPLN");
 
-    //console.log("grep.isPlnid",grep.isPlnid(plnid, fichierSourceLpln) );
+    let tabId : Identifiants[];
+    let id = <Identifiants>{};
+    id.arcid = "";
+    id.plnid = 0;
+    id.identifie = false;
 
+    tabId= this.grep.grepPlnidAndArcid(fichierSourceLpln);
+    tabId.forEach(element => {
+      if (element.arcid == arcid){
+        id.arcid = arcid;
+        id.plnid = element.plnid;
+        id.identifie =true;
+      }
+      else if (element.plnid == plnid){
+        id.plnid = plnid;
+        id.arcid = element.arcid;
+        id.identifie =true;
+      }
+    });
+
+    if (!id.identifie){
+      id.tabId=tabId;
+    }
+
+
+    
+
+
+
+/**
     let id = <Identifiants>{};
     id.identifie = false;
 
@@ -59,8 +88,8 @@ export class parseurLpln {
 
     id.plnid = plnid;
     id.arcid = arcid;
-
-    console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
+ */
+    console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie," id.tabId: ", id.tabId);
     return id;
   }
 
@@ -140,7 +169,7 @@ export class parseurLpln {
         else {
 
           //Recuperation du numero de ligne et de l'heure et du contenu CPDLC de la ligne lue
-          let mylogCpdlcDecompose = fsplit.splitString(mylogCpdlc, '*');
+          let mylogCpdlcDecompose = this.split.splitString(mylogCpdlc, '*');
           //Recuperation du numero de ligne et de l'heure de la ligne lue
           let infoGen = mylogCpdlcDecompose[1].trim();
 
@@ -423,7 +452,7 @@ export class parseurLpln {
       if (infoLog.match(motif) !== null) {
         let cpcInfo = infoLog.replace(motif, "$2").trim();
         cpcInfo = cpcInfo.replace(/\s+/g, " ");
-        let etatCpc = fsplit.splitString(cpcInfo, " ");
+        let etatCpc = this.split.splitString(cpcInfo, " ");
         let title = etatCpc[0];
         mymap['TITLE'] = title;
         switch (title) {
@@ -484,7 +513,7 @@ export class parseurLpln {
         let motif = /(ENVOI MSG )(.*)(POUR POSITION\(S\))(.*)/;
         let cpcInfo = infoLog.replace(motif, "$2").trim();
         cpcInfo = cpcInfo.replace(/\s+/g, " ");
-        let etatCpc = fsplit.splitString(cpcInfo, " ");
+        let etatCpc = this.split.splitString(cpcInfo, " ");
         let title = etatCpc[0];
         mymap['TITLE'] = title;
         mymap['EVT'] = etatCpc[2];
@@ -503,7 +532,7 @@ export class parseurLpln {
       let cpcInfo = infoLog.replace(motif, "$2").trim();
 
       cpcInfo = cpcInfo.replace(/\s+/g, " ");
-      let etatCpc = fsplit.splitString(cpcInfo, " ");
+      let etatCpc = this.split.splitString(cpcInfo, " ");
       let title = etatCpc[0];
       //let mymap = new TSMap<string,string>();
       mymap['TITLE'] = title;
