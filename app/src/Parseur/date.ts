@@ -13,8 +13,10 @@ export interface arrayDatesFile {
 }
 
 
+export class Dates {
 
-export function MonthLetterToNumber(month: string): string {
+    public MonthLetterToNumber(month: string): string {
+
     let monthNumber: string = "00";
     switch (month) {
         case 'JANVIER': { monthNumber = "01"; break; }
@@ -36,7 +38,8 @@ export function MonthLetterToNumber(month: string): string {
 
 //Fonction pour comparer des heures VEMGSA et des heures LPLN uniquement !!!!
 //Pas pour comparer des heures LPLN entre elles ou des heures VEMGSA entre elles
-export function isHeuresLplnVemgsaEgales(hV: string, hL: string): boolean {
+public isHeuresLplnVemgsaEgales(hV: string, hL: string): boolean {
+
     const uneMinute: number = 60000;
     const momentDateV = moment(hV, 'HH mm');
     const momentDateL = moment(hL, 'HH mm');
@@ -53,7 +56,7 @@ export function isHeuresLplnVemgsaEgales(hV: string, hL: string): boolean {
 }
 
 //Fonction pour comparer des heures LPLN  entre elles : renvoie la difference de temps entre les deux
-export function diffHeuresLplnEgales(hL1: string, hL2: string): number {
+public diffHeuresLplnEgales(hL1: string, hL2: string): number {
     const momentDateL1 = moment(hL1, 'HH mm');
     const momentDateL2 = moment(hL2, 'HH mm');  
     const diff: number = Math.abs(momentDateL1.diff(momentDateL2)); //Rmq : diff renvoie un resultat en ms
@@ -63,14 +66,14 @@ export function diffHeuresLplnEgales(hL1: string, hL2: string): number {
   }
 
   //Fonction pour comparer des heures VEMGSA  entre elles : renvoie la difference de temps entre les deux
-export function diffHeuresVemgsaEgales(hV1: string, hV2: string): number {
+  public diffHeuresVemgsaEgales(hV1: string, hV2: string): number {
     const momentDateV1 = moment(hV1, 'DD-MM-YYYY HH mm ss');
     const momentDateV2 = moment(hV2, 'DD-MM-YYYY HH mm ss');  
     const diff: number = Math.abs(momentDateV1.diff(momentDateV2)); //Rmq : diff renvoie un resultat en ms
     return diff; 
   }
 
-  export function isHeureSup(h1: string, h2: string): boolean {
+  public isHeureSup(h1: string, h2: string): boolean {
     const momentDate1 = moment(h1, 'HH mm ss');
     const momentDate2 = moment(h2, 'HH mm ss');
     const diff: number =momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
@@ -78,7 +81,7 @@ export function diffHeuresVemgsaEgales(hV1: string, hV2: string): number {
     else { return false; }
 }
 
-export function isHeureInf(h1: string, h2: string): boolean {
+public isHeureInf(h1: string, h2: string): boolean {
     const momentDate1 = moment(h1, 'HH mm ss');
     const momentDate2 = moment(h2, 'HH mm ss');
     const diff: number =momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
@@ -86,7 +89,7 @@ export function isHeureInf(h1: string, h2: string): boolean {
     else { return false; }
 }
 
-export function isDateSup(d1: string, d2: string): boolean {
+public isDateSup(d1: string, d2: string): boolean {
     const momentDate1 = moment(d1, 'DD-MM-YYYY HH mm ss');
     const momentDate2 = moment(d2, 'DD-MM-YYYY HH mm ss');
     const diff: number =momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
@@ -95,7 +98,7 @@ export function isDateSup(d1: string, d2: string): boolean {
 }
 
 
-export function getCreneaux(dates: string[]): datesFile[] {
+public getCreneaux(dates: string[]): datesFile[] {
     let arrayHeuresTrouvees: string[] = dates;
     let creneau = new Array ;
     const uneMinute: number = 60000;
@@ -111,7 +114,7 @@ export function getCreneaux(dates: string[]): datesFile[] {
         const elementPrec = dates[index-1];        
         if (index == dates.length-1 ){creneau[i].dateMax=element; }
         else{
-            if (diffHeuresVemgsaEgales(element,elementPrec)>diffMax){
+            if (this.diffHeuresVemgsaEgales(element,elementPrec)>diffMax){
                 creneau[i].dateMax = elementPrec;
                 i++;
                 creneau[i] = <arrayDatesFile>{};
@@ -123,7 +126,9 @@ export function getCreneaux(dates: string[]): datesFile[] {
     return creneau;
 }
 
-export function isInCreneauxVemgsa(dates: datesFile, log:string, diffMax:number): boolean {
+public isInCreneauxVemgsa(dates: datesFile, log:string, diffMax:number): boolean {
+
+
 
 
     let isIn:boolean=false;
@@ -158,4 +163,5 @@ export function isInCreneauxVemgsa(dates: datesFile, log:string, diffMax:number)
         }
     }
     return isIn;
+}
 }

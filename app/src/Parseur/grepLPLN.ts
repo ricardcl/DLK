@@ -208,9 +208,7 @@ export class GrepLPLN {
     let tabPlnid= [];
     let tabArcid= [];
     let tabId=[];
-    let id = <Identifiants>{};
-    id.arcid = "";
-    id.plnid = 0;
+
     let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
     let arcidTemp;
@@ -228,15 +226,14 @@ export class GrepLPLN {
       //Test du début des logs concernant le vol dans le SL AIX
       let info1Lpln = mylogCpdlc.match(motif);
       if (info1Lpln !== null) {
-        console.log("coucou: ");
-      //  let fsplit = new split();
-        arcidTemp = this.split.splitString( mylogCpdlc.toString().replace(motif, "$5").trim(), " ");
-        console.log("arcidTemp: ",arcidTemp);
-        
+        let id = <Identifiants>{};
+        id.arcid = "";
+        id.plnid = 0;
+        arcidTemp = this.split.splitString( mylogCpdlc.toString().replace(motif, "$5").trim(), " ");       
         id.arcid = arcidTemp[0];
-        console.log("arcid: ",id.arcid);
         id.plnid = mylogCpdlc.toString().replace(motif, "$3").trim();
         if (!(tabArcid.includes( id.arcid)) || !(tabPlnid.includes( id.plnid))) {
+          
           tabArcid.push( id.arcid);
           tabPlnid.push( id.plnid);
           tabId.push(id)        
@@ -245,6 +242,10 @@ export class GrepLPLN {
 
     } while (!readline.eof(r));
     readline.fclose(r);
+
+    tabId.forEach(element => {
+      console.log("tabId finale : ", element.arcid, " " , element.plnid); 
+    });
 
 
     return tabId;

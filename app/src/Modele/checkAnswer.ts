@@ -6,6 +6,7 @@ export interface checkAnswerInitial {
     arcid: string;
     plnid: number;
     tabId?: Identifiants[];
+    tabHoraires?: datesFile[];
     creneauHoraire?: datesFile; 
 }
 

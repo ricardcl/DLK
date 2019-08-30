@@ -1,31 +1,30 @@
 import { Vol } from '../Modele/vol';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
-import { TSMap } from "typescript-map";
 import { Split } from './split';
 import * as moment from 'moment';
-import * as dates from './date';
 
 //let fsplit = new split();
 let readline = require("../scripts/node-readline/node-readline");
 let frequences = require("./frequences");
-import * as grep from "./grepLPLN";
-import { isUndefined } from 'util';
 
 const p = require('path');
 import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { Identifiants } from '../Modele/identifiants';
 import { GrepLPLN } from './grepLPLN';
 import { Path } from '../Modele/path';
+import { Dates } from './date';
 
 export class parseurLpln {
 
   private grep: GrepLPLN;
   private split: Split;
-
+  private dates: Dates;
+  
   constructor(grep: GrepLPLN) {
     this.grep = grep;
     this.split = new Split();
+    this.dates = new Dates();
   }
 
   public identification (arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
@@ -162,7 +161,7 @@ export class parseurLpln {
           let motifDate = /(.*)( )(.*)/;
           if (dateTemp.match(motifDate) !== null) {
             jour = dateTemp.toString().replace(motifDate, "$1");
-            mois = dates.MonthLetterToNumber(dateTemp.toString().replace(motifDate, "$3"));
+            mois = this.dates.MonthLetterToNumber(dateTemp.toString().replace(motifDate, "$3"));
           }
 
         }

@@ -6,190 +6,199 @@ import { EtatCpdlc } from '../Modele/etatCpdlc';
 import * as dates from './date';
 import { GrepLPLN } from './grepLPLN';
 import { GrepVEMGSA } from './grepVEMGSA';
+import { Dates } from './date';
 
-//Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
-export function mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number): Vol {
+export class MixInfos {
 
-  //Initialisation du vol final issu des donnees LPLN et VEMGSA
-  let monvolFinal = new Vol(arcid, plnid);
-  const uneMinute: number = 60000;
+  private dates: Dates;
 
-  //RECUPERATION DES ATTRIBUTS
-  if (volLpln.getAdep() == volVemgsa.getAdep()) {
-    monvolFinal.setAdep(volLpln.getAdep());
-    monvolFinal.setCmpAdep("OK");
-  }
-  else { monvolFinal.setCmpAdep("KO"); }
-
-  if (volLpln.getAdes() == volVemgsa.getAdes()) {
-    monvolFinal.setAdes(volLpln.getAdes());
-    monvolFinal.setCmpAdes("OK");
-  }
-  else { monvolFinal.setCmpAdes("KO"); }
-
-  if (volLpln.getArcid() == volVemgsa.getArcid()) {
-    monvolFinal.setCmpArcid("OK");
-  }
-  else { monvolFinal.setCmpArcid("KO"); }
-
-  if (volLpln.getEquipementCpdlc() == "EQUIPE") {
-    monvolFinal.setEquipementCpdlc("EQUIPE");
-  }
-  else {
-    monvolFinal.setEquipementCpdlc("NON EQUIPE");
-  }
-
-  if (volLpln.getAdrDeposee() == volLpln.getAdrModeSInf()) {
-    monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
-    monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
-    monvolFinal.setCmpAdrModeS("OK");
-  }
-  else {
-    monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
-    monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
-    monvolFinal.setCmpAdrModeS("KO");
-  }
-
-  if ((volLpln.getLogonInitie()) || (volVemgsa.getLogonInitie())) {
-    monvolFinal.setLogonInitie("OK");
-  }
-  else { monvolFinal.setLogonInitie("KO"); }
-
-  if ((volLpln.getLogonAccepte()) || (volVemgsa.getLogonAccepte())) {
-    monvolFinal.setLogonAccepte("OK");
-  }
-  else {
-    monvolFinal.setLogonAccepte("KO");
-  }
-
-  if ((monvolFinal.getLogonAccepte()) || (monvolFinal.getCmpAdep() && monvolFinal.getCmpAdes()
-    && monvolFinal.getCmpAdrModeS() && monvolFinal.getCmpArcid() && monvolFinal.getEquipementCpdlc())) {
-    monvolFinal.setConditionsLogon("OK");
-  }
-  else {
-    monvolFinal.setConditionsLogon("KO");
-  }
-
-
-  //RECUPERATION DES LOGS
-  volVemgsa.getListeLogs().forEach((elt, key) => {
-    let heureTransfert = "";
-    let positionTransfert = "";
-    monvolFinal.addElt(elt);
-    //console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure());
-
-    //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
-    if (elt.getTitle() == 'CPCFREQ') {
-
-      volLpln.getListeLogs().forEach((eltL, keyL) => {
-        if (eltL.getTitle() == 'CPCFREQ') {
-          if (dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
-            // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
-            heureTransfert = eltL.getHeure();
-            // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
-          }
-
-          //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
-          volLpln.getListeLogs().forEach((eltL, keyL) => {
-
-            if (eltL.getTitle() == 'TRFDL') {
-              if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= uneMinute) {
-                //console.log("eltL", eltL.getTitle());
-                positionTransfert = eltL.getDetaillog()['POSITION'];
-                //console.log("Position", positionTransfert);
-                //console.log(" heure de transfert: ", heureTransfert);
-                monvolFinal.addElt(eltL);
-                //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
-
-              }
-            }
-            if (eltL.getTitle() == 'FIN TRFDL') {
-              if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * uneMinute) {
-                //console.log("eltL", eltL.getTitle());
-                //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
-                monvolFinal.addElt(eltL);
-              }
-            }
-            if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
-              if (dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * uneMinute) {
-                //console.log("eltL", eltL.getTitle());
-                //console.log("eltL", eltL);
-                monvolFinal.addElt(eltL);
-                //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
-              }
-            }
-          })
-
-        }
-
-      })
-
-
-    }
-
-  })
-
-  //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA
-  let creneau = <dates.datesFile>{};
-  creneau.dateMin = volVemgsa.getListeLogs()[0].getHeure();
-  creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getHeure();
-  console.log("creneau.dateMin: ", creneau.dateMin);
-  console.log("creneau.dateMax: ", creneau.dateMax);
-  volLpln.getListeLogs().forEach((eltL, key) => {
-    if ((dates.isHeureInf(eltL.getHeure() , creneau.dateMin)) || (dates.isHeureSup(eltL.getHeure(),creneau.dateMax))) {
-      monvolFinal.addElt(eltL);
-      console.log("ajout supp LPLN: ",eltL.getEtat() );
-      
-    }
-  });
-
-  console.log("resultat vol final : ");
-  let graphe = new grapheEtat();
-  let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
-
-  let trie: boolean = false;
-  let changement: boolean;
-
-  if (arrayLogTemp.length > 1) {
-    while (!trie) {
-
-      for (let i = 0; i < arrayLogTemp.length - 1; i++) {
-        changement = false;
-
-        const element = arrayLogTemp[i];
-        const elementNext = arrayLogTemp[i + 1];
-        if (dates.isHeureSup(element.getHeure(), elementNext.getHeure())) {
-          arrayLogTemp[i] = elementNext;
-          arrayLogTemp[i + 1] = element;
-          changement = true;
-          //console.log("inversion: elementNext"+elementNext+" element : "+element);
-
-        }
-      }
-      if (changement == false) { trie = true; }
-    }
-  }
-  monvolFinal.setListeLogs(arrayLogTemp);
-
-
-
-  monvolFinal = graphe.grapheMix(monvolFinal);
-  console.log("debut logs collectes et tries");
-
-  monvolFinal.getListeLogs().forEach(etatCpdlc => {
-    //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-  });
-  console.log("fin logs collectes et tries");
-
-  return monvolFinal;
+  constructor(){
+    this.dates = new Dates();
 }
 
+  //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
+  public mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number): Vol {
+
+    //Initialisation du vol final issu des donnees LPLN et VEMGSA
+    let monvolFinal = new Vol(arcid, plnid);
+    const uneMinute: number = 60000;
+
+    //RECUPERATION DES ATTRIBUTS
+    if (volLpln.getAdep() == volVemgsa.getAdep()) {
+      monvolFinal.setAdep(volLpln.getAdep());
+      monvolFinal.setCmpAdep("OK");
+    }
+    else { monvolFinal.setCmpAdep("KO"); }
+
+    if (volLpln.getAdes() == volVemgsa.getAdes()) {
+      monvolFinal.setAdes(volLpln.getAdes());
+      monvolFinal.setCmpAdes("OK");
+    }
+    else { monvolFinal.setCmpAdes("KO"); }
+
+    if (volLpln.getArcid() == volVemgsa.getArcid()) {
+      monvolFinal.setCmpArcid("OK");
+    }
+    else { monvolFinal.setCmpArcid("KO"); }
+
+    if (volLpln.getEquipementCpdlc() == "EQUIPE") {
+      monvolFinal.setEquipementCpdlc("EQUIPE");
+    }
+    else {
+      monvolFinal.setEquipementCpdlc("NON EQUIPE");
+    }
+
+    if (volLpln.getAdrDeposee() == volLpln.getAdrModeSInf()) {
+      monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
+      monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
+      monvolFinal.setCmpAdrModeS("OK");
+    }
+    else {
+      monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
+      monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
+      monvolFinal.setCmpAdrModeS("KO");
+    }
+
+    if ((volLpln.getLogonInitie()) || (volVemgsa.getLogonInitie())) {
+      monvolFinal.setLogonInitie("OK");
+    }
+    else { monvolFinal.setLogonInitie("KO"); }
+
+    if ((volLpln.getLogonAccepte()) || (volVemgsa.getLogonAccepte())) {
+      monvolFinal.setLogonAccepte("OK");
+    }
+    else {
+      monvolFinal.setLogonAccepte("KO");
+    }
+
+    if ((monvolFinal.getLogonAccepte()) || (monvolFinal.getCmpAdep() && monvolFinal.getCmpAdes()
+      && monvolFinal.getCmpAdrModeS() && monvolFinal.getCmpArcid() && monvolFinal.getEquipementCpdlc())) {
+      monvolFinal.setConditionsLogon("OK");
+    }
+    else {
+      monvolFinal.setConditionsLogon("KO");
+    }
+
+
+    //RECUPERATION DES LOGS
+    volVemgsa.getListeLogs().forEach((elt, key) => {
+      let heureTransfert = "";
+      let positionTransfert = "";
+      monvolFinal.addElt(elt);
+      //console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure());
+
+      //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées
+      if (elt.getTitle() == 'CPCFREQ') {
+
+        volLpln.getListeLogs().forEach((eltL, keyL) => {
+          if (eltL.getTitle() == 'CPCFREQ') {
+            if (this.dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
+              // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ"));
+              heureTransfert = eltL.getHeure();
+              // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert);
+            }
+
+            //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes
+            volLpln.getListeLogs().forEach((eltL, keyL) => {
+
+              if (eltL.getTitle() == 'TRFDL') {
+                if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= uneMinute) {
+                  //console.log("eltL", eltL.getTitle());
+                  positionTransfert = eltL.getDetaillog()['POSITION'];
+                  //console.log("Position", positionTransfert);
+                  //console.log(" heure de transfert: ", heureTransfert);
+                  monvolFinal.addElt(eltL);
+                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
+
+                }
+              }
+              if (eltL.getTitle() == 'FIN TRFDL') {
+                if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * uneMinute) {
+                  //console.log("eltL", eltL.getTitle());
+                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
+                  monvolFinal.addElt(eltL);
+                }
+              }
+              if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
+                if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * uneMinute) {
+                  //console.log("eltL", eltL.getTitle());
+                  //console.log("eltL", eltL);
+                  monvolFinal.addElt(eltL);
+                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure());
+                }
+              }
+            })
+
+          }
+
+        })
+
+
+      }
+
+    })
+
+    //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA
+    let creneau = <dates.datesFile>{};
+    creneau.dateMin = volVemgsa.getListeLogs()[0].getHeure();
+    creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getHeure();
+    console.log("creneau.dateMin: ", creneau.dateMin);
+    console.log("creneau.dateMax: ", creneau.dateMax);
+    volLpln.getListeLogs().forEach((eltL, key) => {
+      if ((this.dates.isHeureInf(eltL.getHeure(), creneau.dateMin)) || (this.dates.isHeureSup(eltL.getHeure(), creneau.dateMax))) {
+        monvolFinal.addElt(eltL);
+        console.log("ajout supp LPLN: ", eltL.getEtat());
+
+      }
+    });
+
+    console.log("resultat vol final : ");
+    let graphe = new grapheEtat();
+    let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
+
+    let trie: boolean = false;
+    let changement: boolean;
+
+    if (arrayLogTemp.length > 1) {
+      while (!trie) {
+
+        for (let i = 0; i < arrayLogTemp.length - 1; i++) {
+          changement = false;
+
+          const element = arrayLogTemp[i];
+          const elementNext = arrayLogTemp[i + 1];
+          if (this.dates.isHeureSup(element.getHeure(), elementNext.getHeure())) {
+            arrayLogTemp[i] = elementNext;
+            arrayLogTemp[i + 1] = element;
+            changement = true;
+            //console.log("inversion: elementNext"+elementNext+" element : "+element);
+
+          }
+        }
+        if (changement == false) { trie = true; }
+      }
+    }
+    monvolFinal.setListeLogs(arrayLogTemp);
+
+
+
+    monvolFinal = graphe.grapheMix(monvolFinal);
+    console.log("debut logs collectes et tries");
+
+    monvolFinal.getListeLogs().forEach(etatCpdlc => {
+      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    });
+    console.log("fin logs collectes et tries");
+
+    return monvolFinal;
+  }
 
 
 
 
-export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Vol {
+
+  public InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Vol {
 
   //Initialisation du vol issu des donnees LPLN
   let monvolLpln = new Vol(arcid, plnid);
@@ -247,7 +256,7 @@ export function InfosLpln(arcid: string, plnid: number, fichierSourceLpln: strin
 
 }
 
-export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA): Vol {
+public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA): Vol {
 
 
   console.log("Je rentre dans InfosVemgsa de MixInfo");
@@ -302,3 +311,5 @@ export function InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: s
 
 
 //TODO : tester le fichier en entrée : existance, dates de validité pour savoir si l'aircraft id est bien dans le vemgsa ...
+
+}
