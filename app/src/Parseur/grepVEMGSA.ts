@@ -485,7 +485,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                 const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
                 console.log("---------------->dateToStore ",dateToStore);
 
-                if(( horaire.dateMin !== undefined) && (this.dates.isInCreneauxVemgsa(horaire, dateToStore, diffMax) == true) ){
+                if(( horaire !== undefined) && (this.dates.isInCreneauxVemgsa(horaire, dateToStore, diffMax) == true) ){
                   console.log("---------------->dateToStore horaire",horaire);
                   console.log("---------------->dateToStore horaire.dateMin",horaire.dateMin);
                   console.log("---------------->dateToStore horaire.dateMax",horaire.dateMax);
@@ -561,9 +561,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                   const secondes = date.toString().replace(motifDateHeure, "$7");
                   const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
                   console.log("---------------->dateToStore ",dateToStore);
-                  console.log("---------------->dateToStore ",horaire);
-                  console.log("---------------->dateToStore ",horaire.dateMin);
-                  console.log("---------------->dateToStore ",horaire.dateMax);
+                  //TODO gerer le creneau horaire
                   result.dates.push(dateToStore);
                 }
               }
