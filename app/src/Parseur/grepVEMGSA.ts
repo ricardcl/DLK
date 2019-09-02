@@ -368,17 +368,21 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   }
 
   public grepPlagesHorairesFichiers(fichierSourceVemgsa: string[]): datesFile {
+
     let creneau = <datesFile>{};
     creneau.dateMin="";
     creneau.dateMax="";
 
     let creneauTemp = <datesFile>{};
     for (let fichier of fichierSourceVemgsa) {
+
       creneauTemp= this.grepPlageHoraireFichier(fichier);
+
       
 
       if ((creneau.dateMin == "") || (this.dates.isDateSup(creneau.dateMin,creneauTemp.dateMin))) {
         creneau.dateMin=creneauTemp.dateMin;
+
       }
 
       if ((creneau.dateMax == "") || (this.dates.isDateSup(creneauTemp.dateMax, creneau.dateMax))) {

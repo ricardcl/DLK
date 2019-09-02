@@ -219,7 +219,6 @@ export class Check {
                             else {
                                 //TODO cas 1 ou 3 à analyse !!!
                                 answer.valeurRetour = 1;
-                                console.log("answer.datesFichierVemgsa before ");
                                 answer.datesFichierVemgsa = grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
                                 console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
 
