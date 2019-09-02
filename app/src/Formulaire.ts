@@ -109,7 +109,7 @@ export class Formulaire {
 
                     let volLpln: Vol = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN);
                     let volVemgsa: Vol = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA);                   
-                    socket.emit("analysedVolMix",volLpln,volVemgsa,  this.mixInfos.mixInfos(volLpln, volVemgsa, checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid));
+                    socket.emit("analysedVolMix",volLpln,volVemgsa,  this.mixInfos.mixInfos(volLpln, volVemgsa, checkanswer.arcid, checkanswer.plnid));
                     break;
 
                 }

@@ -89,6 +89,7 @@ export class Dates {
         else { return false; }
     }
 
+    //Renvoie true si d1 > d2
     public isDateSup(d1: string, d2: string): boolean {
         const momentDate1 = moment(d1, 'DD-MM-YYYY HH mm ss');
         const momentDate2 = moment(d2, 'DD-MM-YYYY HH mm ss');

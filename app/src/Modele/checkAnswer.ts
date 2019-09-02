@@ -7,7 +7,7 @@ export interface checkAnswerInitial {
     plnid: number;
     tabId?: Identifiants[];
     tabHoraires?: datesFile[];
-    creneauHoraire?: datesFile; 
+    datesFichierVemgsa?: datesFile;
 }
 
 export interface checkAnswer {
@@ -16,5 +16,4 @@ export interface checkAnswer {
     arcid?: string;
     checkLPLN?: checkAnswerInitial;
     checkVEMGSA?: checkAnswerInitial;   
-    creneauHoraire?: datesFile; 
 }

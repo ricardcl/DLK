@@ -367,6 +367,29 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
   }
 
+  public grepPlagesHorairesFichiers(fichierSourceVemgsa: string[]): datesFile {
+    let creneau = <datesFile>{};
+    creneau.dateMin="";
+    creneau.dateMax="";
+
+    let creneauTemp = <datesFile>{};
+    for (let fichier of fichierSourceVemgsa) {
+      creneauTemp= this.grepPlageHoraireFichier(fichier);
+      
+
+      if ((creneau.dateMin == "") || (this.dates.isDateSup(creneau.dateMin,creneauTemp.dateMin))) {
+        creneau.dateMin=creneauTemp.dateMin;
+      }
+
+      if ((creneau.dateMax == "") || (this.dates.isDateSup(creneauTemp.dateMax, creneau.dateMax))) {
+        creneau.dateMax=creneauTemp.dateMax;
+      }
+
+
+    }
+    return creneau;
+  }
+
   private grepPlageHoraireFichier(fichierSourceVemgsa: string): datesFile {
 
     let fichierSource = fichierSourceVemgsa;
@@ -439,6 +462,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
       return list;
     }
   }
+
 
 
 
@@ -593,5 +617,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
     return result;
   }
-  //grepPlageHoraireFichier("../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742");
+
+
 }
+
