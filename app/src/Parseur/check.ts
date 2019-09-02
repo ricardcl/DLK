@@ -239,9 +239,8 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
                 if (result.existe == true) {
                     let creneau = new Array(<dates.datesFile>{});
                     creneau = this.dates.getCreneaux(result.dates);
-                    console.log("creneaux trouves 1:", creneau);
 
-                    console.log("creneaux trouves 2 :", result.dates);
+
                     if (result.dates.length > 1) {
                         answer.valeurRetour = 5;
                         //TODO renvoyer les creneaux trouves
@@ -312,7 +311,10 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
                 }
             }
             else {
+                console.log("---------------> horaire du client", horaire);
+                
                 result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa, horaire);
+                console.log("--------------->  resultat horaire du client", result);
                 if (result.existe == true) {
                     let creneau = new Array(<dates.datesFile>{});
                     creneau = this.dates.getCreneaux(result.dates);

@@ -10,7 +10,7 @@ import { GrepLPLN } from './Parseur/grepLPLN';
 import { Path } from './Modele/path';
 import { Check } from './Parseur/check';
 import { MixInfos } from './Parseur/MixInfos';
-let readline = require("./scripts/node-readline/node-readline");
+import { Frequences } from './Parseur/frequences';
 
 export class Formulaire {
     private app = require('http').createServer();
@@ -21,7 +21,7 @@ export class Formulaire {
     private grepLPLN : GrepLPLN;
     private check: Check;
     private mixInfos: MixInfos;
-
+    private frequences: Frequences;
 
     constructor() {
         this.users = new UsersRepository (Path.userPath);
@@ -31,6 +31,7 @@ export class Formulaire {
         this.initSocket();
         this.check = new Check();
         this.mixInfos = new MixInfos();
+        this.frequences = new Frequences();
     }
 
     private initSocket() {
@@ -56,7 +57,11 @@ export class Formulaire {
                 //mixInfos("",0, event.file.name, null);
             });
 
-            socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput, horaire) => {
+            socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput, horaire) => { 
+
+                // Create frequence files :
+                this.frequences.GbdiToFreq(Path.STPVFilePath);  //A modifier de place !!!
+
                 console.log("analyseDataInput");
                 console.log("analyseDataInput", "fileLpln", lpln);
                 console.log("typeof fileLpln", typeof lpln);

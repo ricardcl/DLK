@@ -10,7 +10,6 @@ import { Split } from './split';
 
 
 let readline = require("../scripts/node-readline/node-readline");
-let frequences = require("./frequences");
 //let grep = require("./grep.ts");
 import * as grep from "./grepVEMGSA";
 
@@ -18,16 +17,19 @@ import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { Identifiants } from '../Modele/identifiants';
 import { GrepVEMGSA } from './grepVEMGSA';
 import { Path } from '../Modele/path';
+import { Frequences } from './frequences';
 
 const p = require('path');
 
 export class parseurVemgsa {
   private grep: GrepVEMGSA;
   private split: Split;
-
+  private frequences : Frequences;
+  
   constructor(grep: GrepVEMGSA) {
     this.grep = grep;
     this.split = new Split();
+    this.frequences = new Frequences();
   }
 
   public identification(arcid: string, plnid: number, fichierSourceVemgsa: string[], horaire?: dates.datesFile): Identifiants {
@@ -228,7 +230,7 @@ export class parseurVemgsa {
         case 'CPCCLOSLNK': {
           //console.log('CPCCLOSLNK');
           if (log.getDetail("FREQ") !== undefined) {
-            let freq = frequences.conversionFreq(log.getDetail("FREQ"));
+            let freq = this.frequences.conversionFreq(log.getDetail("FREQ"));
             let detail = <DetailCpdlc>{};
             detail.key = "FREQ";
             detail.value = freq;
@@ -264,7 +266,7 @@ export class parseurVemgsa {
           break;
         }
         case 'CPCFREQ': {
-          let freq = frequences.conversionFreq(log.getDetail("FREQ"));
+          let freq = this.frequences.conversionFreq(log.getDetail("FREQ"));
 
           let detail = <DetailCpdlc>{};
           detail.key = "FREQ";

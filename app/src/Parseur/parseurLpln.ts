@@ -6,7 +6,6 @@ import * as moment from 'moment';
 
 //let fsplit = new split();
 let readline = require("../scripts/node-readline/node-readline");
-let frequences = require("./frequences");
 
 const p = require('path');
 import { DetailCpdlc } from '../Modele/detailCpdlc';
@@ -14,17 +13,21 @@ import { Identifiants } from '../Modele/identifiants';
 import { GrepLPLN } from './grepLPLN';
 import { Path } from '../Modele/path';
 import { Dates } from './date';
+import { Frequences } from './frequences';
 
 export class parseurLpln {
 
   private grep: GrepLPLN;
   private split: Split;
   private dates: Dates;
-  
+  private frequences: Frequences;
+
+
   constructor(grep: GrepLPLN) {
     this.grep = grep;
     this.split = new Split();
     this.dates = new Dates();
+    this.frequences = new Frequences();
   }
 
   public identification (arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
@@ -117,7 +120,7 @@ export class parseurLpln {
 
 
     //let fichierDest = "../Output/freq.htm";
-    frequences.GbdiToFreq(fichierGbdi);
+    this.frequences.GbdiToFreq(fichierGbdi);
 
 
     /* Ouverture du fichier à analyser*/
@@ -289,7 +292,7 @@ export class parseurLpln {
                 monEtat = Etat.TransfertEnCours;
               }
               if ((monEtat == Etat.TransfertEnCours) && log.getDetaillog()["FREQ"] !== undefined) {
-                let freq = frequences.conversionFreq(log.getDetaillog()["FREQ"]);
+                let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
                 let detail = <DetailCpdlc>{};
                 detail.key = "FREQ";
                 detail.value = freq;

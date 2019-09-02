@@ -10,10 +10,14 @@ import { Dates } from './date';
 export class GrepVEMGSA {
   private userPath: string;
   private dates: Dates;
+  private uneMinute: number;
+  private diffMax: number ;
 
   constructor(userPath: string) {
     this.userPath = userPath;
     this.dates = new Dates();
+     this.uneMinute = 60000;
+    this.diffMax = 10 * this.uneMinute;
   }
 
   public getUserPath(): string {
@@ -255,7 +259,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
           console.log("infolpln 1 :" + infoLpln1);
           console.log("horaire:", horaire);
           console.log("test :", horaire == undefined);
-          if ((horaire == undefined) || ((horaire != undefined) && (this.dates.isInCreneauxVemgsa(horaire, mylogCpdlc, diffMax) == true))) {
+          if ((horaire == undefined) || ((horaire != undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, mylogCpdlc, diffMax) == true))) {
             console.log("test1");
 
             //CAS 1 : arcid envoye en meme temps que le reqId dans le CPCASREQ
@@ -441,7 +445,6 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
   public isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[], horaire?: dates.datesFile): dates.arrayDatesFile {
-
     let result = <dates.arrayDatesFile>{};
     result.dates = new Array;
     result.existe = false;
@@ -452,8 +455,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
     let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
 
-    const uneMinute: number = 60000;
-    const diffMax: number = 10 * uneMinute;
+
 
 
     for (let fichier of fichierSourceVemgsa) {
@@ -483,15 +485,18 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                 const minutes = date.toString().replace(motifDateHeure, "$5");
                 const secondes = date.toString().replace(motifDateHeure, "$7");
                 const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
-                console.log("---------------->dateToStore ",dateToStore);
 
-                if(( horaire !== undefined) && (this.dates.isInCreneauxVemgsa(horaire, dateToStore, diffMax) == true) ){
+                if(( horaire !== undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, dateToStore, this.diffMax) == true) ){
                   console.log("---------------->dateToStore horaire",horaire);
                   console.log("---------------->dateToStore horaire.dateMin",horaire.dateMin);
                   console.log("---------------->dateToStore horaire.dateMax",horaire.dateMax);
+                  result.dates.push(dateToStore);
+                }
+                if( horaire == undefined) {
+                  result.dates.push(dateToStore);
                 }
 
-                result.dates.push(dateToStore);
+
               }
             }
           }
@@ -562,7 +567,18 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                   const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
                   console.log("---------------->dateToStore ",dateToStore);
                   //TODO gerer le creneau horaire
-                  result.dates.push(dateToStore);
+
+
+                  if(( horaire !== undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, dateToStore, this.diffMax) == true) ){
+                    console.log("---------------->dateToStore horaire",horaire);
+                    console.log("---------------->dateToStore horaire.dateMin",horaire.dateMin);
+                    console.log("---------------->dateToStore horaire.dateMax",horaire.dateMax);
+                    result.dates.push(dateToStore);
+                  }
+                  if( horaire == undefined) {
+                    result.dates.push(dateToStore);
+                  }
+
                 }
               }
 

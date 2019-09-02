@@ -1,13 +1,24 @@
 import { Path } from "../Modele/path";
 
+
+let readline = require("../scripts/node-readline/node-readline");
 const fs = require('fs');
-
-
-var readline = require("../scripts/node-readline/node-readline");
 const p = require('path');
 
-const fichierFreq = p.resolve(Path.systemPath, "freq.htm");
 
+
+
+export class Frequences {
+
+  private fichierFreq : string;
+
+ constructor(){
+    this.fichierFreq = p.resolve(Path.systemPath, "freq.htm");
+  }
+
+
+
+  
 //process.exit(1) : pour sortir de la fonctionet
 // break pour sortir du test en restant dans la fonction
 
@@ -18,7 +29,8 @@ Il teste au préalabre la date de génération de la bds pour éviter de mettre 
 Parametres en entrée :
 fichierSource : le  fichier gbdi STPV a traiter
 */
-exports.GbdiToFreq = function (fichierSource) {
+public GbdiToFreq(fichierSource) {
+
 
 
 
@@ -27,7 +39,7 @@ exports.GbdiToFreq = function (fichierSource) {
   var dateFichierDest = "Pas de date definie";
 
   //Test de la date du fichier gbdi pour vérifier s'il y a besoin de mettre à jour la liste des fréquences
-  var r = readline.fopen(fichierSource, "r");
+  let r = readline.fopen(fichierSource, "r");
 
   if (r === false) {
     console.log("Error, can't open ", fichierSource);
@@ -40,7 +52,7 @@ exports.GbdiToFreq = function (fichierSource) {
 
 
 
-    var w2 = fs.openSync(fichierFreq, "w");
+    var w2 = fs.openSync(this.fichierFreq, "w");
     fs.writeSync(w2, dateFichierDest + "\n", null, 'utf8');
 
 
@@ -83,11 +95,13 @@ et renvoie le secteur associe a une frequence donnee
 Parametres en entrée :
 freq : une frequence de transfert
 */
-exports.freqToSecteur = function (freq) {
+public freqToSecteur(freq) {
 
-  var r = readline.fopen(fichierFreq, "r");
+
+
+  var r = readline.fopen(this.fichierFreq, "r");
   if (r === false) {
-    console.log("Error, can't open ", fichierFreq);
+    console.log("Error, can't open ", this.fichierFreq);
     process.exit(1);
   }
   else {
@@ -115,7 +129,8 @@ et la convertit en une frequence au format bds
 ex : 135930 devient 135.930
 freq : une frequence de transfert
 */
-exports.conversionFreq = function (freq) {
+public conversionFreq(freq) {
+
 
   var motifFreq = /(\d\d\d)(\d+)/;
   var frequence = freq.replace(motifFreq, "$1.$2");
@@ -136,3 +151,5 @@ else {
   console.log("pas de secteur associe a cette frequence");
 }
 */
+
+}
