@@ -1,13 +1,12 @@
 import { Vol } from '../Modele/vol';
 import { parseurLpln } from './parseurLpln';
 import { parseurVemgsa } from './parseurVEMGSA';
-import { Identifiants, sameIdent } from '../Modele/identifiants';
-import * as dates from './date';
-import * as grepV from "./grepVEMGSA";
-import * as grepL from "./grepLPLN";
+import { Identifiants } from '../Modele/identifiants';
 import { Contexte } from '../Modele/enumContexte';
 import { checkAnswer, checkAnswerInitial } from '../Modele/checkAnswer';
-import { Dates } from './date';
+import { Dates, datesFile, arrayDatesFile } from './date';
+import { GrepVEMGSA } from './grepVEMGSA';
+import { GrepLPLN } from './grepLPLN';
 
 
 
@@ -59,7 +58,7 @@ public evaluationContexte(fichierSourceLpln: string, fichierSourceVemgsa: string
  * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
  *                  et où plnid, arcid représent le couple s'il a pu être identifié
  */
-public identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: grepL.GrepLPLN): Identifiants {
+public identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Identifiants {
     //Initialisation du vol issu des donnees LPLN
     let pl = new parseurLpln(grepLPLN);
     let idL = <Identifiants>{};
@@ -76,7 +75,7 @@ public identificationLpln(arcid: string, plnid: number, fichierSourceLpln: strin
  * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
  *                  et où plnid, arcid représent le couple s'il a pu être identifié
  */
-private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: grepV.GrepVEMGSA, horaire?: dates.datesFile): Identifiants {
+private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, horaire?: datesFile): Identifiants {
     //Initialisation du vol issu des donnees VEMGSA 
     let pv = new parseurVemgsa(grepVEMGSA);
     let idV = <Identifiants>{};
@@ -100,7 +99,7 @@ private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: 
  *   3 : erreur a louverture du fichier LPLN
  *   et où messageRetour donne une explication en cas d'echec
  */
-private checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, contexte: Contexte, grepLPLN: grepL.GrepLPLN): checkAnswerInitial {
+private checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, contexte: Contexte, grepLPLN: GrepLPLN): checkAnswerInitial {
     let regexpPlnid: RegExp = /^\d{4}$/;
     let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
     let id = <Identifiants>{};
@@ -177,12 +176,12 @@ private checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, conte
  *   8 : VEMGSA NOK ( pbm ouverture du fichier)
  *   et où messageRetour donne une explication en cas d'echec
  */
-public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], contexte: Contexte, grepVEMGSA: grepV.GrepVEMGSA, horaire?: dates.datesFile): checkAnswerInitial {
+public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], contexte: Contexte, grepVEMGSA: GrepVEMGSA, horaire?: datesFile): checkAnswerInitial {
     console.log(" Check VEMGSA ");
     let regexpPlnid: RegExp = /^\d{4}$/;
     let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
     let id = <Identifiants>{};
-    let result = <dates.arrayDatesFile>{};
+    let result = <arrayDatesFile>{};
     result.dates = new Array;
     let answer = <checkAnswerInitial>{};
     answer.valeurRetour = 7;
@@ -202,7 +201,7 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
             if (horaire ===  undefined) {
                 result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
                 if (result.existe == true) {
-                    let creneau = new Array(<dates.datesFile>{});
+                    let creneau = new Array(<datesFile>{});
                     creneau = this.dates.getCreneaux(result.dates);
                     console.log("creneaux trouves 1:", creneau);
 
@@ -237,7 +236,7 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
                 //Analyse a partir de l'horaire fourni
                 result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa, horaire);
                 if (result.existe == true) {
-                    let creneau = new Array(<dates.datesFile>{});
+                    let creneau = new Array(<datesFile>{});
                     creneau = this.dates.getCreneaux(result.dates);
 
 
@@ -278,7 +277,7 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
                 result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
 
                 if (result.existe == true) {
-                    let creneau = new Array(<dates.datesFile>{});
+                    let creneau = new Array(<datesFile>{});
                     creneau = this.dates.getCreneaux(result.dates);
                     if (creneau.length > 1) {
                         answer.tabHoraires = creneau;
@@ -316,7 +315,7 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
                 result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa, horaire);
                 console.log("--------------->  resultat horaire du client", result);
                 if (result.existe == true) {
-                    let creneau = new Array(<dates.datesFile>{});
+                    let creneau = new Array(<datesFile>{});
                     creneau = this.dates.getCreneaux(result.dates);
                     if (creneau.length > 1) {
                         answer.tabHoraires = creneau;
@@ -378,10 +377,10 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
  *   et où messageRetour donne une explication en cas d'echec
  */
 
-public  check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN: grepL.GrepLPLN, grepVEMGSA: grepV.GrepVEMGSA, horaire?: dates.datesFile): checkAnswer {
+public  check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN: GrepLPLN, grepVEMGSA: GrepVEMGSA, horaire?: datesFile): checkAnswer {
 
     let id = <Identifiants>{};
-    let result = <dates.arrayDatesFile>{};
+    let result = <arrayDatesFile>{};
     let answer = <checkAnswer>{};
     answer.analysePossible = false;
 

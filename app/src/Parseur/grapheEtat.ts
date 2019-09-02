@@ -3,15 +3,17 @@ import { Etat } from '../Modele/enumEtat';
 import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { Frequences } from './frequences';
 
-export class grapheEtat {
+export class GrapheEtat {
 
     private frequences: Frequences;
 
     constructor() {
+        console.log("Je rentre dans le constructor GrapheEtat ");
         this.frequences = new Frequences();
-    }
+        }
 
-    grapheMix = function (vol: Vol): Vol {
+    public grapheMix(vol: Vol): Vol {
+   
         let monEtat: Etat = Etat.NonLogue;// Etat CPDLC par defaut
 
         vol.getListeLogs().forEach(etatCpdlc => {
@@ -93,7 +95,7 @@ export class grapheEtat {
                 case 'CPCCLOSLNK': {
                     //console.log('CPCCLOSLNK');
                     if (etatCpdlc.getDetail("FREQ") !== undefined) {
-                        let freq = this.frequences.conversionFreq(etatCpdlc.getDetail("FREQ"));
+                        let freq :string = this.frequences.conversionFreq(String(etatCpdlc.getDetail("FREQ")));
                         let detail = <DetailCpdlc>{};
                         detail.key = "FREQ";
                         detail.value = freq;
@@ -129,7 +131,7 @@ export class grapheEtat {
                     break;
                 }
                 case 'CPCFREQ': {
-                    let freq = this.frequences.conversionFreq(etatCpdlc.getDetail("FREQ"));
+                    let freq: string = this.frequences.conversionFreq(String(etatCpdlc.getDetail("FREQ")));
 
                     let detail = <DetailCpdlc>{};
                     detail.key = "FREQ";

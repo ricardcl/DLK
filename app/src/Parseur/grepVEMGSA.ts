@@ -3,8 +3,7 @@ const p = require('path');
 let readline = require("../scripts/node-readline/node-readline");
 
 
-import * as dates from './date';
-import { Dates } from './date';
+import { Dates, datesFile, arrayDatesFile } from './date';
 
 
 export class GrepVEMGSA {
@@ -103,7 +102,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     fs.closeSync(w);
   }
 
-  public grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, horaire?: dates.datesFile): string {
+  public grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, horaire?: datesFile): string {
 
     let fichierSource = fichierSourceVemgsa;
     //"../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
@@ -165,7 +164,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     return arcid;
   }
 
-  private grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, horaire?: dates.datesFile): string {
+  private grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, horaire?: datesFile): string {
     let fichierSource = fichierSourceVemgsa;
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
     let fichierDestination = p.resolve(this.userPath, "result.htm");
@@ -228,7 +227,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
 
-  public grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, horaire?: dates.datesFile): number {
+  public grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, horaire?: datesFile): number {
     let fichierSource = fichierSourceVemgsa;
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
     let fichierDestination = p.resolve(this.userPath, "result.htm");
@@ -321,7 +320,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
   }
 
-  public grepReqidFromArcid(arcid: string, fichierSourceVemgsa: string, horaire?: dates.datesFile): number {
+  public grepReqidFromArcid(arcid: string, fichierSourceVemgsa: string, horaire?: datesFile): number {
     let fichierSource = fichierSourceVemgsa;
     let reqid = 0;
 
@@ -368,7 +367,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
   }
 
-  private grepPlageHoraireFichier(fichierSourceVemgsa: string): dates.datesFile {
+  private grepPlageHoraireFichier(fichierSourceVemgsa: string): datesFile {
 
     let fichierSource = fichierSourceVemgsa;
     let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
@@ -379,7 +378,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
     let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
 
-    let creneau = <dates.datesFile>{};
+    let creneau = <datesFile>{};
 
 
     if (r === false) {
@@ -424,8 +423,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   en s'appuyant sur les dates du premier et du dernier log contenu dans le fichier*/
   public orderVemgsa(list: string[]): string[] {
 
-    let datesFichier1: dates.datesFile;
-    let datesFichier2: dates.datesFile;
+    let datesFichier1: datesFile;
+    let datesFichier2: datesFile;
     datesFichier1 = this.grepPlageHoraireFichier(list[0]);
     datesFichier2 = this.grepPlageHoraireFichier(list[1]);
     console.log("datesFichier1: ", datesFichier1);
@@ -444,8 +443,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
 
-  public isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[], horaire?: dates.datesFile): dates.arrayDatesFile {
-    let result = <dates.arrayDatesFile>{};
+  public isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[], horaire?: datesFile): arrayDatesFile {
+    let result = <arrayDatesFile>{};
     result.dates = new Array;
     result.existe = false;
 
@@ -510,10 +509,10 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
 
-  public isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: string[], horaire?: dates.datesFile): dates.arrayDatesFile {
+  public isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: string[], horaire?: datesFile): arrayDatesFile {
 
 
-    let result = <dates.arrayDatesFile>{};
+    let result = <arrayDatesFile>{};
     result.dates = new Array;
     result.existe = false;
 

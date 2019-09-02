@@ -13,6 +13,7 @@ export class Frequences {
   private fichierFreq : string;
 
  constructor(){
+  console.log("Je rentre dans le constructor Frequences ");
     this.fichierFreq = p.resolve(Path.systemPath, "freq.htm");
   }
 
@@ -129,11 +130,12 @@ et la convertit en une frequence au format bds
 ex : 135930 devient 135.930
 freq : une frequence de transfert
 */
-public conversionFreq(freq) {
+public conversionFreq(freq: string): string {
 
 
-  var motifFreq = /(\d\d\d)(\d+)/;
-  var frequence = freq.replace(motifFreq, "$1.$2");
+
+  let motifFreq = /(\d\d\d)(\d+)/;
+  let frequence = freq.replace(motifFreq, "$1.$2");
   return frequence;
 }
 

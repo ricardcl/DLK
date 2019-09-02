@@ -3,21 +3,19 @@ import { Vol } from '../Modele/vol';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
 import * as moment from 'moment';
-import * as dates from './date';
 
 import { Split } from './split';
 
 
 
 let readline = require("../scripts/node-readline/node-readline");
-//let grep = require("./grep.ts");
-import * as grep from "./grepVEMGSA";
 
 import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { Identifiants } from '../Modele/identifiants';
 import { GrepVEMGSA } from './grepVEMGSA';
 import { Path } from '../Modele/path';
 import { Frequences } from './frequences';
+import {  datesFile } from './date';
 
 const p = require('path');
 
@@ -25,14 +23,16 @@ export class parseurVemgsa {
   private grep: GrepVEMGSA;
   private split: Split;
   private frequences : Frequences;
-  
+
+
+
   constructor(grep: GrepVEMGSA) {
     this.grep = grep;
     this.split = new Split();
     this.frequences = new Frequences();
   }
 
-  public identification(arcid: string, plnid: number, fichierSourceVemgsa: string[], horaire?: dates.datesFile): Identifiants {
+  public identification(arcid: string, plnid: number, fichierSourceVemgsa: string[], horaire?: datesFile): Identifiants {
     console.log("identification VEMGSA");
 
 

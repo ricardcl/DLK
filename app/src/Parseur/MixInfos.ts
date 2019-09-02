@@ -1,19 +1,22 @@
 import { Vol } from '../Modele/vol';
 import { parseurLpln } from './parseurLpln';
 import { parseurVemgsa } from './parseurVEMGSA';
-import { grapheEtat } from './grapheEtat';
+import { GrapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
-import * as dates from './date';
 import { GrepLPLN } from './grepLPLN';
 import { GrepVEMGSA } from './grepVEMGSA';
-import { Dates } from './date';
+import { Dates, datesFile } from './date';
 
 export class MixInfos {
 
   private dates: Dates;
+  private grapheEtat : GrapheEtat;
 
   constructor(){
+    console.log("Je rentre dans le constructor MixInfos ");
+    
     this.dates = new Dates();
+    this.grapheEtat = new GrapheEtat();
 }
 
   //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
@@ -139,7 +142,7 @@ export class MixInfos {
     })
 
     //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA
-    let creneau = <dates.datesFile>{};
+    let creneau = <datesFile>{};
     creneau.dateMin = volVemgsa.getListeLogs()[0].getHeure();
     creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getHeure();
     console.log("creneau.dateMin: ", creneau.dateMin);
@@ -153,7 +156,7 @@ export class MixInfos {
     });
 
     console.log("resultat vol final : ");
-    let graphe = new grapheEtat();
+    //let graphe = new GrapheEtat();
     let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
 
     let trie: boolean = false;
@@ -182,7 +185,7 @@ export class MixInfos {
 
 
 
-    monvolFinal = graphe.grapheMix(monvolFinal);
+    monvolFinal = this.grapheEtat.grapheMix(monvolFinal);
     console.log("debut logs collectes et tries");
 
     monvolFinal.getListeLogs().forEach(etatCpdlc => {
