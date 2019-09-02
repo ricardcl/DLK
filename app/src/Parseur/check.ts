@@ -199,7 +199,7 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
         if ((arcid !== "") && (plnid == 0)) {
             answer.arcid = arcid;
             //Recherche de l'ARCID dans le fichier VEMGSA
-            if (horaire.dateMin ===  undefined) {
+            if (horaire ===  undefined) {
                 result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
                 if (result.existe == true) {
                     let creneau = new Array(<dates.datesFile>{});
@@ -272,9 +272,12 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
 
         }
         if ((arcid == "") && (plnid !== 0)) {
+            
             answer.plnid = plnid;
-            if (horaire.dateMin === undefined) {
+            if (horaire === undefined) {
+
                 result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+
                 if (result.existe == true) {
                     let creneau = new Array(<dates.datesFile>{});
                     creneau = this.dates.getCreneaux(result.dates);
@@ -288,6 +291,7 @@ public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
                     }
                     else {
                         id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, horaire);
+                        console.log("--------> id",id );
                         if (id.identifie) {
                             answer.arcid = id.arcid;
                             answer.valeurRetour = 0;

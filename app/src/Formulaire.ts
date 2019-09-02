@@ -66,6 +66,10 @@ export class Formulaire {
                 console.log("analyseDataInput", "arcid", arcid);
                 console.log("analyseDataInput", "plnid", plnid);
                 console.log("analyseDataInput", "horaire", horaire);
+                if (horaire == ''){
+                    horaire = undefined;
+                }
+                console.log("analyseDataInput", "horaire", horaire);    
                 let listVemgsa = new Array;
                 if (listVemgsaInput.length >= 2) {
                     listVemgsa = this.grepVEMGSA.orderVemgsa(listVemgsaInput);
