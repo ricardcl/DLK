@@ -80,13 +80,13 @@ export class parseurVemgsa {
 
 
 
-  public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[]): Vol {
+  public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[], chosenHoraire?:datesFile): Vol {
     console.log("Je rentre dans parseur de parseurVEMGSA" );
     console.log("fichierSourceVemgsa: ", fichierSourceVemgsa );
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser
 
-    this.grep.grepLog(arcid, plnid, fichierSourceVemgsa);
+    this.grep.grepLog(arcid, plnid, fichierSourceVemgsa, chosenHoraire);
 
     /* Ouverture du fichier à analyser*/
 

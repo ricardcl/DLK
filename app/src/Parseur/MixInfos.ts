@@ -6,6 +6,7 @@ import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { GrepLPLN } from './grepLPLN';
 import { GrepVEMGSA } from './grepVEMGSA';
 import { Dates, datesFile } from './date';
+import { checkAnswerInitial } from '../Modele/checkAnswer';
 
 export class MixInfos {
 
@@ -143,6 +144,9 @@ export class MixInfos {
 
     //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA
     let creneau = <datesFile>{};
+    console.log("---->test  volVemgsa.getListeLogs()", volVemgsa.getListeLogs());
+    console.log("---->test  volVemgsa.getListeLogs().length", volVemgsa.getListeLogs().length);
+
     creneau.dateMin = volVemgsa.getListeLogs()[0].getHeure();
     creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getHeure();
     console.log("creneau.dateMin: ", creneau.dateMin);
@@ -259,7 +263,7 @@ export class MixInfos {
 
 }
 
-public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA): Vol {
+public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, chosenHoraire?:datesFile): Vol {
 
 
   console.log("Je rentre dans InfosVemgsa de MixInfo");
@@ -269,7 +273,7 @@ public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], 
   let pv = new parseurVemgsa(grepVEMGSA);
   //pv.identification(arcid, plnid, fichierSourceVemgsa);
 
-  monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa);
+  monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa,chosenHoraire);
 
 
   //RECUPERATION DES ATTRIBUTS

@@ -127,10 +127,8 @@ export class Dates {
         return creneau;
     }
 
+        //log : ligne brut récupérée du fichier VEMGSA
     public isInCreneauxVemgsa(dates: datesFile, log: string, diffMax: number): boolean {
-
-
-
 
         let isIn: boolean = false;
 
@@ -166,6 +164,8 @@ export class Dates {
         return isIn;
     }
 
+
+    // dateToStore au format = jour + " " + heure + " " + minutes + " " + secondes;
     public isInCreneauxVemgsaHoraire(dates: datesFile, dateToStore: string, diffMax: number): boolean {
 
 

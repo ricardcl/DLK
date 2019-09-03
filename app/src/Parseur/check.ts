@@ -201,11 +201,15 @@ export class Check {
                     if (result.existe == true) {
                         let creneau = new Array(<datesFile>{});
                         creneau = this.dates.getCreneaux(result.dates);
-                        console.log("creneaux trouves 1:", creneau);
-
-                        console.log("creneaux trouves 2 :", result.dates);
-                        if (result.dates.length > 1) {
+                        console.log("cas A1 : result", result);
+                        console.log("cas A1 : result.dates.length", result.dates.length);
+                        console.log("cas A1 : creneau", creneau);
+                        creneau.length
+                        if (creneau.length > 1) {
                             answer.valeurRetour = 5;
+                            answer.tabHoraires = creneau;
+                            console.log("cas A: creneaux: ", creneau);
+
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
@@ -243,8 +247,11 @@ export class Check {
                         creneau = this.dates.getCreneaux(result.dates);
 
 
-                        if (result.dates.length > 1) {
+                        if (creneau.length > 1) {
                             answer.valeurRetour = 5;
+                            answer.tabHoraires = creneau;
+                            console.log("cas B: creneaux: ", creneau);
+
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
@@ -284,12 +291,15 @@ export class Check {
                     if (result.existe == true) {
                         let creneau = new Array(<datesFile>{});
                         creneau = this.dates.getCreneaux(result.dates);
+                        console.log("cas C1 : result", result);
+                        console.log("cas C1 : result.dates.length", result.dates.length);
+                        
+                        console.log("cas C1 : creneau", creneau);
                         if (creneau.length > 1) {
                             answer.tabHoraires = creneau;
                             answer.valeurRetour = 5;
-                            console.log("creneaux trouves 1:", creneau);
+                            console.log("cas C: creneaux: ", creneau);
 
-                            console.log("creneaux trouves 2 :", result.dates);
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
@@ -328,9 +338,8 @@ export class Check {
                         if (creneau.length > 1) {
                             answer.tabHoraires = creneau;
                             answer.valeurRetour = 5;
-                            console.log("creneaux trouves 1:", creneau);
+                            console.log("cas D: creneaux: ", creneau);
 
-                            console.log("creneaux trouves 2 :", result.dates);
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
