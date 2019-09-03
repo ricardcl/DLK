@@ -10,12 +10,12 @@ export class GrepVEMGSA {
   private userPath: string;
   private dates: Dates;
   private uneMinute: number;
-  private diffMax: number ;
+  private diffMax: number;
 
   constructor(userPath: string) {
     this.userPath = userPath;
     this.dates = new Dates();
-     this.uneMinute = 60000;
+    this.uneMinute = 60000;
     this.diffMax = 10 * this.uneMinute;
   }
 
@@ -37,15 +37,22 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let fichierDestination = p.resolve(this.userPath, "result.htm");
     let w = fs.openSync(fichierDestination, "w");
     let reqid: number = 0;
+    let motifPlnid: string;
 
     for (let fichier of fichierSourceVemgsa) {
       console.log("fichier : ", fichier);
       let fichierSource = fichier;
       let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
       let motif = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
-      let motifPlnid = "-PLNID " + plnid;
+      console.log("motifPlnid: ", motifPlnid);
+      if (plnid < 1000) {
+        motifPlnid = "-PLNID " + "0" + plnid;
+      }
+      else {
+        motifPlnid = "-PLNID " + plnid;
+      }
+
       let motifArcid = "-ARCID " + arcid;
-      let motifReqid: string;
       if (r === false) {
         console.log("Error, can't open ", fichierSource);
         process.exit(1);
@@ -53,7 +60,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
       else {
         if (plnid == 0) {
           reqid = this.grepReqidFromArcid(arcid, fichier);
-          console.log("-----------------> reqid ",reqid);
+          console.log("-----------------> reqid ", reqid);
         }
         do {
           let mylogCpdlc = readline.fgets(r);
@@ -71,12 +78,12 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                 if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "")) {
                   fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                 }
-                   
+
                 if ((plnid == 0) && (reqid !== 0) && (mylogCpdlc.toString().match("-REQID ") !== null) && (mylogCpdlc.toString().match(reqid) !== null)) {
                   let motifREQID = /(.*)(CPCASRES)(.*)(-REQID)(.*)/;
                   let reqidTrouve = mylogCpdlc.toString().replace(motifREQID, "$5").trim();
                   let reqidTest = Number(String(reqidTrouve).substr(1));
-                  console.log("-----------------> reqidTest ",reqidTest);
+                  console.log("-----------------> reqidTest ", reqidTest);
                   if (reqidTest == reqid) {
                     fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                   }
@@ -136,7 +143,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             let plnidTrouve: number;
             plnidTrouve = mylogCpdlc.toString().replace(motif1, "$9").trim();
-            if (plnid == plnidTrouve) {
+            if (Number(plnid) == Number(plnidTrouve)) {
               arcid = mylogCpdlc.toString().replace(motif1, "$5").trim();
               break;
             }
@@ -146,7 +153,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             let plnidTrouve: number;
             plnidTrouve = mylogCpdlc.toString().replace(motif2, "$5").trim();
-            if (plnid == plnidTrouve) {
+            if (Number(plnid) == Number(plnidTrouve)) {
               reqid = mylogCpdlc.toString().replace(motif2, "$7").trim();
               reqid = Number(String(reqid).substr(1));
               console.log("reqid trouve: ", reqid);
@@ -370,23 +377,23 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   public grepPlagesHorairesFichiers(fichierSourceVemgsa: string[]): datesFile {
 
     let creneau = <datesFile>{};
-    creneau.dateMin="";
-    creneau.dateMax="";
+    creneau.dateMin = "";
+    creneau.dateMax = "";
 
     let creneauTemp = <datesFile>{};
     for (let fichier of fichierSourceVemgsa) {
 
-      creneauTemp= this.grepPlageHoraireFichier(fichier);
+      creneauTemp = this.grepPlageHoraireFichier(fichier);
 
-      
 
-      if ((creneau.dateMin == "") || (this.dates.isDateSup(creneau.dateMin,creneauTemp.dateMin))) {
-        creneau.dateMin=creneauTemp.dateMin;
+
+      if ((creneau.dateMin == "") || (this.dates.isDateSup(creneau.dateMin, creneauTemp.dateMin))) {
+        creneau.dateMin = creneauTemp.dateMin;
 
       }
 
       if ((creneau.dateMax == "") || (this.dates.isDateSup(creneauTemp.dateMax, creneau.dateMax))) {
-        creneau.dateMax=creneauTemp.dateMax;
+        creneau.dateMax = creneauTemp.dateMax;
       }
 
 
@@ -477,12 +484,17 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     result.existe = false;
 
     let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
-    let motifPlnid = "-PLNID " + plnid;
-    let regexPlnid = /\d\d\d\d/;
+    let motifPlnid: string;
     let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
     let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
 
-
+    console.log("motifPlnid: ", motifPlnid);
+    if (plnid < 1000) {
+      motifPlnid = "-PLNID " + "0" + plnid;
+    }
+    else {
+      motifPlnid = "-PLNID " + plnid;
+    }
 
 
     for (let fichier of fichierSourceVemgsa) {
@@ -498,7 +510,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
           let mylogCpdlc = readline.fgets(r);
           if (mylogCpdlc === false) { break; }
 
-          if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null) && (plnid.toString().match(regexPlnid))) {
+          if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null)) {
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             result.existe = true;
 
@@ -513,13 +525,13 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                 const secondes = date.toString().replace(motifDateHeure, "$7");
                 const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
 
-                if(( horaire !== undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, dateToStore, this.diffMax) == true) ){
-                  console.log("---------------->dateToStore horaire",horaire);
-                  console.log("---------------->dateToStore horaire.dateMin",horaire.dateMin);
-                  console.log("---------------->dateToStore horaire.dateMax",horaire.dateMax);
+                if ((horaire !== undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, dateToStore, this.diffMax) == true)) {
+                  console.log("---------------->dateToStore horaire", horaire);
+                  console.log("---------------->dateToStore horaire.dateMin", horaire.dateMin);
+                  console.log("---------------->dateToStore horaire.dateMax", horaire.dateMax);
                   result.dates.push(dateToStore);
                 }
-                if( horaire == undefined) {
+                if (horaire == undefined) {
                   result.dates.push(dateToStore);
                 }
 
@@ -586,23 +598,23 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                 let date = mylogCpdlc.toString().replace(motifDate, "$1");
                 //  console.log("date a: ",date);
 
-                if (date.match(motifDateHeure) !== null)  {
+                if (date.match(motifDateHeure) !== null) {
                   const jour = date.toString().replace(motifDateHeure, "$1");
                   const heure = date.toString().replace(motifDateHeure, "$3");
                   const minutes = date.toString().replace(motifDateHeure, "$5");
                   const secondes = date.toString().replace(motifDateHeure, "$7");
                   const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
-                  console.log("---------------->dateToStore ",dateToStore);
+                  console.log("---------------->dateToStore ", dateToStore);
                   //TODO gerer le creneau horaire
 
 
-                  if(( horaire !== undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, dateToStore, this.diffMax) == true) ){
-                    console.log("---------------->dateToStore horaire",horaire);
-                    console.log("---------------->dateToStore horaire.dateMin",horaire.dateMin);
-                    console.log("---------------->dateToStore horaire.dateMax",horaire.dateMax);
+                  if ((horaire !== undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, dateToStore, this.diffMax) == true)) {
+                    console.log("---------------->dateToStore horaire", horaire);
+                    console.log("---------------->dateToStore horaire.dateMin", horaire.dateMin);
+                    console.log("---------------->dateToStore horaire.dateMax", horaire.dateMax);
                     result.dates.push(dateToStore);
                   }
-                  if( horaire == undefined) {
+                  if (horaire == undefined) {
                     result.dates.push(dateToStore);
                   }
 

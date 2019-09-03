@@ -92,7 +92,7 @@ export class Formulaire {
 
             });
 
-            socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer) => {
+            socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer: checkAnswer) => {
                 console.log("analysedVol");
                 switch (this.contexte) {
                     case Contexte.LPLN: 
@@ -107,9 +107,23 @@ export class Formulaire {
                     console.log("analysedVol Contexte.LPLN et VEMGSA : données LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
                     console.log("analysedVol Contexte.LPLN et VEMGSA : données VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
 
-                    let volLpln: Vol = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN);
-                    let volVemgsa: Vol = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA);                   
-                    socket.emit("analysedVolMix",volLpln,volVemgsa,  this.mixInfos.mixInfos(volLpln, volVemgsa, checkanswer.arcid, checkanswer.plnid));
+                    let volLpln: Vol;
+                    let volVemgsa: Vol ;
+                    if((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 4)){
+                        volLpln = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN);
+                        volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA);                   
+                        socket.emit("analysedVolMix",volLpln,volVemgsa,  this.mixInfos.mixInfos(volLpln, volVemgsa, checkanswer.arcid, checkanswer.plnid))
+                    }
+                    else {
+                        if(checkanswer.checkLPLN.valeurRetour <= 1){
+                            socket.emit("analysedVol", "LPLN",  this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN));
+                        }
+                        else{
+                            socket.emit("analysedVol", "VEMGSA",  this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA));
+                        }
+                    }
+                    
+;
                     break;
 
                 }

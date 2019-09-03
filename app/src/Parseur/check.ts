@@ -100,7 +100,7 @@ export class Check {
      *   et où messageRetour donne une explication en cas d'echec
      */
     private checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, contexte: Contexte, grepLPLN: GrepLPLN): checkAnswerInitial {
-        let regexpPlnid: RegExp = /^\d{4}$/;
+        let regexpPlnid: RegExp = /^\d{1,4}$/;
         let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
         let id = <Identifiants>{};
         //let result = <dates.arrayDatesFile>{};
@@ -177,7 +177,7 @@ export class Check {
      */
     public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], contexte: Contexte, grepVEMGSA: GrepVEMGSA, horaire?: datesFile): checkAnswerInitial {
         console.log(" Check VEMGSA ");
-        let regexpPlnid: RegExp = /^\d{4}$/;
+        let regexpPlnid: RegExp = /^\d{1,4}$/;
         let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
         let id = <Identifiants>{};
         let result = <arrayDatesFile>{};
