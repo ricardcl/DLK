@@ -4,8 +4,9 @@ import { DetailCpdlc } from "./detailCpdlc";
 export class EtatCpdlc {
   private id: number = 0;
   private title: string = "";
-  private date: string = "";
+  private jour: string = "";
   private heure: string = "";
+  private date: string = "";
   private etat: Etat = Etat.NonLogue;
   private associable: boolean = false;
   private log:string = "";
@@ -88,11 +89,15 @@ isDetail(key : string):boolean{
   getTitle(): string {
     return this.title;
   }
-  getDate(): string {
-    return this.date;
+  getJour(): string {
+    return this.jour;
   }
   getHeure(): string {
     return this.heure
+  }
+
+  getDate(): string{
+    return this.date;
   }
 
   getEtat(): Etat {
@@ -105,6 +110,9 @@ isDetail(key : string):boolean{
   //SETTERS
   setTitle(title: string) {
     this.title = title;
+  }
+  setJour(jour: string) {
+    this.jour = jour;
   }
   setDate(date: string) {
     this.date = date;

@@ -89,11 +89,18 @@ export class Dates {
         else { return false; }
     }
 
-    //Renvoie true si d1 > d2
+    //Renvoie true si d1 > d2 
     public isDateSup(d1: string, d2: string): boolean {
-        const momentDate1 = moment(d1, 'DD-MM-YYYY HH mm ss');
-        const momentDate2 = moment(d2, 'DD-MM-YYYY HH mm ss');
+        let momentDate1 = moment(d1, 'DD-MM HH mm ss');
+        if (!momentDate1.isValid()){
+            momentDate1 = moment(d1, 'DD-MM HH mm');
+        }
+        let momentDate2 = moment(d2, 'DD-MM HH mm ss');
+        if (!momentDate2.isValid()){
+            momentDate2 = moment(d1, 'DD-MM HH mm');
+        }
         const diff: number = momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
+        //console.log("momentDate1",momentDate1, "momentDate2",momentDate2, "diff",diff);
         if (diff > 0) { return true; }
         else { return false; }
     }

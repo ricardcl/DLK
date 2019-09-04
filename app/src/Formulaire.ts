@@ -97,6 +97,7 @@ export class Formulaire {
                 if (chosenHoraire == '') {
                     chosenHoraire = undefined;
                 }
+                
                 console.log("checkanswer.checkVEMGSA.creneauVemgsa",checkanswer.checkVEMGSA.creneauVemgsa);
                 
                 console.log("analysedVol");

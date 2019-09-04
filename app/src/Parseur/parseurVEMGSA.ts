@@ -135,8 +135,9 @@ export class parseurVemgsa {
         const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
         // console.log("test date: ",momentDate.format()); 
 
-        log.setDate(moment(momentDate).format('DD-MM-YYYY'));
+        log.setJour(moment(momentDate).format('DD-MM-YYYY'));
         log.setHeure(moment(momentDate).format('HH mm ss'));
+        log.setDate(moment(momentDate).format('DD-MM-YYYY HH mm ss'));
 
         log.setAssociable(Boolean(infoGen.toString().replace(motifDateHeure, "$8")));
 

@@ -221,7 +221,7 @@ export class MixInfos {
       }
 
 
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+      console.log("date: ", etatCpdlc.getDate(), "jour: ", etatCpdlc.getJour(), "heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
       console.log("LogLPLN: ", etatCpdlc.getLog());
     });
 
@@ -258,7 +258,7 @@ export class MixInfos {
     }
     else { monvolVemgsa.setConditionsLogon("KO"); }
 
-    console.log("debut logs VEMGSA collectes et tries");
+    //console.log("debut logs VEMGSA collectes et tries");
 
     monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
       if (etatCpdlc.getTitle() == 'CPCASREQ') {
@@ -273,18 +273,16 @@ export class MixInfos {
         monvolVemgsa.setLogonAccepte("OK");
       } else { monvolVemgsa.setLogonAccepte("KO"); }
 
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-      console.log("LogVEMGSA: ", etatCpdlc.getLog());
+      //console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+      //console.log("LogVEMGSA: ", etatCpdlc.getLog());
 
     });
 
 
-    console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),
-      "\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",
-      monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte());
+    //console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),"\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte());
 
 
-    console.log("fin logs VEMGSA collectes et tries");
+    //console.log("fin logs VEMGSA collectes et tries");
 
     monvolVemgsa = this.sortLogs(monvolVemgsa);
 
@@ -307,12 +305,12 @@ export class MixInfos {
       while (!trie) {
         changement = false;
         for (let i = 0; i < arrayLogTemp.length - 1; i++) {
-        
+
+
           const element = arrayLogTemp[i];
           const elementNext = arrayLogTemp[i + 1];
           //console.log("sortLogs element.Heure", element.getHeure(), " eNext.Heure", elementNext.getHeure(), "result:", this.dates.isHeureSup(element.getHeure(), elementNext.getHeure()));
-
-          if (this.dates.isHeureSup(element.getHeure(), elementNext.getHeure())) {
+          if (this.dates.isDateSup(element.getDate(), elementNext.getDate())) {
             arrayLogTemp[i] = elementNext;
             arrayLogTemp[i + 1] = element;
             changement = true;
@@ -322,7 +320,7 @@ export class MixInfos {
           }
         }
         if (changement == false) { trie = true; }
-        
+
       }
     }
 
