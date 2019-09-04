@@ -23,6 +23,7 @@ export class MixInfos {
 
   //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
   public mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number): Vol {
+    console.log("Classe MixInfos Fonction mixInfos");
 
     //Initialisation du vol final issu des donnees LPLN et VEMGSA
     let monvolFinal = new Vol(arcid, plnid);
@@ -180,7 +181,7 @@ export class MixInfos {
 
 
   public InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Vol {
-
+    console.log("Classe MixInfos Fonction InfosLpln");
     //Initialisation du vol issu des donnees LPLN
     let monvolLpln = new Vol(arcid, plnid);
     console.log("->->", grepLPLN);
@@ -238,7 +239,7 @@ export class MixInfos {
   }
 
   public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneau: datesFile, chosenHoraire?: datesFile): Vol {
-
+    console.log("Classe MixInfos Fonction InfosVemgsa");
 
     console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);
     console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
@@ -291,19 +292,15 @@ export class MixInfos {
   }
 
   public sortLogs(vol: Vol): Vol {
+    console.log("Classe MixInfos Fonction sortLogs");
 
-    console.log("sortLogs taille befoire", vol.getListeLogs().length);
 
     let arrayLogTemp: EtatCpdlc[] = vol.getListeLogs();
 
     let trie: boolean = false;
     let changement: boolean;
 
-    console.log("------------>resultat avant traitement arrayLogTemp: ");
-    arrayLogTemp.forEach(etatCpdlc => {
-      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    })
+
 
     if (arrayLogTemp.length > 1) {
 
@@ -311,7 +308,6 @@ export class MixInfos {
         changement = false;
         for (let i = 0; i < arrayLogTemp.length - 1; i++) {
         
-          console.log("changement ini",changement);
           const element = arrayLogTemp[i];
           const elementNext = arrayLogTemp[i + 1];
           //console.log("sortLogs element.Heure", element.getHeure(), " eNext.Heure", elementNext.getHeure(), "result:", this.dates.isHeureSup(element.getHeure(), elementNext.getHeure()));
@@ -320,30 +316,19 @@ export class MixInfos {
             arrayLogTemp[i] = elementNext;
             arrayLogTemp[i + 1] = element;
             changement = true;
-            console.log("sortLogs changement", changement);
 
             //console.log("inversion: elementNext"+elementNext+" element : "+element);
 
           }
         }
         if (changement == false) { trie = true; }
-        console.log("changement final",changement);
         
       }
     }
-    console.log("------------>resultat final arrayLogTemp: ");
-    arrayLogTemp.forEach(etatCpdlc => {
-      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    });
+
 
     vol.setListeLogs(arrayLogTemp);
-    console.log("------------>resultat final vol: ");
-    vol.getListeLogs().forEach(etatCpdlc => {
-      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    });
-    console.log("sortLogs taille apres", vol.getListeLogs().length);
+
     return vol;
   }
   //TODO : tester le fichier en entrée : existance, dates de validité pour savoir si l'aircraft id est bien dans le vemgsa ...

@@ -28,6 +28,7 @@ export class Check {
      */
 
     public evaluationContexte(fichierSourceLpln: string, fichierSourceVemgsa: string[]): Contexte {
+        console.log("Classe check Fonction evaluationContexte");
 
         let contexte: Contexte = Contexte.NONE;
 
@@ -60,6 +61,8 @@ export class Check {
      */
     public identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Identifiants {
         //Initialisation du vol issu des donnees LPLN
+        console.log("Classe check Fonction identificationLpln");
+
         let pl = new parseurLpln(grepLPLN);
         let idL = <Identifiants>{};
         idL = pl.identification(arcid, plnid, fichierSourceLpln);
@@ -78,6 +81,8 @@ export class Check {
      */
     private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneau:datesFile, horaire?: datesFile): Identifiants {
         //Initialisation du vol issu des donnees VEMGSA 
+        console.log("Classe check Fonction identificationVemgsa");
+
         let pv = new parseurVemgsa(grepVEMGSA);
         let idV = <Identifiants>{};
         idV = pv.identification(arcid, plnid, fichierSourceVemgsa,creneau, horaire);
@@ -101,6 +106,8 @@ export class Check {
      *   et où messageRetour donne une explication en cas d'echec
      */
     private checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, contexte: Contexte, grepLPLN: GrepLPLN): checkAnswerInitial {
+        console.log("Classe check Fonction checkLPLN");
+
         let regexpPlnid: RegExp = /^\d{1,4}$/;
         let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
         let id = <Identifiants>{};
@@ -177,7 +184,8 @@ export class Check {
      *   et où messageRetour donne une explication en cas d'echec
      */
     public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], contexte: Contexte, grepVEMGSA: GrepVEMGSA, horaire?: datesFile): checkAnswerInitial {
-        console.log(" Check VEMGSA ");
+        console.log("Classe check Fonction checkVEMGSA");
+
         let regexpPlnid: RegExp = /^\d{1,4}$/;
         let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
         let id = <Identifiants>{};
@@ -228,6 +236,7 @@ export class Check {
                                 answer.valeurRetour = 1;
                                 answer.datesFichierVemgsa = grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
                                 console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
+                                answer.creneauVemgsa = creneau[0];
 
                                 //TODO renvoyer la plage horaire etudiee
                             }
@@ -269,6 +278,7 @@ export class Check {
                             else {
                                 //TODO cas 1 ou 3 à analyse !!!
                                 answer.valeurRetour = 1;
+                                answer.creneauVemgsa = creneau[0];
                                 //TODO renvoyer la plage horaire etudiee
                             }
 
@@ -319,6 +329,7 @@ export class Check {
                             else {
                                 //TODO cas 2 ou 4 à analyse !!!
                                 answer.valeurRetour = 2;
+                                answer.creneauVemgsa = creneau[0];
                                 //TODO renvoyer la plage horaire etudiee
                             }
                         }
@@ -359,6 +370,7 @@ export class Check {
                             else {
                                 //TODO cas 2 ou 4 à analyse !!!
                                 answer.valeurRetour = 2;
+                                answer.creneauVemgsa = creneau[0];
                                 //TODO renvoyer la plage horaire etudiee
                             }
                         }
@@ -403,6 +415,7 @@ export class Check {
      */
 
     public check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN: GrepLPLN, grepVEMGSA: GrepVEMGSA, horaire?: datesFile): checkAnswer {
+        console.log("Classe check Fonction check");
 
         let answer = <checkAnswer>{};
         answer.analysePossible = false;

@@ -31,7 +31,7 @@ export class parseurLpln {
   }
 
   public identification (arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
-
+    console.log("Classe ParseurLpln Fonction identification");
     let tabId : Identifiants[];
     let id = <Identifiants>{};
     id.arcid = "";
@@ -96,7 +96,7 @@ export class parseurLpln {
   }
 
   public parseur (arcid: string, plnid: number, fichierSourceLpln: string): Vol {
-
+    console.log("Classe ParseurLpln Fonction parseur");
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "resultLPLN.htm"); //Fichier en entree a analyser
 
@@ -645,7 +645,7 @@ export class parseurLpln {
   }
 
   public grepListeVolFromLpln (fichierSourceLpln: string): Vol[] {
-    console.log("coucou");
+    console.log("Classe ParseurLpln Fonction grepListeVolFromLpln");
     let fichierSource = p.resolve(this.grep.getUserPath(), fichierSourceLpln);
     let fd = this.isFichierLisible(fichierSource); //Test de l'ouverture du fichier et recuperation du file descriptor
 

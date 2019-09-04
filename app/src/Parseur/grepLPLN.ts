@@ -30,6 +30,8 @@ export class GrepLPLN {
   }
 
   public grepLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): void {
+    console.log("Classe grepLpln Fonction grepLogLPLN");
+
     let fichierDestination = p.resolve(this.userPath, "resultLPLN.htm");
     let fichierSource = fichierSourceLpln;
     //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
@@ -137,6 +139,8 @@ export class GrepLPLN {
 
 
   public grepArcidFromPlnid(plnid: number, fichierSourceLpln: string): string {
+    console.log("Classe grepLpln Fonction grepArcidFromPlnid");
+
     let fichierSource = fichierSourceLpln;
     //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
@@ -171,6 +175,8 @@ export class GrepLPLN {
 
 
   public grepPlnidFromArcid(arcid: string, fichierSourceLpln: string): number {
+    console.log("Classe grepLpln Fonction grepPlnidFromArcid");
+
     let fichierSource = fichierSourceLpln;
     //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
@@ -203,7 +209,8 @@ export class GrepLPLN {
   }
 
   public grepPlnidAndArcid(fichierSource: string): Identifiants[] {
-    console.log("grepPlnidAndArcid ");
+    console.log("Classe grepLpln Fonction grepPlnidAndArcid");
+
 
     let tabPlnid= [];
     let tabArcid= [];
@@ -254,6 +261,8 @@ export class GrepLPLN {
 
 
   public isArcid(arcid: string, fichierSourceLpln: string): boolean {
+    console.log("Classe grepLpln Fonction isArcid");
+
     let result: boolean = false;
     let fichierSource = fichierSourceLpln;
 
@@ -290,6 +299,7 @@ export class GrepLPLN {
   }
 
   public isPlnid(plnidSource: number, fichierSourceLpln: string): boolean {
+    console.log("Classe grepLpln Fonction isPlnid");
     console.log("plnidSource:", plnidSource);
 
     let plnid = Math.round(plnidSource);

@@ -33,7 +33,7 @@ export class parseurVemgsa {
   }
 
   public identification(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau:datesFile, horaire?: datesFile): Identifiants {
-    console.log("identification VEMGSA");
+    console.log("Classe ParseurVemgsa Fonction identification ");
 
 
     let id = <Identifiants>{};
@@ -81,8 +81,7 @@ export class parseurVemgsa {
 
 
   public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[],creneau:datesFile, chosenHoraire?:datesFile): Vol {
-    console.log("Je rentre dans parseur de parseurVEMGSA" );
-    console.log("fichierSourceVemgsa: ", fichierSourceVemgsa );
+    console.log("Classe ParseurVemgsa Fonction parseur");
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser
 

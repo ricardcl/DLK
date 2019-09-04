@@ -35,9 +35,10 @@ recuperer uniquement les informations relatives a un PLNID et un ARCID donne
 copier le resultat dans un fichier texte en enlevant les caracteres speciaux et verifiant que le format est correct
 */
   public grepLog(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau:datesFile, horaire?: datesFile): void {
+    console.log("Classe grepVemgsa Fonction grepLog");
 
 
-    console.log("Je rentre dans grepLog de grepVEMGSA creneau", creneau);
+    console.log(" creneau", creneau);
 
     let fichierDestination = p.resolve(this.userPath, "result.htm");
     let w = fs.openSync(fichierDestination, "w");
@@ -149,6 +150,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   }
 
   public grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, creneau: datesFile, horaire?: datesFile): string {
+    console.log("Classe grepVemgsa Fonction grepArcidFromPlnid");
 
     let fichierSource = fichierSourceVemgsa;
     //"../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
@@ -210,6 +212,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   }
 
   private grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, horaire?: datesFile): string {
+    console.log("Classe grepVemgsa Fonction grepArcidFromReqid");
+
     let fichierSource = fichierSourceVemgsa;
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
     let fichierDestination = p.resolve(this.userPath, "result.htm");
@@ -272,6 +276,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
   public grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, creneau: datesFile, horaire?: datesFile): number {
+    console.log("Classe grepVemgsa Fonction grepPlnidFromArcid");
+
     let fichierSource = fichierSourceVemgsa;
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
     let fichierDestination = p.resolve(this.userPath, "result.htm");
@@ -366,6 +372,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   }
 
   public grepReqidFromArcid(arcid: string, fichierSourceVemgsa: string, creneau: datesFile, horaire?: datesFile): number {
+    console.log("Classe grepVemgsa Fonction grepReqidFromArcid");
+
     let fichierSource = fichierSourceVemgsa;
     let reqid = 0;
 
@@ -410,6 +418,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   }
 
   public grepPlagesHorairesFichiers(fichierSourceVemgsa: string[]): datesFile {
+    console.log("Classe grepVemgsa Fonction grepPlagesHorairesFichiers");
 
     let creneau = <datesFile>{};
     creneau.dateMin = "";
@@ -437,6 +446,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   }
 
   private grepPlageHoraireFichier(fichierSourceVemgsa: string): datesFile {
+    console.log("Classe grepVemgsa Fonction grepPlageHoraireFichier");
 
     let fichierSource = fichierSourceVemgsa;
     let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
@@ -491,6 +501,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   /* Fonction qui prend en entrée deux fichiers Vemgsa et renvoie les deux fichiers en les classant par date 
   en s'appuyant sur les dates du premier et du dernier log contenu dans le fichier*/
   public orderVemgsa(list: string[]): string[] {
+    console.log("Classe grepVemgsa Fonction orderVemgsa");
 
     let datesFichier1: datesFile;
     let datesFichier2: datesFile;
@@ -514,6 +525,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
   public isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[], horaire?: datesFile): arrayDatesFile {
+    console.log("Classe grepVemgsa Fonction isPlnidAndPlageHoraire");
+
     let result = <arrayDatesFile>{};
     result.dates = new Array;
     result.existe = false;
@@ -523,14 +536,14 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
     let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
 
-    console.log("motifPlnid: ", motifPlnid);
+
     if (plnid < 1000) {
       motifPlnid = "-PLNID " + "0" + plnid;
     }
     else {
       motifPlnid = "-PLNID " + plnid;
     }
-
+    console.log("motifPlnid: ", motifPlnid);
 
     for (let fichier of fichierSourceVemgsa) {
       let fichierSource = fichier;
@@ -585,6 +598,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
   public isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: string[], horaire?: datesFile): arrayDatesFile {
+    console.log("Classe grepVemgsa Fonction isArcidAndPlageHoraire");
 
 
     let result = <arrayDatesFile>{};

@@ -13,7 +13,8 @@ export class GrapheEtat {
         }
 
     public grapheMix(vol: Vol): Vol {
-   
+        console.log("Classe grapheEtat Fonction grapheMix");
+
         let monEtat: Etat = Etat.NonLogue;// Etat CPDLC par defaut
 
         vol.getListeLogs().forEach(etatCpdlc => {

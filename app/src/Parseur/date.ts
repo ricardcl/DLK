@@ -138,7 +138,6 @@ export class Dates {
 
     //log : ligne brut récupérée du fichier VEMGSA
     public isInCreneauxVemgsa(dates: datesFile, log: string, diffMax: number): boolean {
-        console.log("---> isInCreneauxVemgsa:   dates", dates, "log", log, "diffMax", diffMax);
         let isIn: boolean = false;
 
 
@@ -163,12 +162,10 @@ export class Dates {
                 const secondes = date.toString().replace(motifDateHeure, "$7");
                 const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
                 const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
-                console.log("---> isInCreneauxVemgsa: momentDate: ", momentDate);
 
 
                 const diff1: number = momentDate.diff(momentDate1);
                 const diff2: number = momentDate.diff(momentDate2);
-                console.log("---> isInCreneauxVemgsa: diff1: ", diff1, "diff2", diff2);
 
 
                 if (((diff1 >= 0) || (diff1 >= -diffMax)) && ((diff2 <= 0) || (diff2 <= diffMax))) {
@@ -177,7 +174,6 @@ export class Dates {
             }
         }
 
-        console.log("---> isInCreneauxVemgsa: isIn: ", isIn);
         return isIn;
     }
 
