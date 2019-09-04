@@ -16,16 +16,16 @@ import { datesFile } from './Parseur/date';
 export class Formulaire {
     private app = require('http').createServer();
     private io = require('socket.io')(this.app);
-    private users : UsersRepository;
+    private users: UsersRepository;
     private contexte: Contexte;
-    private grepVEMGSA : GrepVEMGSA;
-    private grepLPLN : GrepLPLN;
+    private grepVEMGSA: GrepVEMGSA;
+    private grepLPLN: GrepLPLN;
     private check: Check;
     private mixInfos: MixInfos;
     private frequences: Frequences;
 
     constructor() {
-        this.users = new UsersRepository (Path.userPath);
+        this.users = new UsersRepository(Path.userPath);
         this.users.deleteAllUsers();
 
         this.app.listen(4000);
@@ -38,19 +38,19 @@ export class Formulaire {
     private initSocket() {
         this.io.on("connection", (socket) => {
             console.log('connexion d un client, ouverture d une socket pour la recuperation de fichier', socket.id);
-            let clientId : string = socket.id;
+            let clientId: string = socket.id;
             this.users.createUser(clientId);
-            this.grepVEMGSA = new GrepVEMGSA ( Path.userPath + "/" + clientId);
-            this.grepLPLN = new GrepLPLN ( Path.userPath + "/" + clientId);
+            this.grepVEMGSA = new GrepVEMGSA(Path.userPath + "/" + clientId);
+            this.grepLPLN = new GrepLPLN(Path.userPath + "/" + clientId);
 
-            let uploader  = new SocketIOFileUpload();
+            let uploader = new SocketIOFileUpload();
             uploader.dir = Path.userPath + "/" + clientId;
             uploader.listen(socket);
 
 
             socket.on("disconnect", (socket) => {
                 console.log('disconnect', clientId);
-                this.users.deleteUser (clientId);
+                this.users.deleteUser(clientId);
             });
 
             uploader.on("complete", function (event) {
@@ -58,7 +58,7 @@ export class Formulaire {
                 //mixInfos("",0, event.file.name, null);
             });
 
-            socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput, horaire) => { 
+            socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput, horaire) => {
 
                 // Create frequence files :
                 this.frequences.GbdiToFreq(Path.STPVFilePath);  //A modifier de place !!!
@@ -72,63 +72,64 @@ export class Formulaire {
                 console.log("analyseDataInput", "arcid", arcid);
                 console.log("analyseDataInput", "plnid", plnid);
                 console.log("analyseDataInput", "horaire", horaire);
-                if (horaire == ''){
+                if (horaire == '') {
                     horaire = undefined;
                 }
-                console.log("analyseDataInput", "horaire", horaire);    
+                console.log("analyseDataInput", "horaire", horaire);
                 let listVemgsa = new Array;
                 if (listVemgsaInput.length >= 2) {
                     listVemgsa = this.grepVEMGSA.orderVemgsa(listVemgsaInput);
                 }
-                else if (listVemgsaInput.length == 1){
+                else if (listVemgsaInput.length == 1) {
                     listVemgsa[0] = listVemgsaInput[0];
                 }
 
 
 
                 this.contexte = this.check.evaluationContexte(lpln, listVemgsa);
-                let resultCheck= <checkAnswer>{};
-                resultCheck =this.check.check(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA, horaire);
+                let resultCheck = <checkAnswer>{};
+                resultCheck = this.check.check(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA, horaire);
                 socket.emit("check", resultCheck);
 
             });
 
             socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer: checkAnswer, chosenHoraire) => {
-                if (chosenHoraire == ''){
+                if (chosenHoraire == '') {
                     chosenHoraire = undefined;
                 }
+                console.log("checkanswer.checkVEMGSA.creneauVemgsa",checkanswer.checkVEMGSA.creneauVemgsa);
+                
                 console.log("analysedVol");
                 switch (this.contexte) {
-                    case Contexte.LPLN: 
-                    console.log("analysedVol Contexte.LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
-                    socket.emit("analysedVol", "LPLN",  this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.grepLPLN));
-                    break;
-                    case Contexte.VEMGSA: 
-                    console.log("analysedVol Contexte.VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
-                    socket.emit("analysedVol", "VEMGSA",  this.mixInfos.InfosVemgsa(checkanswer.arcid, checkanswer.plnid, vemgsafilename, this.grepVEMGSA,chosenHoraire));
-                    break;
-                    case Contexte.LPLNVEMGSA: 
-                    console.log("analysedVol Contexte.LPLN et VEMGSA : données LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
-                    console.log("analysedVol Contexte.LPLN et VEMGSA : données VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ',checkanswer);
+                    case Contexte.LPLN:
+                        console.log("analysedVol Contexte.LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.grepLPLN));
+                        break;
+                    case Contexte.VEMGSA:
+                        console.log("analysedVol Contexte.VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        socket.emit("analysedVol", "VEMGSA", this.mixInfos.InfosVemgsa(checkanswer.arcid, checkanswer.plnid, vemgsafilename, this.grepVEMGSA,  checkanswer.checkVEMGSA.creneauVemgsa ,chosenHoraire));
+                        break;
+                    case Contexte.LPLNVEMGSA:
+                        console.log("analysedVol Contexte.LPLN et VEMGSA : données LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        console.log("analysedVol Contexte.LPLN et VEMGSA : données VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
 
-                    let volLpln: Vol;
-                    let volVemgsa: Vol ;
-                    if((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 4)){
-                        volLpln = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN);
-                        volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA,chosenHoraire);                   
-                        socket.emit("analysedVolMix",volLpln,volVemgsa,  this.mixInfos.mixInfos(volLpln, volVemgsa, checkanswer.arcid, checkanswer.plnid))
-                    }
-                    else {
-                        if(checkanswer.checkLPLN.valeurRetour <= 1){
-                            socket.emit("analysedVol", "LPLN",  this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN));
+                        let volLpln: Vol;
+                        let volVemgsa: Vol;
+                        if ((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 4)) {
+                            volLpln = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN);
+                            volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA,checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire);
+                            socket.emit("analysedVolMix", volLpln, volVemgsa, this.mixInfos.mixInfos(volLpln, volVemgsa, checkanswer.arcid, checkanswer.plnid))
                         }
-                        else{
-                            socket.emit("analysedVol", "VEMGSA",  this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA,chosenHoraire));
+                        else {
+                            if (checkanswer.checkLPLN.valeurRetour <= 1) {
+                                socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.grepLPLN));
+                            }
+                            else {
+                                socket.emit("analysedVol", "VEMGSA", this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.grepVEMGSA,checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire));
+                            }
                         }
-                    }
-                    
-;
-                    break;
+
+                        break;
 
                 }
 

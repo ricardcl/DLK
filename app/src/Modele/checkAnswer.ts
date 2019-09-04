@@ -5,8 +5,9 @@ export interface checkAnswerInitial {
     valeurRetour: number;
     arcid: string;
     plnid: number;
-    tabId?: Identifiants[];
-    tabHoraires?: datesFile[];
+    tabId?: Identifiants[]; // pour LPLN
+    tabHoraires?: datesFile[]; //pour VEMGSA
+    creneauVemgsa?: datesFile; //pour VEMGSA
     datesFichierVemgsa?: datesFile;
 }
 

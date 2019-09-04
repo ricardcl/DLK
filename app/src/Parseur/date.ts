@@ -104,7 +104,7 @@ export class Dates {
         let creneau = new Array;
         const uneMinute: number = 60000;
         const uneHeure: number = 60 * uneMinute;
-        let diffMax = 3 * uneHeure;
+        let troisHeures = 3 * uneHeure;
         let i: number = 0;
 
         creneau[i] = <arrayDatesFile>{};
@@ -113,9 +113,18 @@ export class Dates {
         for (let index = 1; index < dates.length; index++) {
             const element = dates[index];
             const elementPrec = dates[index - 1];
-            if (index == dates.length - 1) { creneau[i].dateMax = element; }
+            if (index == dates.length - 1) {
+                if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
+                    creneau[i].dateMax = elementPrec;
+                    creneau[i+1] = <arrayDatesFile>{};
+                    creneau[i+1].dateMin = element;
+                    creneau[i+1].dateMax = element;
+                }
+                else {
+                    creneau[i].dateMax = element; }
+                }
             else {
-                if (this.diffHeuresVemgsaEgales(element, elementPrec) > diffMax) {
+                if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
                     creneau[i].dateMax = elementPrec;
                     i++;
                     creneau[i] = <arrayDatesFile>{};
@@ -127,12 +136,16 @@ export class Dates {
         return creneau;
     }
 
-        //log : ligne brut récupérée du fichier VEMGSA
+    //log : ligne brut récupérée du fichier VEMGSA
     public isInCreneauxVemgsa(dates: datesFile, log: string, diffMax: number): boolean {
-
+        console.log("---> isInCreneauxVemgsa:   dates", dates, "log", log, "diffMax", diffMax);
         let isIn: boolean = false;
 
+
         const momentDate1 = moment(dates.dateMin, 'DD-MM-YYYY HH mm ss');
+        if(dates.dateMax == undefined){
+            dates.dateMax = dates.dateMin;
+        }
         const momentDate2 = moment(dates.dateMax, 'DD-MM-YYYY HH mm ss');
 
 
@@ -150,10 +163,12 @@ export class Dates {
                 const secondes = date.toString().replace(motifDateHeure, "$7");
                 const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
                 const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
+                console.log("---> isInCreneauxVemgsa: momentDate: ", momentDate);
 
 
                 const diff1: number = momentDate.diff(momentDate1);
                 const diff2: number = momentDate.diff(momentDate2);
+                console.log("---> isInCreneauxVemgsa: diff1: ", diff1, "diff2", diff2);
 
 
                 if (((diff1 >= 0) || (diff1 >= -diffMax)) && ((diff2 <= 0) || (diff2 <= diffMax))) {
@@ -161,6 +176,8 @@ export class Dates {
                 }
             }
         }
+
+        console.log("---> isInCreneauxVemgsa: isIn: ", isIn);
         return isIn;
     }
 
@@ -186,7 +203,7 @@ export class Dates {
         if (((diff1 >= 0) || (diff1 >= -diffMax)) && ((diff2 <= 0) || (diff2 <= diffMax))) {
             isIn = true;
         }
-      
+
         return isIn;
     }
 

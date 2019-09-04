@@ -32,7 +32,7 @@ export class parseurVemgsa {
     this.frequences = new Frequences();
   }
 
-  public identification(arcid: string, plnid: number, fichierSourceVemgsa: string[], horaire?: datesFile): Identifiants {
+  public identification(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau:datesFile, horaire?: datesFile): Identifiants {
     console.log("identification VEMGSA");
 
 
@@ -47,7 +47,7 @@ export class parseurVemgsa {
         //console.log("fichier : ", fichier);
         //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
 
-        arcid = this.grep.grepArcidFromPlnid(plnid, fichier, horaire);
+        arcid = this.grep.grepArcidFromPlnid(plnid, fichier, creneau, horaire);
 
         if (arcid !== "") {
           //console.log("arcid trouve : "+arcid);
@@ -60,7 +60,7 @@ export class parseurVemgsa {
     }
     if ((arcid !== "") && (plnid == 0)) {
       for (let fichier of fichierSourceVemgsa) {
-        plnid = this.grep.grepPlnidFromArcid(arcid, fichier, horaire);
+        plnid = this.grep.grepPlnidFromArcid(arcid, fichier, creneau, horaire);
         if (plnid !== 0) {
           //console.log("plnid trouve : "+plnid);
           id.identifie = true;
@@ -80,13 +80,13 @@ export class parseurVemgsa {
 
 
 
-  public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[], chosenHoraire?:datesFile): Vol {
+  public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[],creneau:datesFile, chosenHoraire?:datesFile): Vol {
     console.log("Je rentre dans parseur de parseurVEMGSA" );
     console.log("fichierSourceVemgsa: ", fichierSourceVemgsa );
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser
 
-    this.grep.grepLog(arcid, plnid, fichierSourceVemgsa, chosenHoraire);
+    this.grep.grepLog(arcid, plnid, fichierSourceVemgsa,creneau, chosenHoraire);
 
     /* Ouverture du fichier à analyser*/
 

@@ -71,15 +71,16 @@ export class Check {
      * @param arcid : arcid rentré par l'utilisateur ("" par défaut)
      * @param plnid : plnid rentré par l'utilisateur (0 par défaut)
      * @param fichierSourceVemgsa : fichier(s) VEMGSA rentré par l'utilisateur 
+     * @param creneau : l'horaire du log de l'arcid ou du plnid précédemment trouvé
      * @param horaire : l'horaire rentré par l'utilisateur (facultatif)
      * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
      *                  et où plnid, arcid représent le couple s'il a pu être identifié
      */
-    private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, horaire?: datesFile): Identifiants {
+    private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneau:datesFile, horaire?: datesFile): Identifiants {
         //Initialisation du vol issu des donnees VEMGSA 
         let pv = new parseurVemgsa(grepVEMGSA);
         let idV = <Identifiants>{};
-        idV = pv.identification(arcid, plnid, fichierSourceVemgsa, horaire);
+        idV = pv.identification(arcid, plnid, fichierSourceVemgsa,creneau, horaire);
         return idV;
     }
 
@@ -198,10 +199,11 @@ export class Check {
                 //Recherche de l'ARCID dans le fichier VEMGSA
                 if (horaire === undefined) {
                     result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
+                    console.log(" result   :", result);
                     if (result.existe == true) {
                         let creneau = new Array(<datesFile>{});
                         creneau = this.dates.getCreneaux(result.dates);
-                        console.log("cas A1 : result", result);
+
                         console.log("cas A1 : result.dates.length", result.dates.length);
                         console.log("cas A1 : creneau", creneau);
                         creneau.length
@@ -213,10 +215,11 @@ export class Check {
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
-                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, horaire);
+                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, creneau[0], horaire);
                             if (id.identifie) {
                                 answer.plnid = id.plnid;
                                 answer.valeurRetour = 0;
+                                answer.creneauVemgsa = creneau[0];
                                 //  answer.creneauHoraire = creneau[0];
                                 //  console.log("creneaux trouves [0]:",creneau);
                             }
@@ -255,10 +258,11 @@ export class Check {
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
-                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, horaire);
+                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA,creneau[0],  horaire);
                             if (id.identifie) {
                                 answer.plnid = id.plnid;
                                 answer.valeurRetour = 0;
+                                answer.creneauVemgsa = creneau[0];
                                 //  answer.creneauHoraire = creneau[0];
                                 //  console.log("creneaux trouves [0]:",creneau);
                             }
@@ -303,11 +307,12 @@ export class Check {
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
-                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, horaire);
+                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, creneau[0], horaire);
                             console.log("--------> id", id);
                             if (id.identifie) {
                                 answer.arcid = id.arcid;
                                 answer.valeurRetour = 0;
+                                answer.creneauVemgsa = creneau[0];
                                 //  answer.creneauHoraire = creneau[0];
                                 //  console.log("creneaux trouves [0]:",creneau);
                             }
@@ -343,10 +348,11 @@ export class Check {
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
-                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, horaire);
+                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, creneau[0],  horaire);
                             if (id.identifie) {
                                 answer.arcid = id.arcid;
                                 answer.valeurRetour = 0;
+                                answer.creneauVemgsa = creneau[0];
                                 //  answer.creneauHoraire = creneau[0];
                                 //  console.log("creneaux trouves [0]:",creneau);
                             }
@@ -398,8 +404,6 @@ export class Check {
 
     public check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN: GrepLPLN, grepVEMGSA: GrepVEMGSA, horaire?: datesFile): checkAnswer {
 
-        let id = <Identifiants>{};
-        let result = <arrayDatesFile>{};
         let answer = <checkAnswer>{};
         answer.analysePossible = false;
 

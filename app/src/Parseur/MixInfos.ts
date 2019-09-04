@@ -7,18 +7,19 @@ import { GrepLPLN } from './grepLPLN';
 import { GrepVEMGSA } from './grepVEMGSA';
 import { Dates, datesFile } from './date';
 import { checkAnswerInitial } from '../Modele/checkAnswer';
+import { Etat } from '../Modele/enumEtat';
 
 export class MixInfos {
 
   private dates: Dates;
-  private grapheEtat : GrapheEtat;
+  private grapheEtat: GrapheEtat;
 
-  constructor(){
+  constructor() {
     console.log("Je rentre dans le constructor MixInfos ");
-    
+
     this.dates = new Dates();
     this.grapheEtat = new GrapheEtat();
-}
+  }
 
   //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!!
   public mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number): Vol {
@@ -144,8 +145,6 @@ export class MixInfos {
 
     //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA
     let creneau = <datesFile>{};
-    console.log("---->test  volVemgsa.getListeLogs()", volVemgsa.getListeLogs());
-    console.log("---->test  volVemgsa.getListeLogs().length", volVemgsa.getListeLogs().length);
 
     creneau.dateMin = volVemgsa.getListeLogs()[0].getHeure();
     creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getHeure();
@@ -160,38 +159,13 @@ export class MixInfos {
     });
 
     console.log("resultat vol final : ");
-    //let graphe = new GrapheEtat();
-    let arrayLogTemp: EtatCpdlc[] = monvolFinal.getListeLogs();
-
-    let trie: boolean = false;
-    let changement: boolean;
-
-    if (arrayLogTemp.length > 1) {
-      while (!trie) {
-
-        for (let i = 0; i < arrayLogTemp.length - 1; i++) {
-          changement = false;
-
-          const element = arrayLogTemp[i];
-          const elementNext = arrayLogTemp[i + 1];
-          if (this.dates.isHeureSup(element.getHeure(), elementNext.getHeure())) {
-            arrayLogTemp[i] = elementNext;
-            arrayLogTemp[i + 1] = element;
-            changement = true;
-            //console.log("inversion: elementNext"+elementNext+" element : "+element);
-
-          }
-        }
-        if (changement == false) { trie = true; }
-      }
-    }
-    monvolFinal.setListeLogs(arrayLogTemp);
+    monvolFinal = this.sortLogs(monvolFinal);
 
 
 
     monvolFinal = this.grapheEtat.grapheMix(monvolFinal);
-    console.log("debut logs collectes et tries");
 
+    console.log("debut logs collectes et tries");
     monvolFinal.getListeLogs().forEach(etatCpdlc => {
       //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
       console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
@@ -207,116 +181,172 @@ export class MixInfos {
 
   public InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Vol {
 
-  //Initialisation du vol issu des donnees LPLN
-  let monvolLpln = new Vol(arcid, plnid);
-  console.log("->->", grepLPLN);
-  let pl = new parseurLpln(grepLPLN);
-  monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
+    //Initialisation du vol issu des donnees LPLN
+    let monvolLpln = new Vol(arcid, plnid);
+    console.log("->->", grepLPLN);
+    let pl = new parseurLpln(grepLPLN);
+    monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
 
 
 
-  //RECUPERATION DES ATTRIBUTS
+    //RECUPERATION DES ATTRIBUTS
 
-  if (monvolLpln.getAdrDeposee() == monvolLpln.getAdrModeSInf()) {
-    monvolLpln.setCmpAdrModeS("OK");
-  } else { monvolLpln.setCmpAdrModeS("KO"); }
+    if (monvolLpln.getAdrDeposee() == monvolLpln.getAdrModeSInf()) {
+      monvolLpln.setCmpAdrModeS("OK");
+    } else { monvolLpln.setCmpAdrModeS("KO"); }
 
 
-  if (monvolLpln.getLogonAccepte()) {
-    monvolLpln.setConditionsLogon("OK");
+    if (monvolLpln.getLogonAccepte()) {
+      monvolLpln.setConditionsLogon("OK");
+    }
+
+
+
+
+
+    console.log("debut logs LPLN collectes et tries");
+
+    monvolLpln.getListeLogs().forEach(etatCpdlc => {
+      if (etatCpdlc.getTitle() == 'CPCASREQ') {
+        monvolLpln.setLogonInitie("OK");
+      }
+
+      if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
+        monvolLpln.setLogonAccepte("OK");
+
+      }
+      if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F')) {
+        monvolLpln.setLogonAccepte("KO");
+      }
+
+
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+      console.log("LogLPLN: ", etatCpdlc.getLog());
+    });
+
+    console.log("LogonInitie: ", monvolLpln.getLogonInitie(), "\nLogonAccepte: ", monvolLpln.getLogonAccepte(),
+      "\nAdep: ", monvolLpln.getAdep(), "\nAdes: ", monvolLpln.getAdes());
+
+    console.log("fin logs LPLN collectes et tries");
+
+
+
+
+    return monvolLpln;
+
+
   }
 
+  public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneau: datesFile, chosenHoraire?: datesFile): Vol {
 
 
+    console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);
+    console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
+    //Initialisation du vol issu des donnees VEMGSA
+    let monvolVemgsa = new Vol(arcid, plnid);
+    let pv = new parseurVemgsa(grepVEMGSA);
+    //pv.identification(arcid, plnid, fichierSourceVemgsa);
+
+    monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa, creneau, chosenHoraire);
 
 
-  console.log("debut logs LPLN collectes et tries");
+    //RECUPERATION DES ATTRIBUTS
 
-  monvolLpln.getListeLogs().forEach(etatCpdlc => {
-    if (etatCpdlc.getTitle() == 'CPCASREQ') {
-      monvolLpln.setLogonInitie("OK");
+    if (monvolVemgsa.getLogonAccepte()) {
+      monvolVemgsa.setConditionsLogon("OK")
     }
+    else { monvolVemgsa.setConditionsLogon("KO"); }
 
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
-      monvolLpln.setLogonAccepte("OK");
+    console.log("debut logs VEMGSA collectes et tries");
 
-    }
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F')) {
-      monvolLpln.setLogonAccepte("KO");
-    }
+    monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
+      if (etatCpdlc.getTitle() == 'CPCASREQ') {
+        monvolVemgsa.setAdep(etatCpdlc.getDetail('ADEP'));
+        monvolVemgsa.setAdes(etatCpdlc.getDetail('ADES'));
+        monvolVemgsa.setAdrDeposee(etatCpdlc.getDetail('ARCADDR'));
+        monvolVemgsa.setArcid(etatCpdlc.getDetail('ARCID'));
+        monvolVemgsa.setLogonInitie("OK");
+      }
 
+      if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetail('ATNASSOC') == 'S') || (etatCpdlc.getDetail('ATNASSOC') == 'L'))) {
+        monvolVemgsa.setLogonAccepte("OK");
+      } else { monvolVemgsa.setLogonAccepte("KO"); }
 
-    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    console.log("LogLPLN: ", etatCpdlc.getLog());
-  });
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+      console.log("LogVEMGSA: ", etatCpdlc.getLog());
 
-  console.log("LogonInitie: ", monvolLpln.getLogonInitie(), "\nLogonAccepte: ", monvolLpln.getLogonAccepte(),
-    "\nAdep: ", monvolLpln.getAdep(), "\nAdes: ", monvolLpln.getAdes());
-
-  console.log("fin logs LPLN collectes et tries");
-
-
-
-
-  return monvolLpln;
+    });
 
 
-}
-
-public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, chosenHoraire?:datesFile): Vol {
-
-
-  console.log("Je rentre dans InfosVemgsa de MixInfo");
-  console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
-  //Initialisation du vol issu des donnees VEMGSA
-  let monvolVemgsa = new Vol(arcid, plnid);
-  let pv = new parseurVemgsa(grepVEMGSA);
-  //pv.identification(arcid, plnid, fichierSourceVemgsa);
-
-  monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa,chosenHoraire);
+    console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),
+      "\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",
+      monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte());
 
 
-  //RECUPERATION DES ATTRIBUTS
+    console.log("fin logs VEMGSA collectes et tries");
 
-  if (monvolVemgsa.getLogonAccepte()) {
-    monvolVemgsa.setConditionsLogon("OK")
+    monvolVemgsa = this.sortLogs(monvolVemgsa);
+
+    return monvolVemgsa;
   }
-  else { monvolVemgsa.setConditionsLogon("KO"); }
 
-  console.log("debut logs VEMGSA collectes et tries");
+  public sortLogs(vol: Vol): Vol {
 
-  monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
-    if (etatCpdlc.getTitle() == 'CPCASREQ') {
-      monvolVemgsa.setAdep(etatCpdlc.getDetail('ADEP'));
-      monvolVemgsa.setAdes(etatCpdlc.getDetail('ADES'));
-      monvolVemgsa.setAdrDeposee(etatCpdlc.getDetail('ARCADDR'));
-      monvolVemgsa.setArcid(etatCpdlc.getDetail('ARCID'));
-      monvolVemgsa.setLogonInitie("OK");
+    console.log("sortLogs taille befoire", vol.getListeLogs().length);
+
+    let arrayLogTemp: EtatCpdlc[] = vol.getListeLogs();
+
+    let trie: boolean = false;
+    let changement: boolean;
+
+    console.log("------------>resultat avant traitement arrayLogTemp: ");
+    arrayLogTemp.forEach(etatCpdlc => {
+      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    })
+
+    if (arrayLogTemp.length > 1) {
+
+      while (!trie) {
+        changement = false;
+        for (let i = 0; i < arrayLogTemp.length - 1; i++) {
+        
+          console.log("changement ini",changement);
+          const element = arrayLogTemp[i];
+          const elementNext = arrayLogTemp[i + 1];
+          //console.log("sortLogs element.Heure", element.getHeure(), " eNext.Heure", elementNext.getHeure(), "result:", this.dates.isHeureSup(element.getHeure(), elementNext.getHeure()));
+
+          if (this.dates.isHeureSup(element.getHeure(), elementNext.getHeure())) {
+            arrayLogTemp[i] = elementNext;
+            arrayLogTemp[i + 1] = element;
+            changement = true;
+            console.log("sortLogs changement", changement);
+
+            //console.log("inversion: elementNext"+elementNext+" element : "+element);
+
+          }
+        }
+        if (changement == false) { trie = true; }
+        console.log("changement final",changement);
+        
+      }
     }
+    console.log("------------>resultat final arrayLogTemp: ");
+    arrayLogTemp.forEach(etatCpdlc => {
+      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    });
 
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetail('ATNASSOC') == 'S') || (etatCpdlc.getDetail('ATNASSOC') == 'L'))) {
-      monvolVemgsa.setLogonAccepte("OK");
-    } else { monvolVemgsa.setLogonAccepte("KO"); }
+    vol.setListeLogs(arrayLogTemp);
+    console.log("------------>resultat final vol: ");
+    vol.getListeLogs().forEach(etatCpdlc => {
+      //console.log("contenu  map before: ",etatCpdlc.getDetaillog());
+      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    });
+    console.log("sortLogs taille apres", vol.getListeLogs().length);
+    return vol;
+  }
+  //TODO : tester le fichier en entrée : existance, dates de validité pour savoir si l'aircraft id est bien dans le vemgsa ...
 
-    console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    console.log("LogVEMGSA: ", etatCpdlc.getLog());
-
-  });
-
-
-  console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),
-    "\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",
-    monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte());
-
-
-  console.log("fin logs VEMGSA collectes et tries");
-
-
-
-  return monvolVemgsa;
-}
-
-
-//TODO : tester le fichier en entrée : existance, dates de validité pour savoir si l'aircraft id est bien dans le vemgsa ...
 
 }
