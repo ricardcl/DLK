@@ -15,6 +15,8 @@ export class Check {
     private dates: Dates;
 
     constructor() {
+        console.log("Je rentre dans le constructor Check ");
+
         this.dates = new Dates();
     }
     /**
@@ -63,11 +65,37 @@ export class Check {
         //Initialisation du vol issu des donnees LPLN
         console.log("Classe check Fonction identificationLpln");
 
-        let pl = new parseurLpln(grepLPLN);
-        let idL = <Identifiants>{};
-        idL = pl.identification(arcid, plnid, fichierSourceLpln);
-        return idL;
+    
+        let tabId : Identifiants[];
+        let id = <Identifiants>{};
+        id.arcid = "";
+        id.plnid = 0;
+        id.identifie = false;
+    
+        tabId= grepLPLN.grepPlnidAndArcid(fichierSourceLpln);
+        tabId.forEach(element => {
+          if (element.arcid == arcid){
+            id.arcid = arcid;
+            id.plnid = element.plnid;
+            id.identifie =true;
+          }
+          else if (element.plnid == plnid){
+            id.plnid = plnid;
+            id.arcid = element.arcid;
+            id.identifie =true;
+          }
+        });
+    
+        if (!id.identifie){
+          id.tabId=tabId;
+        }
+    
+        console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie," id.tabId: ", id.tabId);
+        return id;
     }
+
+    
+
 
     /**
      * Fonction permettant d'identifier le couple (arcid,plnid) dans le fichier VEMGSA fourni
@@ -83,11 +111,49 @@ export class Check {
         //Initialisation du vol issu des donnees VEMGSA 
         console.log("Classe check Fonction identificationVemgsa");
 
-        let pv = new parseurVemgsa(grepVEMGSA);
-        let idV = <Identifiants>{};
-        idV = pv.identification(arcid, plnid, fichierSourceVemgsa,creneau, horaire);
-        return idV;
+        let id = <Identifiants>{};
+        id.identifie = false;
+    
+        //console.log("arcid : "+arcid);
+        //console.log("plnid : "+plnid);
+        if ((arcid == "") && (plnid !== 0)) {
+    
+          for (let fichier of fichierSourceVemgsa) {
+            //console.log("fichier : ", fichier);
+            //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
+    
+            arcid = grepVEMGSA.grepArcidFromPlnid(plnid, fichier, creneau, horaire);
+    
+            if (arcid !== "") {
+              //console.log("arcid trouve : "+arcid);
+              id.identifie = true;
+              break;
+            }
+          }
+    
+    
+        }
+        if ((arcid !== "") && (plnid == 0)) {
+          for (let fichier of fichierSourceVemgsa) {
+            plnid = grepVEMGSA.grepPlnidFromArcid(arcid, fichier, creneau, horaire);
+            if (plnid !== 0) {
+              //console.log("plnid trouve : "+plnid);
+              id.identifie = true;
+              break;
+            }
+          }
+        }
+    
+    
+        id.plnid = plnid;
+        id.arcid = arcid;
+    
+    
+        console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
+        return id;
     }
+
+  
 
 
     /**
@@ -493,6 +559,13 @@ export class Check {
 
         return answer;
     }
+
+    
+
+    public isFileLPLNComplete (arcid: string, plnid: number, grepLPLN: GrepLPLN): boolean {
+    return true;
+    }
+    
 
 
 

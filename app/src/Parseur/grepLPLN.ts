@@ -20,6 +20,8 @@ export class GrepLPLN {
   private split: Split;
 
   constructor(userPath: string) {
+    console.log("Je rentre dans le constructor GrepLPLN ");
+
     this.userPath = userPath;
     this.split = new Split ();
   }

@@ -27,56 +27,14 @@ export class parseurVemgsa {
 
 
   constructor(grep: GrepVEMGSA) {
+    console.log("Je rentre dans le constructor parseurVemgsa ");
+
     this.grep = grep;
     this.split = new Split();
     this.frequences = new Frequences();
   }
 
-  public identification(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau:datesFile, horaire?: datesFile): Identifiants {
-    console.log("Classe ParseurVemgsa Fonction identification ");
-
-
-    let id = <Identifiants>{};
-    id.identifie = false;
-
-    //console.log("arcid : "+arcid);
-    //console.log("plnid : "+plnid);
-    if ((arcid == "") && (plnid !== 0)) {
-
-      for (let fichier of fichierSourceVemgsa) {
-        //console.log("fichier : ", fichier);
-        //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
-
-        arcid = this.grep.grepArcidFromPlnid(plnid, fichier, creneau, horaire);
-
-        if (arcid !== "") {
-          //console.log("arcid trouve : "+arcid);
-          id.identifie = true;
-          break;
-        }
-      }
-
-
-    }
-    if ((arcid !== "") && (plnid == 0)) {
-      for (let fichier of fichierSourceVemgsa) {
-        plnid = this.grep.grepPlnidFromArcid(arcid, fichier, creneau, horaire);
-        if (plnid !== 0) {
-          //console.log("plnid trouve : "+plnid);
-          id.identifie = true;
-          break;
-        }
-      }
-    }
-
-
-    id.plnid = plnid;
-    id.arcid = arcid;
-
-
-    console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
-    return id;
-  }
+ 
 
 
 

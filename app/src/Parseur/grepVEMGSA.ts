@@ -15,6 +15,8 @@ export class GrepVEMGSA {
   //private diffMax: number;
 
   constructor(userPath: string) {
+    console.log("Je rentre dans le constructor GrepVEMGSA ");
+
     this.userPath = userPath;
     this.dates = new Dates();
     this.uneMinute = 60000;

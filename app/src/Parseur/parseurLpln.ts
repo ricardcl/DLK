@@ -24,76 +24,15 @@ export class parseurLpln {
 
 
   constructor(grep: GrepLPLN) {
+    console.log("Je rentre dans le constructor parseurLpln ");
+
     this.grep = grep;
     this.split = new Split();
     this.dates = new Dates();
     this.frequences = new Frequences();
   }
 
-  public identification (arcid: string, plnid: number, fichierSourceLpln: string): Identifiants {
-    console.log("Classe ParseurLpln Fonction identification");
-    let tabId : Identifiants[];
-    let id = <Identifiants>{};
-    id.arcid = "";
-    id.plnid = 0;
-    id.identifie = false;
 
-    tabId= this.grep.grepPlnidAndArcid(fichierSourceLpln);
-    tabId.forEach(element => {
-      if (element.arcid == arcid){
-        id.arcid = arcid;
-        id.plnid = element.plnid;
-        id.identifie =true;
-      }
-      else if (element.plnid == plnid){
-        id.plnid = plnid;
-        id.arcid = element.arcid;
-        id.identifie =true;
-      }
-    });
-
-    if (!id.identifie){
-      id.tabId=tabId;
-    }
-
-
-    
-
-
-
-/**
-    let id = <Identifiants>{};
-    id.identifie = false;
-
-    //console.log("arcid : "+arcid);
-    //console.log("plnid : "+plnid);
-    if ((arcid == "") && (plnid !== 0)) {
-
-      arcid = this.grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
-      console.log(arcid);
-      if (arcid !== "") {
-        //console.log("arcid trouve : "+arcid);
-        id.identifie = true;
-      }
-    }
-
-    if ((arcid !== "") && (plnid == 0)) {
-      plnid = this.grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
-      if (plnid !== 0) {
-        //console.log("plnid trouve : "+plnid);
-        id.identifie = true;
-
-      }
-    }
-
-
-
-    id.plnid = plnid;
-    id.arcid = arcid;
- */
-    console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie," id.tabId: ", id.tabId);
-    return id;
-  }
 
   public parseur (arcid: string, plnid: number, fichierSourceLpln: string): Vol {
     console.log("Classe ParseurLpln Fonction parseur");
