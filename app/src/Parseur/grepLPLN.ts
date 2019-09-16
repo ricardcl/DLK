@@ -1,20 +1,17 @@
 import { Identifiants } from "../Modele/identifiants";
 import {  Split } from './split';
 
-/*
-OBJECTIF DE CETTE FONCTION :
-Lire le contenu d un fichier LPLN donne en entree
-recuperer uniquement les informations relatives a un PLNID
-copier le resultat dans un fichier texte
-*/
 
 const fs = require('fs');
 let readline = require("../scripts/node-readline/node-readline");
 const p = require('path');
-//console.log('path: '+path);
 
-//console.log("path.outputPath: "+path.outputPath);
 
+/**
+ * Classe regroupant les fonctions qui accedent directement au fichier LPLN en lecture
+ * Soit pour récuperer des infos ponctuelles ( lors du check ini comme l'arcid ou le plnid)
+ * soit pour recuperer l'ensemble des logs a stocker dans un fichier destination
+ */
 export class GrepLPLN {
   private userPath: string;
   private split: Split;

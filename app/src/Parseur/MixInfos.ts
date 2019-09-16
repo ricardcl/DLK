@@ -235,7 +235,7 @@ export class MixInfos {
 
   }
 
-  public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, ParseurVEMGSA: ParseurVEMGSA, creneau: datesFile, chosenHoraire?: datesFile): Vol {
+  public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA, creneau: datesFile, chosenHoraire?: datesFile): Vol {
     console.log("Classe MixInfos Fonction InfosVemgsa");
 
     console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);

@@ -5,7 +5,11 @@ let readline = require("../scripts/node-readline/node-readline");
 
 import { Dates, datesFile, arrayDatesFile } from './date';
 
-
+/**
+ * Classe regroupant les fonctions qui accedent directement au fichier VEMGSA en lecture
+ * Soit pour récuperer des infos ponctuelles ( lors du check ini comme l'arcid ou le plnid)
+ * soit pour recuperer l'ensemble des logs a stocker dans un fichier destination
+ */
 export class GrepVEMGSA {
   private userPath: string;
   private dates: Dates;
