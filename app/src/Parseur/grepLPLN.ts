@@ -35,10 +35,10 @@ export class GrepLPLN {
     console.log("Classe grepLpln Fonction grepLogLPLN");
 
     let fichierDestination = p.resolve(this.userPath, "resultLPLN.htm");
-    let fichierSource = fichierSourceLpln;
-    //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
-    //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
-    //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
+
+    let fichierSource = p.resolve(this.userPath, fichierSourceLpln);
+
+
     let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
     let w = fs.openSync(fichierDestination, "w");
 

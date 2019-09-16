@@ -1,6 +1,6 @@
 import { Vol } from '../Modele/vol';
-import { parseurLpln } from './parseurLpln';
-import { parseurVemgsa } from './parseurVEMGSA';
+import { ParseurLPLN } from './ParseurLPLN';
+import { ParseurVEMGSA } from './ParseurVEMGSA';
 import { Identifiants } from '../Modele/identifiants';
 import { Contexte } from '../Modele/enumContexte';
 import { checkAnswer, checkAnswerInitial } from '../Modele/checkAnswer';
@@ -65,36 +65,36 @@ export class Check {
         //Initialisation du vol issu des donnees LPLN
         console.log("Classe check Fonction identificationLpln");
 
-    
-        let tabId : Identifiants[];
+
+        let tabId: Identifiants[];
         let id = <Identifiants>{};
         id.arcid = "";
         id.plnid = 0;
         id.identifie = false;
-    
-        tabId= grepLPLN.grepPlnidAndArcid(fichierSourceLpln);
+
+        tabId = grepLPLN.grepPlnidAndArcid(fichierSourceLpln);
         tabId.forEach(element => {
-          if (element.arcid == arcid){
-            id.arcid = arcid;
-            id.plnid = element.plnid;
-            id.identifie =true;
-          }
-          else if (element.plnid == plnid){
-            id.plnid = plnid;
-            id.arcid = element.arcid;
-            id.identifie =true;
-          }
+            if (element.arcid == arcid) {
+                id.arcid = arcid;
+                id.plnid = element.plnid;
+                id.identifie = true;
+            }
+            else if (element.plnid == plnid) {
+                id.plnid = plnid;
+                id.arcid = element.arcid;
+                id.identifie = true;
+            }
         });
-    
-        if (!id.identifie){
-          id.tabId=tabId;
+
+        if (!id.identifie) {
+            id.tabId = tabId;
         }
-    
-        console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie," id.tabId: ", id.tabId);
+
+        console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie, " id.tabId: ", id.tabId);
         return id;
     }
 
-    
+
 
 
     /**
@@ -107,53 +107,53 @@ export class Check {
      * @returns :     {plnid,arcid, identifie} ou identifie = true si le couple a été identifié et false sinon
      *                  et où plnid, arcid représent le couple s'il a pu être identifié
      */
-    private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneau:datesFile, horaire?: datesFile): Identifiants {
+    private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneau: datesFile, horaire?: datesFile): Identifiants {
         //Initialisation du vol issu des donnees VEMGSA 
         console.log("Classe check Fonction identificationVemgsa");
 
         let id = <Identifiants>{};
         id.identifie = false;
-    
+
         //console.log("arcid : "+arcid);
         //console.log("plnid : "+plnid);
         if ((arcid == "") && (plnid !== 0)) {
-    
-          for (let fichier of fichierSourceVemgsa) {
-            //console.log("fichier : ", fichier);
-            //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
-    
-            arcid = grepVEMGSA.grepArcidFromPlnid(plnid, fichier, creneau, horaire);
-    
-            if (arcid !== "") {
-              //console.log("arcid trouve : "+arcid);
-              id.identifie = true;
-              break;
+
+            for (let fichier of fichierSourceVemgsa) {
+                //console.log("fichier : ", fichier);
+                //console.log("fichierSourceVemgsa : ", fichierSourceVemgsa);
+
+                arcid = grepVEMGSA.grepArcidFromPlnid(plnid, fichier, creneau, horaire);
+
+                if (arcid !== "") {
+                    //console.log("arcid trouve : "+arcid);
+                    id.identifie = true;
+                    break;
+                }
             }
-          }
-    
-    
+
+
         }
         if ((arcid !== "") && (plnid == 0)) {
-          for (let fichier of fichierSourceVemgsa) {
-            plnid = grepVEMGSA.grepPlnidFromArcid(arcid, fichier, creneau, horaire);
-            if (plnid !== 0) {
-              //console.log("plnid trouve : "+plnid);
-              id.identifie = true;
-              break;
+            for (let fichier of fichierSourceVemgsa) {
+                plnid = grepVEMGSA.grepPlnidFromArcid(arcid, fichier, creneau, horaire);
+                if (plnid !== 0) {
+                    //console.log("plnid trouve : "+plnid);
+                    id.identifie = true;
+                    break;
+                }
             }
-          }
         }
-    
-    
+
+
         id.plnid = plnid;
         id.arcid = arcid;
-    
-    
+
+
         console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
         return id;
     }
 
-  
+
 
 
     /**
@@ -194,11 +194,16 @@ export class Check {
                 answer.arcid = arcid;
 
                 id = this.identificationLpln(arcid, plnid, fichierSourceLpln, grepLPLN);
-                if (id.identifie) {
+                if (id.identifie) { // SI COUPLE PLNID ARCID TROUVE A PARTIR DE L ARCID
+
+                    //RECUPERATION DES LOGS CPDLC
+                    grepLPLN.grepLogLPLN(arcid, plnid, fichierSourceLpln);
+                    // TEST VOL DECLARE CPDLC
+                    //TODO
                     answer.plnid = id.plnid;
                     answer.valeurRetour = 0;
                 }
-                else {
+                else {  // COUPLE PLNID ARCID NON TROUVE A PARTIR DE L ARCID
                     answer.valeurRetour = 1;
                     answer.tabId = id.tabId;
                     console.log("answer.tabId trouvee : ", answer.tabId);
@@ -209,6 +214,10 @@ export class Check {
                 answer.plnid = plnid;
                 id = this.identificationLpln(arcid, plnid, fichierSourceLpln, grepLPLN);
                 if (id.identifie) {
+                    //RECUPERATION DES LOGS CPDLC
+                    grepLPLN.grepLogLPLN(arcid, plnid, fichierSourceLpln);
+                    // TEST VOL DECLARE CPDLC
+                    //TODO
                     answer.arcid = id.arcid;
                     answer.valeurRetour = 0;
                 }
@@ -333,7 +342,7 @@ export class Check {
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
-                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA,creneau[0],  horaire);
+                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, creneau[0], horaire);
                             if (id.identifie) {
                                 answer.plnid = id.plnid;
                                 answer.valeurRetour = 0;
@@ -373,7 +382,7 @@ export class Check {
                         creneau = this.dates.getCreneaux(result.dates);
                         console.log("cas C1 : result", result);
                         console.log("cas C1 : result.dates.length", result.dates.length);
-                        
+
                         console.log("cas C1 : creneau", creneau);
                         if (creneau.length > 1) {
                             answer.tabHoraires = creneau;
@@ -425,7 +434,7 @@ export class Check {
                             //TODO renvoyer les creneaux trouves
                         }
                         else {
-                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, creneau[0],  horaire);
+                            id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, creneau[0], horaire);
                             if (id.identifie) {
                                 answer.arcid = id.arcid;
                                 answer.valeurRetour = 0;
@@ -560,12 +569,12 @@ export class Check {
         return answer;
     }
 
-    
 
-    public isFileLPLNComplete (arcid: string, plnid: number, grepLPLN: GrepLPLN): boolean {
-    return true;
+
+    public isFileLPLNComplete(arcid: string, plnid: number, grepLPLN: GrepLPLN): boolean {
+        return true;
     }
-    
+
 
 
 

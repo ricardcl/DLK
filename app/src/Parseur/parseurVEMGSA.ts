@@ -19,7 +19,7 @@ import {  datesFile } from './date';
 
 const p = require('path');
 
-export class parseurVemgsa {
+export class ParseurVEMGSA {
   private grep: GrepVEMGSA;
   private split: Split;
   private frequences : Frequences;
@@ -43,6 +43,7 @@ export class parseurVemgsa {
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser
 
+    // TODO : DEPLACE DANS LA FONCTION CHECK  ?? 
     this.grep.grepLog(arcid, plnid, fichierSourceVemgsa,creneau, chosenHoraire);
 
     /* Ouverture du fichier à analyser*/

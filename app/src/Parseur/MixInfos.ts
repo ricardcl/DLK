@@ -1,6 +1,6 @@
 import { Vol } from '../Modele/vol';
-import { parseurLpln } from './parseurLpln';
-import { parseurVemgsa } from './parseurVEMGSA';
+import { ParseurLPLN } from './ParseurLPLN';
+import { ParseurVEMGSA } from './ParseurVEMGSA';
 import { GrapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { GrepLPLN } from './grepLPLN';
@@ -180,14 +180,11 @@ export class MixInfos {
 
 
 
-  public InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Vol {
+  public InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, parseurLPLN: ParseurLPLN): Vol {
     console.log("Classe MixInfos Fonction InfosLpln");
     //Initialisation du vol issu des donnees LPLN
     let monvolLpln = new Vol(arcid, plnid);
-    console.log("->->", grepLPLN);
-    let pl = new parseurLpln(grepLPLN);
-    monvolLpln = pl.parseur(arcid, plnid, fichierSourceLpln);
-
+    monvolLpln = parseurLPLN.parseur(arcid, plnid);
 
 
     //RECUPERATION DES ATTRIBUTS
@@ -238,17 +235,16 @@ export class MixInfos {
 
   }
 
-  public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneau: datesFile, chosenHoraire?: datesFile): Vol {
+  public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, ParseurVEMGSA: ParseurVEMGSA, creneau: datesFile, chosenHoraire?: datesFile): Vol {
     console.log("Classe MixInfos Fonction InfosVemgsa");
 
     console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);
     console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
     //Initialisation du vol issu des donnees VEMGSA
     let monvolVemgsa = new Vol(arcid, plnid);
-    let pv = new parseurVemgsa(grepVEMGSA);
     //pv.identification(arcid, plnid, fichierSourceVemgsa);
 
-    monvolVemgsa = pv.parseur(arcid, plnid, fichierSourceVemgsa, creneau, chosenHoraire);
+    monvolVemgsa = ParseurVEMGSA.parseur(arcid, plnid, fichierSourceVemgsa, creneau, chosenHoraire);
 
 
     //RECUPERATION DES ATTRIBUTS

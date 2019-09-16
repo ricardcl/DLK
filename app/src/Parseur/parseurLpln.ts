@@ -15,7 +15,7 @@ import { Path } from '../Modele/path';
 import { Dates } from './date';
 import { Frequences } from './frequences';
 
-export class parseurLpln {
+export class ParseurLPLN {
 
   private grep: GrepLPLN;
   private split: Split;
@@ -34,26 +34,13 @@ export class parseurLpln {
 
 
 
-  public parseur (arcid: string, plnid: number, fichierSourceLpln: string): Vol {
+  public parseur(arcid: string, plnid: number): Vol {
     console.log("Classe ParseurLpln Fonction parseur");
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "resultLPLN.htm"); //Fichier en entree a analyser
 
-    fichierSourceLpln = p.resolve(this.grep.getUserPath(), fichierSourceLpln);
 
-    if ((arcid == "") && (plnid !== 0)) {
-      arcid = this.grep.grepArcidFromPlnid(plnid, fichierSourceLpln);
-      console.log("cas impossible");
-
-    }
-    if ((arcid !== "") && (plnid == 0)) {
-      plnid = this.grep.grepPlnidFromArcid(arcid, fichierSourceLpln);
-      console.log("cas impossible");
-
-    }
-
-
-    this.grep.grepLogLPLN(arcid, plnid, fichierSourceLpln);
+    // DEPLACé DNAS LA FONCTION CHECK ! this.grep.grepLogLPLN(arcid, plnid, fichierSourceLpln);
 
     //TODO : partie a mettre en commun avec l'autre parseur
 
@@ -71,7 +58,7 @@ export class parseurLpln {
     }
 
     /* Initialisation des variables */
-    let numeroLigne = 0; // Nuemro de la de lignes lue
+    let numeroLigne = 0; // Numero de la de lignes lue
     let monEtat = Etat.NonLogue; // Etat CPDLC par defaut
     let mylisteLogsCpdlc = new Array(); //Liste des lignes lues
     let dateTemp: string = "";
@@ -133,7 +120,7 @@ export class parseurLpln {
           if (dateHeure !== null) {
             const heure = dateHeure.toString().replace(motifDateHeure, "$3");
             const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
-            const dateToStore = jour + "-" + mois + " " + heure + " " + minutes+ " OO";
+            const dateToStore = jour + "-" + mois + " " + heure + " " + minutes + " OO";
             const momentDate = moment(dateToStore, 'DD-MM HH mm ss');
 
             log.setJour(moment(momentDate).format('DD-MM'));
@@ -319,7 +306,7 @@ export class parseurLpln {
       }
       else {
 
-        if (mylogCpdlc.match("AERODROME  DEP.:") !== null) {        
+        if (mylogCpdlc.match("AERODROME  DEP.:") !== null) {
           let motif = /(.*)(AERODROME  DEP.:)(.*)(NIVEAU)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adep:", transaction);
@@ -328,14 +315,14 @@ export class parseurLpln {
 
 
 
-        if (mylogCpdlc.match("AERODROME DEST.:") !== null) { 
+        if (mylogCpdlc.match("AERODROME DEST.:") !== null) {
           let motif = /(.*)(AERODROME DEST.:)(.*)(RANG)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info ades:", transaction);
           monvol.setAdes(transaction);
         }
 
-        if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {  
+        if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {
           let motif = /(.*)(ADRESSE MODE S :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrModeS:", transaction);
@@ -343,7 +330,7 @@ export class parseurLpln {
 
 
         }
-        if (mylogCpdlc.match("ADR MODE S INF :") !== null) {   
+        if (mylogCpdlc.match("ADR MODE S INF :") !== null) {
           let motif = /(.*)(ADR MODE S INF :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrModeSInf:", transaction);
@@ -351,7 +338,7 @@ export class parseurLpln {
 
         }
 
-        if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) { 
+        if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) {
           let motif = /(.*)(ADR. DEPOSEE   :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           console.log("info adrDeposee:", transaction);
@@ -385,8 +372,40 @@ export class parseurLpln {
     return monvol;
   }
 
+  public isVolEquipeCpdlc(): boolean {
 
-  private recuperationCPC (infoLog: string): DetailCpdlc[] {
+    /* Ouverture du fichier à analyser*/
+    const source = p.resolve(this.grep.getUserPath(), "resultLPLN.htm"); //Fichier en entree a analyser    
+    let r = readline.fopen(source, "r");
+    if (r === false) {    // Test de l ouverture du fichier
+      console.log("Error, can't open ", source);
+      process.exit(1);
+    }
+
+    let isEquipe: boolean = false;
+    do {
+      //lecture d'une ligne du fichier
+      let mylogCpdlc = readline.fgets(r);
+      //Test de fin de fichier
+      if (mylogCpdlc === false) { break; }
+
+
+      if (mylogCpdlc.match("EQUIPEMENT CPDLC") !== null) {
+        let motif = /(.*)(EQUIPEMENT CPDLC :)(.*)/;
+        let transaction = mylogCpdlc.replace(motif, "$3").trim();
+        console.log("info equipement:", transaction);
+        if (transaction == "EQUIPE") {
+          isEquipe = true;
+        }
+        break;
+      }
+    } while (!readline.eof(r));
+
+    readline.fclose(r);
+    return isEquipe;
+  }
+
+  private recuperationCPC(infoLog: string): DetailCpdlc[] {
     let mymap: DetailCpdlc[] = [];
 
     if (infoLog.match("ENVOI MSG") !== null) {
@@ -401,13 +420,13 @@ export class parseurLpln {
         switch (title) {
           case 'CPCASRES': {
             console.log("je rentre dans CPCASRES", etatCpc[1].trim());
-            
-            if (etatCpc[1].trim() == "(S)") {    
+
+            if (etatCpc[1].trim() == "(S)") {
               mymap['ATNASSOC'] = 'S';
             }
-            
+
             else {
-              if  (etatCpc[1].trim() == "(L)"){
+              if (etatCpc[1].trim() == "(L)") {
                 mymap['ATNASSOC'] = 'L';
               }
               else {
@@ -585,52 +604,8 @@ export class parseurLpln {
     return mymap;
   }
 
-  public grepListeVolFromLpln (fichierSourceLpln: string): Vol[] {
-    console.log("Classe ParseurLpln Fonction grepListeVolFromLpln");
-    let fichierSource = p.resolve(this.grep.getUserPath(), fichierSourceLpln);
-    let fd = this.isFichierLisible(fichierSource); //Test de l'ouverture du fichier et recuperation du file descriptor
 
-    //let motif = /(-)(.*)(\/)(.*)(H)(.*)(MN)(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL:)(.*)(RANG SL:)(.*)(PLN)(.*)(-)/;
-    let motif = /(.*)(NUMERO PLN:)(.*)(INDICATIF:)(.*)(NOM SL:)(.*)(RANG SL:)(.*)/;
-    // - 23/AOUT       06H00MN     NUMERO PLN: 9352   INDICATIF: DLH37F    NOM SL: AIX      RANG SL:   2 PLN TERMINE                      
-    let plnid: number = 0;
-    let indicatif: string = "";
-    let nomSL: string = "";
-    let listeVols: Vol[] = [];
-    let listeVolsUniques: Vol[] = [];
-    //Traitement du fichier
-    do {
-      //Test de la fin de fichier
-      var line = readline.fgets(fd);
-      if (line === false) { break; }
-      //Recuperation des lignes contenant le motif
-      let motifLine = line.match(motif);
-      if (motifLine !== null) {
-        //console.log(info1Lpln);
-        plnid = line.toString().replace(motif, "$3").trim();
-        //console.log("plnid : "+plnid);
-        indicatif = line.toString().replace(motif, "$5").trim();
-        //console.log("arcid : "+indicatif);
-        nomSL = line.toString().replace(motif, "$7").trim();
-        //console.log("nomSL : "+nomSL);
-        let monvol = new Vol(indicatif, plnid);
-        monvol.setSL(nomSL);
-        listeVols.push(monvol);
-      }
-
-    } while (!readline.eof(fd));
-    readline.fclose(fd);
-
-    //console.log(listeVols);
-    // suppression des doublons
-    var cache = {};
-    listeVolsUniques = listeVols.filter(function (elem) {
-      return cache[elem.getArcid()] ? 0 : cache[elem.getArcid()] = 1;
-    });
-    return listeVolsUniques;
-  }
-
-  private isFichierLisible (fichier: string): number {
+  private isFichierLisible(fichier: string): number {
     let fd = readline.fopen(fichier, "r");
     //Test de l'ouverture du fichier
     if (fd === false) {
