@@ -18,9 +18,9 @@ export class Vol {
     private ades: string; 
     /*liste des logs concernant le vol */ 
     private listeLogs: EtatCpdlc[]; 
-    /*TO DO */
+    /*Presence de logs CPDLC */
     private haslogCpdlc:  boolean;
-    /*TO DO */
+    /*Presence de logs CPDLC complets */
     private islogCpdlcComplete:  boolean;
  
  
