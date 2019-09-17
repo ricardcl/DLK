@@ -11,7 +11,7 @@ export class EtatCpdlc {
   private associable: boolean = false;
   private log:string = "";
   private detailLog : DetailCpdlc[];
-
+  private isTypeCPC : boolean; // VAUT 1 si CPDLC et 0 si  STPV 
 
 
 
@@ -107,6 +107,11 @@ isDetail(key : string):boolean{
   getLog(): string{
     return this.log;
   }
+
+  getIsTypeCPC(): boolean {
+   return  this.isTypeCPC;
+  }
+
   //SETTERS
   setTitle(title: string) {
     this.title = title;
@@ -121,7 +126,9 @@ isDetail(key : string):boolean{
     this.heure = heure;
   }
 
-  
+  setIsTypeCPC(isTypeCPC: boolean) {
+    this.isTypeCPC = isTypeCPC;
+  }
   setEtat(etat: Etat) {
     this.etat = etat;
   }

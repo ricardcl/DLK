@@ -112,7 +112,7 @@ export class ParseurVEMGSA {
 
 
       log.setTitle(log.getDetail('TITLE'));
-
+      log.setIsTypeCPC(true);
       monvol.getListeLogs().push(log);
 
       //automate a etat sur la variable etat
