@@ -105,6 +105,21 @@ export class Dates {
         else { return false; }
     }
 
+    public diffDates(d1: string, d2: string): number {
+        let momentDate1 = moment(d1, 'DD-MM HH mm ss');
+        if (!momentDate1.isValid()){
+            momentDate1 = moment(d1, 'DD-MM HH mm');
+        }
+        let momentDate2 = moment(d2, 'DD-MM HH mm ss');
+        if (!momentDate2.isValid()){
+            momentDate2 = moment(d1, 'DD-MM HH mm');
+        }
+        const diff: number = momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
+        //console.log("momentDate1",momentDate1, "momentDate2",momentDate2, "diff",diff);
+        return Math.abs(diff);
+    }
+
+
 
     public getCreneaux(dates: string[]): datesFile[] {
         let arrayHeuresTrouvees: string[] = dates;
