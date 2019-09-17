@@ -51,22 +51,11 @@ isDetail(key : string):boolean{
   } 
 
 
-  //a utiliser pour VEMGSA !!
-  getDetail(key : string){
-
-    if (this.isDetail ( key)) {
-      let result:string;
-      this.detailLog.forEach(element => {        
-        if ( key == element.key) {
-          result = element.value;
-        }
-      });
-      return result;
-    }
-    else return undefined;
-
-
+  getDetaillog(){
+    return this.detailLog;
   }
+
+
 
   setDetailLog(array : DetailCpdlc[]){
     this.detailLog = array;
@@ -141,10 +130,7 @@ isDetail(key : string):boolean{
   }
 
   
-  //a utiliser pour LPLN !!
-  getDetaillog(){
-    return this.detailLog;
-  }
+
 
 }
 

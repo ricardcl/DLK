@@ -154,30 +154,37 @@ export class MixInfos {
 
     creneau.dateMin = volVemgsa.getListeLogs()[0].getHeure();
     creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getHeure();
-    console.log("creneau.dateMin: ", creneau.dateMin);
-    console.log("creneau.dateMax: ", creneau.dateMax);
+   // console.log("creneau.dateMin: ", creneau.dateMin);
+   // console.log("creneau.dateMax: ", creneau.dateMax);
     volLpln.getListeLogs().forEach((eltL, key) => {
       if ((this.dates.isHeureInf(eltL.getHeure(), creneau.dateMin)) || (this.dates.isHeureSup(eltL.getHeure(), creneau.dateMax))) {
         monvolFinal.addElt(eltL);
-        console.log("ajout supp LPLN: ", eltL.getEtat());
+       // console.log("ajout supp LPLN: ", eltL.getEtat());
 
       }
     });
 
-    console.log("resultat vol final : ");
+    //console.log("resultat vol final : ");
     monvolFinal = this.sortLogs(monvolFinal);
 
 
 
     monvolFinal = this.grapheEtat.grapheMix(monvolFinal);
 
-    console.log("debut logs collectes et tries");
+   // console.log("debut logs collectes et tries");
     monvolFinal.getListeLogs().forEach(etatCpdlc => {
       //console.log("contenu  map before: ",etatCpdlc.getDetaillog()); 
-      console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+     // console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
     });
-    console.log("fin logs collectes et tries");
+   // console.log("fin logs collectes et tries");
 
+
+   console.log("--------TEST DETAIL LOG ---------------");
+   console.log("volLpln.getListeLogs()", volLpln.getListeLogs());
+
+   console.log("volVemgsa.getListeLogs()", volVemgsa.getListeLogs());
+
+   console.log("--------FIN TEST DETAIL LOG ---------------");
     return monvolFinal;
   }
 
@@ -209,7 +216,7 @@ export class MixInfos {
 
 
 
-    console.log("debut logs LPLN collectes et tries");
+    //console.log("debut logs LPLN collectes et tries");
 
     monvolLpln.getListeLogs().forEach(etatCpdlc => {
       if (etatCpdlc.getTitle() == 'CPCASREQ') {
@@ -232,8 +239,8 @@ export class MixInfos {
         nbLogsCpdlc++;
       }
 
-      console.log("date: ", etatCpdlc.getDate(), "jour: ", etatCpdlc.getJour(), "heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-      console.log("LogLPLN: ", etatCpdlc.getLog());
+     // console.log("date: ", etatCpdlc.getDate(), "jour: ", etatCpdlc.getJour(), "heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+      //console.log("LogLPLN: ", etatCpdlc.getLog());
     });
 
     if (nbLogsCpdlc != 0) {
@@ -254,10 +261,10 @@ export class MixInfos {
 
 
 
-    console.log("LogonInitie: ", monvolLpln.getLogonInitie(), "\nLogonAccepte: ", monvolLpln.getLogonAccepte(),
-      "\nAdep: ", monvolLpln.getAdep(), "\nAdes: ", monvolLpln.getAdes());
+    //console.log("LogonInitie: ", monvolLpln.getLogonInitie(), "\nLogonAccepte: ", monvolLpln.getLogonAccepte(),
+    //  "\nAdep: ", monvolLpln.getAdep(), "\nAdes: ", monvolLpln.getAdes());
 
-    console.log("fin logs LPLN collectes et tries");
+    //console.log("fin logs LPLN collectes et tries");
 
 
 
@@ -270,8 +277,8 @@ export class MixInfos {
   public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA, creneau: datesFile, chosenHoraire?: datesFile): Vol {
     console.log("Classe MixInfos Fonction InfosVemgsa");
 
-    console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);
-    console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
+    //console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);
+    //console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
     //Initialisation du vol issu des donnees VEMGSA 
     let monvolVemgsa = new Vol(arcid, plnid);
     //pv.identification(arcid, plnid, fichierSourceVemgsa); 
@@ -292,10 +299,10 @@ export class MixInfos {
 
     monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
       if (etatCpdlc.getTitle() == 'CPCASREQ') {
-        monvolVemgsa.setAdep(etatCpdlc.getDetail('ADEP'));
-        monvolVemgsa.setAdes(etatCpdlc.getDetail('ADES'));
-        monvolVemgsa.setAdrDeposee(etatCpdlc.getDetail('ARCADDR'));
-        monvolVemgsa.setArcid(etatCpdlc.getDetail('ARCID'));
+        monvolVemgsa.setAdep(etatCpdlc.getDetaillog()['ADEP']);
+        monvolVemgsa.setAdes(etatCpdlc.getDetaillog()['ADES']);
+        monvolVemgsa.setAdrDeposee(etatCpdlc.getDetaillog()['ARCADDR']);
+        monvolVemgsa.setArcid(etatCpdlc.getDetaillog()['ARCID']);
         monvolVemgsa.setLogonInitie("OK");
         hasCPASREQ = true;
       }
@@ -303,7 +310,7 @@ export class MixInfos {
       if (etatCpdlc.getTitle() == 'CPCEND') {
         hasCPCEND = true;
       }
-      if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetail('ATNASSOC') == 'S') || (etatCpdlc.getDetail('ATNASSOC') == 'L'))) {
+      if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
         monvolVemgsa.setLogonAccepte("OK");
       } else { monvolVemgsa.setLogonAccepte("KO"); }
 
@@ -453,12 +460,12 @@ export class MixInfos {
 
     listeLogs.forEach(etatCpdlc => {
       let etatTransfertFreq = <etatTransfertFrequence>{};
-      if (( etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetail("FREQ") !== undefined ))) {
+      if (( etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined ))) {
 
         console.log("--------Test transfert Frequence----------");
         dateFreq = etatCpdlc.getDate();
         etatTransfertFreq.dateTransfert = dateFreq;
-        etatTransfertFreq.frequence = etatCpdlc.getDetail("FREQ");
+        etatTransfertFreq.frequence = etatCpdlc.getDetaillog()["FREQ"];
 
         console.log("date transfert:", etatTransfertFreq.dateTransfert);
         console.log("frequence transfert:", etatTransfertFreq.frequence);
@@ -467,7 +474,7 @@ export class MixInfos {
           dateTemp = etatCpdlcTemp.getDate();
 
 
-          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetail("CPDLCMSGDOWN") !== "UNA" ) && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "UNA" ) && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
             console.log("date FIN TRFDL timeout:", dateTemp);
             console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
@@ -477,7 +484,7 @@ export class MixInfos {
 
           }
 
-          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetail("CPDLCMSGDOWN") !== "WIL" ) && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL" ) && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
             console.log("date CPDLCMSGDOWN WIL:", dateTemp);
             console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isTransfertAcq = true;

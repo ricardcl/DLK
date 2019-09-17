@@ -109,9 +109,9 @@ export class ParseurVEMGSA {
 
 
       log.setDetailLog(myMap);
-
-
-      log.setTitle(log.getDetail('TITLE'));
+          //TEST !!!!
+          console.log("TEST  parseur VEMGSA!!!!!",myMap);
+      log.setTitle(log.getDetaillog()['TITLE']);
       log.setIsTypeCPC(true);
       monvol.getListeLogs().push(log);
 
@@ -129,10 +129,10 @@ export class ParseurVEMGSA {
         }
         case 'CPCASRES': {
           //console.log('CPCASRES');
-          if ((log.getDetail("ATNASSOC") == "S") || (log.getDetail("ATNASSOC") == "L")) {
+          if ((log.getDetaillog()["ATNASSOC"] == "S") || (log.getDetaillog()["ATNASSOC"] == "L")) {
             monEtat = Etat.DemandeLogonAutorisee;
           }
-          else if (log.getDetail("ATNASSOC") == "F") {
+          else if (log.getDetaillog()["ATNASSOC"]== "F") {
             monEtat = Etat.NonLogue;
           }
           else {
@@ -142,10 +142,10 @@ export class ParseurVEMGSA {
         }
         case 'CPCVNRES': {
           //console.log('CPCVNRES');
-          if (log.getDetail("GAPPSTATUS") == "A") {
+          if (log.getDetaillog()["GAPPSTATUS"] == "A") {
             monEtat = Etat.Logue;
           }
-          else if (log.getDetail("GAPPSTATUS") == "F") {
+          else if (log.getDetaillog()["GAPPSTATUS"] == "F") {
             monEtat = Etat.NonLogue;
           }
           else {
@@ -167,10 +167,10 @@ export class ParseurVEMGSA {
           //console.log('CPCCOMSTAT');
           if (monEtat == Etat.DemandeConnexion) {
 
-            if (log.getDetail("CPDLCCOMSTATUS") == "A") {
+            if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
               monEtat = Etat.Associe;
             }
-            else if (log.getDetail("CPDLCCOMSTATUS") == "N") {
+            else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
               monEtat = Etat.Logue;
               let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air";
             }
@@ -188,8 +188,8 @@ export class ParseurVEMGSA {
         }
         case 'CPCCLOSLNK': {
           //console.log('CPCCLOSLNK');
-          if (log.getDetail("FREQ") !== undefined) {
-            let freq = this.frequences.conversionFreq(log.getDetail("FREQ"));
+          if (log.getDetaillog()["FREQ"] !== undefined) {
+            let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
             let detail = <DetailCpdlc>{};
             detail.key = "FREQ";
             detail.value = freq;
@@ -206,16 +206,16 @@ export class ParseurVEMGSA {
           //console.log('CPCMSGDOWN');
           //  console.log('CPCMSGDOWN :'+log.getInfoMap().get("CPDLCMSGDOWN"));
           if (monEtat == Etat.TransfertEnCours) {
-            if ((log.getDetail("CPDLCMSGDOWN") == "WIL") || (log.getDetail("CPDLCMSGDOWN") == "LCK")) {
+            if ((log.getDetaillog()["CPDLCMSGDOWN"] == "WIL") || (log.getDetaillog()["CPDLCMSGDOWN"] == "LCK")) {
               monEtat = Etat.Transfere;
             }
-            else if ((log.getDetail("CPDLCMSGDOWN") == "UNA") || (log.getDetail("CPDLCMSGDOWN") == "STB")) {
+            else if ((log.getDetaillog()["CPDLCMSGDOWN"] == "UNA") || (log.getDetaillog()["CPDLCMSGDOWN"] == "STB")) {
               monEtat = Etat.RetourALaVoix;
             }
           }
           //Cas ou le serveur air n a pas repondu assez tot, le vol passe vtr donc closelink obligatoire -> demande deconnexion en cours
           if (monEtat == Etat.DemandeDeconnexion) {
-            if ((log.getDetail("CPDLCMSGDOWN") == "UNA") || (log.getDetail("CPDLCMSGDOWN") == "STB")) {
+            if ((log.getDetaillog()["CPDLCMSGDOWN"] == "UNA") || (log.getDetaillog()["CPDLCMSGDOWN"] == "STB")) {
               monEtat = Etat.DemandeDeconnexion;
             }
           }
@@ -225,7 +225,7 @@ export class ParseurVEMGSA {
           break;
         }
         case 'CPCFREQ': {
-          let freq = this.frequences.conversionFreq(log.getDetail("FREQ"));
+          let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
 
           let detail = <DetailCpdlc>{};
           detail.key = "FREQ";

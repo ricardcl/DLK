@@ -36,10 +36,10 @@ export class GrapheEtat {
                 }
                 case 'CPCASRES': {
                     //console.log('CPCASRES');
-                    if ((etatCpdlc.getDetail("ATNASSOC") == "S") || (etatCpdlc.getDetail("ATNASSOC") == "L")) {
+                    if ((etatCpdlc.getDetaillog()["ATNASSOC"] == "S") || (etatCpdlc.getDetaillog()["ATNASSOC"] == "L")) {
                         monEtat = Etat.DemandeLogonAutorisee;
                     }
-                    else if (etatCpdlc.getDetail("ATNASSOC") == "F") {
+                    else if (etatCpdlc.getDetaillog()["ATNASSOC"] == "F") {
                         monEtat = Etat.NonLogue;
                     }
                     else {
@@ -49,10 +49,10 @@ export class GrapheEtat {
                 }
                 case 'CPCVNRES': {
                     //console.log('CPCVNRES');
-                    if (etatCpdlc.getDetail("GAPPSTATUS") == "A") {
+                    if (etatCpdlc.getDetaillog()["GAPPSTATUS"] == "A") {
                         monEtat = Etat.Logue;
                     }
-                    else if (etatCpdlc.getDetail("GAPPSTATUS") == "F") {
+                    else if (etatCpdlc.getDetaillog()["GAPPSTATUS"] == "F") {
                         monEtat = Etat.NonLogue;
                     }
                     else {
@@ -74,10 +74,10 @@ export class GrapheEtat {
                     //console.log('CPCCOMSTAT');
                     if (monEtat == Etat.DemandeConnexion) {
 
-                        if (etatCpdlc.getDetail("CPDLCCOMSTATUS") == "A") {
+                        if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS" ] == "A") {
                             monEtat = Etat.Associe;
                         }
-                        else if (etatCpdlc.getDetail("CPDLCCOMSTATUS") == "N") {
+                        else if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
                             monEtat = Etat.Logue;
                             let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air";
                         }
@@ -95,8 +95,8 @@ export class GrapheEtat {
                 }
                 case 'CPCCLOSLNK': {
                     //console.log('CPCCLOSLNK');
-                    if (etatCpdlc.getDetail("FREQ") !== undefined) {
-                        let freq :string = this.frequences.conversionFreq(String(etatCpdlc.getDetail("FREQ")));
+                    if (etatCpdlc.getDetaillog()["FREQ"] !== undefined) {
+                        let freq :string = this.frequences.conversionFreq(String(etatCpdlc.getDetaillog()["FREQ"]));
                         let detail = <DetailCpdlc>{};
                         detail.key = "FREQ";
                         detail.value = freq;
@@ -113,16 +113,16 @@ export class GrapheEtat {
                     //console.log('CPCMSGDOWN');
                     //  console.log('CPCMSGDOWN :'+etatCpdlc.getInfoMap().get("CPDLCMSGDOWN"));
                     if (monEtat == Etat.TransfertEnCours) {
-                        if ((etatCpdlc.getDetail("CPDLCMSGDOWN") == "WIL") || (etatCpdlc.getDetail("CPDLCMSGDOWN") == "LCK")) {
+                        if ((etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "WIL") || (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "LCK")) {
                             monEtat = Etat.Transfere;
                         }
-                        else if ((etatCpdlc.getDetail("CPDLCMSGDOWN") == "UNA") || (etatCpdlc.getDetail("CPDLCMSGDOWN") == "STB")) {
+                        else if ((etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "UNA") || (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "STB")) {
                             monEtat = Etat.RetourALaVoix;
                         }
                     }
                     //Cas ou le serveur air n a pas repondu assez tot, le vol passe vtr donc closelink obligatoire -> demande deconnexion en cours
                     if (monEtat == Etat.DemandeDeconnexion) {
-                        if ((etatCpdlc.getDetail("CPDLCMSGDOWN") == "UNA") || (etatCpdlc.getDetail("CPDLCMSGDOWN") == "STB")) {
+                        if ((etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "UNA") || (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "STB")) {
                             monEtat = Etat.DemandeDeconnexion;
                         }
                     }
@@ -132,7 +132,7 @@ export class GrapheEtat {
                     break;
                 }
                 case 'CPCFREQ': {
-                    let freq: string = this.frequences.conversionFreq(String(etatCpdlc.getDetail("FREQ")));
+                    let freq: string = this.frequences.conversionFreq(String(etatCpdlc.getDetaillog()["FREQ"]));
 
                     let detail = <DetailCpdlc>{};
                     detail.key = "FREQ";

@@ -44,7 +44,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     console.log("Classe grepVemgsa Fonction grepLog");
 
 
-    console.log(" creneau", creneau);
+    //console.log(" creneau", creneau);
 
     let fichierDestination = p.resolve(this.userPath, "result.htm");
     let w = fs.openSync(fichierDestination, "w");

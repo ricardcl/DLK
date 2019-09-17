@@ -61,7 +61,6 @@ export class ParseurLPLN {
     /* Initialisation des variables */ 
     let numeroLigne = 0; // Numero de la de lignes lue 
     let monEtat = Etat.NonLogue; // Etat CPDLC par defaut 
-    let mylisteLogsCpdlc = new Array(); //Liste des lignes lues 
     let dateTemp: string = ""; 
     let mois: string = ""; 
     let jour: string = ""; 
@@ -136,6 +135,9 @@ export class ParseurLPLN {
           log.setTitle(myMap['TITLE']); 
  
           log.setDetailLog(myMap); 
+          //TEST !!!!
+          console.log("TEST  parseur LPLN!!!!!",myMap);
+          
  
           if (log.getTitle().match("CPC")){
             log.setIsTypeCPC(true);

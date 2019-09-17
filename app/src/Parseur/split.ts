@@ -69,16 +69,19 @@ export class Split {
     let detail = <DetailCpdlc>{};
     if (i==0)  {
       var title= infosDecomposees[i].trim();
-      detail.key = 'TITLE';
-      detail.value = title;
-      mymap.push(detail);
+      mymap['TITLE'] = title; 
+     // detail.key = 'TITLE';
+     // detail.value = title;
+     // mymap.push(detail);
       
     }
     else {
-      var tuple = this.splitString(infosDecomposees[i].trim(), espace);     
-      detail.key = tuple[0];
-      detail.value = tuple[1];
-      mymap.push(detail);
+      var tuple = this.splitString(infosDecomposees[i].trim(), espace);
+      mymap[ tuple[0]] = tuple[1]; 
+
+     // detail.key = tuple[0];
+     // detail.value = tuple[1];
+     // mymap.push(detail);
     }
   }
 
