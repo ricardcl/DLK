@@ -244,15 +244,13 @@ export class MixInfos {
     }
 
 
- 
-    let tabEtatsTransfertFrequences: etatTransfertFrequence[];
-    tabEtatsTransfertFrequences= this.evaluationEtatsTransfertsFrequence(monvolLpln.getListeLogs());
-console.log("array tabEtatsTransfertFrequences: ");
-tabEtatsTransfertFrequences.forEach(element => {
-  console.log(element.frequence, element.dateTransfert, element.isTRARTV);
-  
-  
-});
+
+
+    monvolLpln.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceLPLN(monvolLpln.getListeLogs()));
+    console.log("array tabEtatsTransfertFrequences: ");
+    monvolLpln.getListeEtatTransfertFrequence().forEach(element => {
+      console.log(element.frequence, element.dateTransfert, element.isTRARTV);
+    });
 
 
 
@@ -329,6 +327,15 @@ tabEtatsTransfertFrequences.forEach(element => {
 
     //console.log("fin logs VEMGSA collectes et tries"); 
 
+
+    
+    monvolVemgsa.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceVEMGSA(monvolVemgsa.getListeLogs()));
+    console.log("array tabEtatsTransfertFrequences: ");
+    monvolVemgsa.getListeEtatTransfertFrequence().forEach(element => {
+      console.log(element.frequence, element.dateTransfert, element.isTRARTV);
+    });
+
+
     monvolVemgsa = this.sortLogs(monvolVemgsa);
 
     return monvolVemgsa;
@@ -377,7 +384,7 @@ tabEtatsTransfertFrequences.forEach(element => {
   //TODO : tester le fichier en entrée : existance, dates de validité pour savoir si l'aircraft id est bien dans le vemgsa ... 
 
 
-  private evaluationEtatsTransfertsFrequence(listeLogs:EtatCpdlc[]):etatTransfertFrequence[]{
+  private evaluationEtatsTransfertsFrequenceLPLN(listeLogs: EtatCpdlc[]): etatTransfertFrequence[] {
     let dateFreq: string;
     let dateTemp: string;
     let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
@@ -385,7 +392,7 @@ tabEtatsTransfertFrequences.forEach(element => {
     listeLogs.forEach(etatCpdlc => {
       let etatTransfertFreq = <etatTransfertFrequence>{};
       if (etatCpdlc.getTitle() == 'CPCFREQ') {
-        
+
         console.log("--------Test transfert Frequence----------");
         dateFreq = etatCpdlc.getDate();
         etatTransfertFreq.dateTransfert = dateFreq;
@@ -434,13 +441,68 @@ tabEtatsTransfertFrequences.forEach(element => {
         // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
         tabEtatsTransfertFrequences.push(etatTransfertFreq);
       }
-     
+
+    });
+    return tabEtatsTransfertFrequences;
+  }
+
+  private evaluationEtatsTransfertsFrequenceVEMGSA(listeLogs: EtatCpdlc[]): etatTransfertFrequence[] {
+    let dateFreq: string;
+    let dateTemp: string;
+    let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
+
+    listeLogs.forEach(etatCpdlc => {
+      let etatTransfertFreq = <etatTransfertFrequence>{};
+      if (( etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetail("FREQ") !== undefined ))) {
+
+        console.log("--------Test transfert Frequence----------");
+        dateFreq = etatCpdlc.getDate();
+        etatTransfertFreq.dateTransfert = dateFreq;
+        etatTransfertFreq.frequence = etatCpdlc.getDetail("FREQ");
+
+        console.log("date transfert:", etatTransfertFreq.dateTransfert);
+        console.log("frequence transfert:", etatTransfertFreq.frequence);
+
+        listeLogs.forEach(etatCpdlcTemp => {
+          dateTemp = etatCpdlcTemp.getDate();
+
+
+          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetail("CPDLCMSGDOWN") !== "UNA" ) && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            console.log("date FIN TRFDL timeout:", dateTemp);
+            console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isFinTRFDL = true;
+            etatTransfertFreq.dateFinTRFDL = dateTemp;
+            console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+            console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
+
+          }
+
+          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetail("CPDLCMSGDOWN") !== "WIL" ) && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            console.log("date CPDLCMSGDOWN WIL:", dateTemp);
+            console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isTransfertAcq = true;
+            etatTransfertFreq.dateTranfertAcq = dateTemp;
+            console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
+            console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
+          }
+        });
+        console.log("------------------------------------------");
+
+        //cas possibles
+
+        //RTV
+        //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
+        //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
+        // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
+        tabEtatsTransfertFrequences.push(etatTransfertFreq);
+      }
+
     });
     return tabEtatsTransfertFrequences;
   }
 
 
 
-  
+
 
 }
