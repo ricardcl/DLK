@@ -136,7 +136,6 @@ export class ParseurLPLN {
  
           log.setDetailLog(myMap); 
           //TEST !!!!
-          console.log("TEST  parseur LPLN!!!!!",myMap);
           
  
           if (log.getTitle().match("CPC")){

@@ -92,7 +92,6 @@ export class ParseurVEMGSA {
         const secondes = dateHeure.toString().replace(motifDateHeure, "$7");
         const dateToStore = date + " " + heure + " " + minutes + " " + secondes;
         const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
-        // console.log("test date: ",momentDate.format()); 
 
         log.setJour(moment(momentDate).format('DD-MM-YYYY'));
         log.setHeure(moment(momentDate).format('HH mm ss'));
@@ -109,8 +108,6 @@ export class ParseurVEMGSA {
 
 
       log.setDetailLog(myMap);
-          //TEST !!!!
-          console.log("TEST  parseur VEMGSA!!!!!",myMap);
       log.setTitle(log.getDetaillog()['TITLE']);
       log.setIsTypeCPC(true);
       monvol.getListeLogs().push(log);
@@ -192,7 +189,7 @@ export class ParseurVEMGSA {
             let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
             let detail = <DetailCpdlc>{};
             detail.key = "FREQ";
-            detail.value = freq;
+            detail.value = freq;            
             log.addDetail(detail);
             monEtat = Etat.TransfertEnCours;
           }
@@ -226,7 +223,6 @@ export class ParseurVEMGSA {
         }
         case 'CPCFREQ': {
           let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
-
           let detail = <DetailCpdlc>{};
           detail.key = "FREQ";
           detail.value = freq;

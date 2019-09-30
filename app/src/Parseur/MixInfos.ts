@@ -5,6 +5,7 @@ import { GrapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Dates, datesFile } from './date';
 import { etatTransfertFrequence } from '../Modele/checkAnswer';
+import { Frequences } from './frequences';
 
 export class MixInfos {
 
@@ -12,11 +13,13 @@ export class MixInfos {
   private grapheEtat: GrapheEtat;
   private uneMinute: number = 60000;
   private timeout: number = 2 * 60000;
-
+  private frequences : Frequences;
+  
   constructor() {
     console.log("Je rentre dans le constructor MixInfos ");
     this.dates = new Dates();
     this.grapheEtat = new GrapheEtat();
+    this.frequences = new Frequences();
   }
 
   //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!! 
@@ -179,12 +182,6 @@ export class MixInfos {
    // console.log("fin logs collectes et tries");
 
 
-   console.log("--------TEST DETAIL LOG ---------------");
-   console.log("volLpln.getListeLogs()", volLpln.getListeLogs());
-
-   console.log("volVemgsa.getListeLogs()", volVemgsa.getListeLogs());
-
-   console.log("--------FIN TEST DETAIL LOG ---------------");
 
 
    monvolFinal.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceMIX(monvolFinal.getListeLogs()));
@@ -475,7 +472,7 @@ export class MixInfos {
         console.log("--------Test transfert Frequence----------");
         dateFreq = etatCpdlc.getDate();
         etatTransfertFreq.dateTransfert = dateFreq;
-        etatTransfertFreq.frequence = etatCpdlc.getDetaillog()["FREQ"];
+        etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
 
         console.log("date transfert:", etatTransfertFreq.dateTransfert);
         console.log("frequence transfert:", etatTransfertFreq.frequence);
@@ -529,9 +526,11 @@ export class MixInfos {
       if (( etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined ))) {
 
         console.log("--------Test transfert Frequence----------");
+        console.log("test !!!!!!!!!! freq mix recuperee",etatCpdlc.getDetaillog()["FREQ"] );
+
         dateFreq = etatCpdlc.getDate();
         etatTransfertFreq.dateTransfert = dateFreq;
-        etatTransfertFreq.frequence = etatCpdlc.getDetaillog()["FREQ"];
+        etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
 
         console.log("date transfert:", etatTransfertFreq.dateTransfert);
         console.log("frequence transfert:", etatTransfertFreq.frequence);
