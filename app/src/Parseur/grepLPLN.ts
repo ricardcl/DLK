@@ -122,11 +122,11 @@ export class GrepLPLN {
                 //console.log(mylogCpdlc);
               }
             } while ((mylogCpdlc.match("Separateur d'impression") == null) && (mylogCpdlc.match("FIN DES DEPOUILLEMENTS") == null)
-              && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)));
+              && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null))&& ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
           }
 
 
-        } while ((mylogCpdlc.match("Separateur d'impression") == null) && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)));
+        } while ((mylogCpdlc.match("Separateur d'impression") == null) && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null))&& ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
       }
 
     } while (!readline.eof(r));
