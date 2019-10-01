@@ -115,7 +115,7 @@ export class Dates {
             momentDate2 = moment(d1, 'DD-MM HH mm');
         }
         const diff: number = momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
-        //console.log("momentDate1",momentDate1, "momentDate2",momentDate2, "diff",diff);
+        //console.log("momentDate1",momentDate1, "momentDate2",momentDate2, "diff",diff, "Math.abs(diff)",Math.abs(diff));
         return Math.abs(diff);
     }
 
