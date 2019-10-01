@@ -267,6 +267,8 @@ export class ParseurLPLN {
               break; 
             } 
             case 'FIN VOL': { 
+             // console.log("je passe dans FIN VOL !!!!!!!!!!!!!!!!!!!!");
+              
               monEtat = Etat.FinVol; 
               // TODO: 
               break; 
@@ -292,7 +294,7 @@ export class ParseurLPLN {
               break; 
             } 
             default: { 
-              //console.log('etats.title'); 
+             // console.log("je passe dans default",log.getTitle()); 
               break; 
             } 
           } 
@@ -300,7 +302,7 @@ export class ParseurLPLN {
           //console.log("HEURE:"+log.heure); 
           //console.log(log.getMapCpdlc()); 
           log.setEtat(monEtat); 
-          //console.log("a:"+log.etat); 
+          //console.log("monEtat",monEtat); 
  
           /*console.log(log.getHeureLogCpdlc()+ " --> "+log.title + " Etat calcule : "+monEtat); 
           // UNITID : info non remontee dans le log LPLN 

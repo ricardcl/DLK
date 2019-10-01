@@ -121,7 +121,7 @@ export class MixInfos {
                   positionTransfert = eltL.getDetaillog()['POSITION'];
                   //console.log("Position", positionTransfert); 
                   //console.log(" heure de transfert: ", heureTransfert); 
-                  monvolFinal.addElt(eltL);
+                  monvolFinal.addElt(eltL); //TODO?? Vérifier que ce n'est pas utile : raisonnement : redondant avec le CPCFREQ ??
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
 
                 }
@@ -219,6 +219,7 @@ return monvolFinal;
   //Initialisation du vol issu des donnees LPLN 
   let monvolLpln = new Vol(arcid, plnid);
   monvolLpln = parseurLPLN.parseur(arcid, plnid);
+  
 
   let nbLogsCpdlc: number = 0;
   let hasCPASREQ: boolean = false;
@@ -434,30 +435,30 @@ return monvolFinal;
         dateTemp = etatCpdlcTemp.getDate();
 
         if ((etatCpdlcTemp.getTitle() == "TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          console.log("date TRFDL timeout:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+          //console.log("date TRFDL timeout:", dateTemp);
+          //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.positionTransfert = etatCpdlcTemp.getDetaillog()["POSITION"];
-          console.log("etatTransfertFreq.positionTransfert", etatTransfertFreq.positionTransfert);
+          //console.log("etatTransfertFreq.positionTransfert", etatTransfertFreq.positionTransfert);
 
         }
 
         if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          console.log("date FIN TRFDL timeout:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+          //console.log("date FIN TRFDL timeout:", dateTemp);
+          //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isFinTRFDL = true;
           etatTransfertFreq.dateFinTRFDL = dateTemp;
-          console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
-          console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
+          //console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+          //console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
 
         }
 
         if ((etatCpdlcTemp.getTitle() == "TRARTV") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
-          console.log("date TRARTV timeout:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+          //console.log("date TRARTV timeout:", dateTemp);
+          //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isTRARTV = true;
           etatTransfertFreq.dateTRARTV = dateTemp;
-          console.log("etatTransfertFreq.isTRARTV:", etatTransfertFreq.isTRARTV);
-          console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
+          //console.log("etatTransfertFreq.isTRARTV:", etatTransfertFreq.isTRARTV);
+          //console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
         }
       });
       console.log("------------------------------------------");
@@ -497,22 +498,22 @@ return monvolFinal;
 
 
         if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "UNA") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          console.log("date FIN TRFDL timeout:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+          //console.log("date FIN TRFDL timeout:", dateTemp);
+         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isFinTRFDL = true;
           etatTransfertFreq.dateFinTRFDL = dateTemp;
-          console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
-          console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
+         // console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+         // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
 
         }
 
         if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          console.log("date CPDLCMSGDOWN WIL:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+         // console.log("date CPDLCMSGDOWN WIL:", dateTemp);
+         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isTransfertAcq = true;
           etatTransfertFreq.dateTranfertAcq = dateTemp;
-          console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
-          console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
+        //  console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
+         // console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
         }
       });
       console.log("------------------------------------------");
@@ -540,65 +541,65 @@ return monvolFinal;
 
     if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
 
-      console.log("--------Test transfert Frequence----------");
-      console.log("test !!!!!!!!!! freq mix recuperee", etatCpdlc.getDetaillog()["FREQ"]);
+     // console.log("--------Test transfert Frequence----------");
+      //console.log("test !!!!!!!!!! freq mix recuperee", etatCpdlc.getDetaillog()["FREQ"]);
 
       dateFreq = etatCpdlc.getDate();
       etatTransfertFreq.dateTransfert = dateFreq;
       etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
 
-      console.log("date transfert:", etatTransfertFreq.dateTransfert);
-      console.log("frequence transfert:", etatTransfertFreq.frequence);
+      //console.log("date transfert:", etatTransfertFreq.dateTransfert);
+      //console.log("frequence transfert:", etatTransfertFreq.frequence);
 
       listeLogs.forEach(etatCpdlcTemp => {
         dateTemp = etatCpdlcTemp.getDate();
 
         if ((etatCpdlcTemp.getTitle() == "TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          console.log("date TRFDL timeout:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+          //console.log("date TRFDL timeout:", dateTemp);
+          //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.positionTransfert = etatCpdlcTemp.getDetaillog()["POSITION"];
-          console.log("etatTransfertFreq.positionTransfert", etatTransfertFreq.positionTransfert);
+         // console.log("etatTransfertFreq.positionTransfert", etatTransfertFreq.positionTransfert);
 
         }
 
         if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "UNA") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          console.log("date FIN TRFDL timeout:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+          //console.log("date FIN TRFDL timeout:", dateTemp);
+         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isFinTRFDL = true;
           etatTransfertFreq.dateFinTRFDL = dateTemp;
-          console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
-          console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
+         // console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+         // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
 
         }
 
         if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          console.log("date FIN TRFDL timeout:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+         // console.log("date FIN TRFDL timeout:", dateTemp);
+         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isFinTRFDL = true;
           etatTransfertFreq.dateFinTRFDL = dateTemp;
-          console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
-          console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
+        //  console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+         // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
 
         }
 
         if ((etatCpdlcTemp.getTitle() == "TRARTV") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
-          console.log("date TRARTV timeout:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+         // console.log("date TRARTV timeout:", dateTemp);
+         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isTRARTV = true;
           etatTransfertFreq.dateTRARTV = dateTemp;
-          console.log("etatTransfertFreq.isTRARTV:", etatTransfertFreq.isTRARTV);
-          console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
+         // console.log("etatTransfertFreq.isTRARTV:", etatTransfertFreq.isTRARTV);
+         // console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
         }
 
 
 
         if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          console.log("date CPDLCMSGDOWN WIL:", dateTemp);
-          console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+         // console.log("date CPDLCMSGDOWN WIL:", dateTemp);
+         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isTransfertAcq = true;
           etatTransfertFreq.dateTranfertAcq = dateTemp;
-          console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
-          console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
+         // console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
+         // console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
         }
       });
       console.log("------------------------------------------");
