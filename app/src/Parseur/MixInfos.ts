@@ -421,15 +421,18 @@ return monvolFinal;
 
   listeLogs.forEach(etatCpdlc => {
     let etatTransfertFreq = <etatTransfertFrequence>{};
-    if (etatCpdlc.getTitle() == 'CPCFREQ') {
+    if ((etatCpdlc.getTitle() == 'CPCFREQ') || (etatCpdlc.getTitle() == 'TRFDL')) {
 
       console.log("--------Test transfert Frequence----------");
       dateFreq = etatCpdlc.getDate();
       etatTransfertFreq.dateTransfert = dateFreq;
-      etatTransfertFreq.frequence = etatCpdlc.getDetaillog()["FREQ"];
-
       console.log("date transfert:", etatTransfertFreq.dateTransfert);
-      console.log("frequence transfert:", etatTransfertFreq.frequence);
+
+      if ( etatCpdlc.getTitle() == 'CPCFREQ'){
+        etatTransfertFreq.frequence = etatCpdlc.getDetaillog()["FREQ"];
+        console.log("frequence transfert:", etatTransfertFreq.frequence);
+      }
+
 
       listeLogs.forEach(etatCpdlcTemp => {
         dateTemp = etatCpdlcTemp.getDate();
@@ -463,14 +466,24 @@ return monvolFinal;
       });
       console.log("------------------------------------------");
 
-      //cas possibles
 
-      //RTV
-      //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
-      //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
-      // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
-      tabEtatsTransfertFrequences.push(etatTransfertFreq);
+      if (etatCpdlc.getTitle() == 'TRFDL') {
+        let trouve: boolean = false;
+        tabEtatsTransfertFrequences.forEach(element => {
+          if (element.dateTransfert == etatCpdlc.getDate() ){
+            trouve = true;
+          }
+        });
+        if (!trouve){
+          tabEtatsTransfertFrequences.push(etatTransfertFreq);
+        }
+  
+      }
+      else {
+        tabEtatsTransfertFrequences.push(etatTransfertFreq);
+      }
     }
+
 
   });
   return tabEtatsTransfertFrequences;
@@ -524,6 +537,7 @@ return monvolFinal;
       //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
       //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
       // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
+      
       tabEtatsTransfertFrequences.push(etatTransfertFreq);
     }
 
@@ -539,14 +553,19 @@ return monvolFinal;
   listeLogs.forEach(etatCpdlc => {
     let etatTransfertFreq = <etatTransfertFrequence>{};
 
-    if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
+    if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))  || (etatCpdlc.getTitle() == 'TRFDL')) {
 
      // console.log("--------Test transfert Frequence----------");
       //console.log("test !!!!!!!!!! freq mix recuperee", etatCpdlc.getDetaillog()["FREQ"]);
 
       dateFreq = etatCpdlc.getDate();
       etatTransfertFreq.dateTransfert = dateFreq;
-      etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
+
+      if ( etatCpdlc.getTitle() !== 'CPCFREQ'){
+        etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
+        console.log("frequence transfert:", etatTransfertFreq.frequence);
+      }
+     
 
       //console.log("date transfert:", etatTransfertFreq.dateTransfert);
       //console.log("frequence transfert:", etatTransfertFreq.frequence);
@@ -610,7 +629,22 @@ return monvolFinal;
       //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
       //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
       // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
-      tabEtatsTransfertFrequences.push(etatTransfertFreq);
+      if (etatCpdlc.getTitle() == 'TRFDL') {
+        let trouve: boolean = false;
+        tabEtatsTransfertFrequences.forEach(element => {
+          if (element.dateTransfert == etatCpdlc.getDate() ){
+            trouve = true;
+          }
+        });
+        if (!trouve){
+          tabEtatsTransfertFrequences.push(etatTransfertFreq);
+        }
+  
+      }
+      else {
+        tabEtatsTransfertFrequences.push(etatTransfertFreq);
+      }
+
     }
 
   });
