@@ -10,7 +10,7 @@ export class GrapheEtat {
     constructor() {
         console.log("Je rentre dans le constructor GrapheEtat ");
         this.frequences = new Frequences();
-        }
+    }
 
     public grapheMix(vol: Vol): Vol {
         console.log("Classe grapheEtat Fonction grapheMix");
@@ -74,7 +74,7 @@ export class GrapheEtat {
                     //console.log('CPCCOMSTAT');
                     if (monEtat == Etat.DemandeConnexion) {
 
-                        if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS" ] == "A") {
+                        if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
                             monEtat = Etat.Associe;
                         }
                         else if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
@@ -96,7 +96,7 @@ export class GrapheEtat {
                 case 'CPCCLOSLNK': {
                     //console.log('CPCCLOSLNK');
                     if (etatCpdlc.getDetaillog()["FREQ"] !== undefined) {
-                        let freq :string = this.frequences.conversionFreq(String(etatCpdlc.getDetaillog()["FREQ"]));
+                        let freq: string = this.frequences.conversionFreq(String(etatCpdlc.getDetaillog()["FREQ"]));
                         let detail = <DetailCpdlc>{};
                         detail.key = "FREQ";
                         detail.value = freq;
@@ -160,6 +160,16 @@ export class GrapheEtat {
                 }
                 case 'TRARTV': {
                     monEtat = Etat.RetourALaVoixAcquitte;
+                    break;
+                }
+                case 'FIN VOL': {
+                    monEtat = Etat.FinVol;
+                    // TODO: 
+                    break;
+                }
+                case 'FPCLOSE': {
+                    monEtat = Etat.FinVol;
+                    // TODO: 
                     break;
                 }
                 case 'CPCMSGUP': {
