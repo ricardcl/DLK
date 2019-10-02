@@ -4,8 +4,9 @@ import { ParseurVEMGSA } from './ParseurVEMGSA';
 import { GrapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Dates, datesFile } from './date';
-import { etatTransfertFrequence } from '../Modele/checkAnswer';
+import { etatTransfertFrequence, etatLogonConnexion } from '../Modele/checkAnswer';
 import { Frequences } from './frequences';
+import { Etat } from '../Modele/enumEtat';
 
 export class MixInfos {
 
@@ -274,24 +275,23 @@ export class MixInfos {
     }
 
 
-
+    /** Recuperation des infos de transfert de frequence */
 
     monvolLpln.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceLPLN(monvolLpln.getListeLogs()));
-    console.log("array tabEtatsTransfertFrequences: ");
-    monvolLpln.getListeEtatTransfertFrequence().forEach(element => {
-      console.log(element.frequence, element.dateTransfert, element.isTRARTV);
-    });
+    /**  console.log("array tabEtatsTransfertFrequences: ");
+ 
+     monvolLpln.getListeEtatTransfertFrequence().forEach(element => {
+       console.log(element.frequence, element.dateTransfert, element.isTRARTV);
+     });*/
 
 
+    /** Recuperation des infos de cheangement d'état */
 
-    //console.log("LogonInitie: ", monvolLpln.getLogonInitie(), "\nLogonAccepte: ", monvolLpln.getLogonAccepte(),
-    //  "\nAdep: ", monvolLpln.getAdep(), "\nAdes: ", monvolLpln.getAdes());
-
-    //console.log("fin logs LPLN collectes et tries");
-
-
-
-
+    monvolLpln.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexionLPLN(monvolLpln.getListeLogs()));
+    /** console.log("array tabEtatLogonConnexionLPLNs: ");
+    monvolLpln.getListeEtatLogonConnexion().forEach(element => {
+      console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
+    });*/
     return monvolLpln;
 
 
@@ -643,5 +643,135 @@ export class MixInfos {
 
 
 
+  private evaluationEtatsLogonConnexionLPLN(listeLogs: EtatCpdlc[]): etatLogonConnexion[] {
+    let tabEtatLogonConnexionTemp: etatLogonConnexion[] = [];
+    let infoSupp: boolean;
+
+    listeLogs.forEach(log => {
+      let etatLogonConnexion = <etatLogonConnexion>{};
+      etatLogonConnexion.dateChgtEtat = log.getDate();
+      etatLogonConnexion.log = log.getTitle();
+      infoSupp = false;
+      //automate a etat sur la variable etat 
+      switch (log.getTitle()) {
+        case 'CPCASREQ': {
+
+          etatLogonConnexion.etat = Etat.NonLogue;
+          etatLogonConnexion.infoEtat = "DemandeLogonEnCours";
+          infoSupp = true;
+          break;
+        }
+        case 'CPCASRES': {
+          if ((log.getDetaillog()["ATNASSOC"] == "S") || (log.getDetaillog()["ATNASSOC"] == "L")) {
+            etatLogonConnexion.etat = Etat.NonLogue;
+            etatLogonConnexion.infoEtat = "DemandeLogonEncoursAutoriseeParStpv";
+            infoSupp = true;
+          }
+          else if (log.getDetaillog()["ATNASSOC"] == "F") {
+            etatLogonConnexion.etat = Etat.NonLogue;
+            etatLogonConnexion.infoEtat = "DemandeLogonRefuseeParStpv";
+            infoSupp = true;
+          }
+          break;
+        }
+        case 'CPCVNRES': {
+          if (log.getDetaillog()["GAPPSTATUS"] == "A") {
+            etatLogonConnexion.etat = Etat.Logue;
+            etatLogonConnexion.infoEtat = "LogonAcceptee";
+            infoSupp = true;
+          }
+          else if (log.getDetaillog()["GAPPSTATUS"] == "F") {
+            etatLogonConnexion.etat = Etat.NonLogue;
+            etatLogonConnexion.infoEtat = "EchecLogon";
+            infoSupp = true;
+          }
+          break;
+        }
+        case 'CPCOPENLNK': {
+          //console.log('CPCOPENLNK'); 
+          etatLogonConnexion.etat = Etat.Logue;
+          etatLogonConnexion.infoEtat = "DemandeConnexion";
+          infoSupp = true
+          break;
+        }
+        case 'CPCCOMSTAT': {
+          //console.log('CPCCOMSTAT'); 
+          if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
+            etatLogonConnexion.etat = Etat.Associe;
+            etatLogonConnexion.infoEtat = "Connecte/associe";
+            infoSupp = true
+          }
+          else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
+            etatLogonConnexion.etat = Etat.Logue;
+            etatLogonConnexion.infoEtat = "Déconnexion";
+            infoSupp = true
+          }
+          break;
+        }
+        case 'CPCEND': {
+          //console.log('CPCEND'); 
+          etatLogonConnexion.etat = Etat.NonLogue;
+          etatLogonConnexion.infoEtat = "Fin du vol";
+          infoSupp = true
+          break;
+        }
+        case 'CPCCLOSLNK': {
+          //console.log('CPCCLOSLNK'); 
+          etatLogonConnexion.etat = Etat.Logue;
+          etatLogonConnexion.infoEtat = "DemandeDeconnexion";
+          infoSupp = true
+          break;
+        }
+        case 'FIN VOL': {
+          // console.log("je passe dans FIN VOL !!!!!!!!!!!!!!!!!!!!");
+          etatLogonConnexion.etat = Etat.NonLogue;
+          etatLogonConnexion.infoEtat = "Fin du vol";
+          infoSupp = true
+          break;
+        }
+        case 'FPCLOSE': {
+          etatLogonConnexion.etat = Etat.NonLogue;
+          etatLogonConnexion.infoEtat = "Fin du vol";
+          infoSupp = true
+          break;
+        }
+        default: {
+          // console.log("je passe dans default",log.getTitle()); 
+          break;
+        }
+      }
+      if (infoSupp) {
+        tabEtatLogonConnexionTemp.push(etatLogonConnexion);
+
+      }
+
+    });
+    console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");
+    tabEtatLogonConnexionTemp.forEach(element => {
+      console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
+    });
+    let tabEtatLogonConnexion: etatLogonConnexion[] = [];
+
+    for (let index = 0; index < tabEtatLogonConnexionTemp.length; index++) {
+
+      const element = tabEtatLogonConnexionTemp[index];
+      tabEtatLogonConnexion.push(element);
+
+      if (index > 0) {
+        const elementPrevious = tabEtatLogonConnexionTemp[index - 1];
+        if (((element.etat == Etat.NonLogue) || (element.etat == Etat.Logue)) && (element.infoEtat == elementPrevious.infoEtat)) {
+          tabEtatLogonConnexion.pop();
+          tabEtatLogonConnexion.pop();
+          tabEtatLogonConnexion.push(element);
+        }
+      }
+
+    }
+    console.log("AFTER array tabEtatLogonConnexionLPLNs: ");
+    tabEtatLogonConnexion.forEach(element => {
+      console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
+    });
+    return tabEtatLogonConnexion;
+  }
 
 }

@@ -1,5 +1,6 @@
 import { datesFile } from "../Parseur/date"; 
 import { Identifiants } from "./identifiants"; 
+import { Etat } from "./enumEtat";
  
 export interface checkAnswerInitial { 
     valeurRetour: number; 
@@ -31,4 +32,11 @@ export interface etatTransfertFrequence {
     dateTRARTV ?:string;
     isTransfertAcq?: boolean; 
     dateTranfertAcq ?:string;  
+}
+
+export interface etatLogonConnexion {  
+    dateChgtEtat: string; 
+    etat: Etat;
+    infoEtat: string;
+    log: string;
 }

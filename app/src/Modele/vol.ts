@@ -1,6 +1,6 @@
 import { EtatCpdlc } from './etatCpdlc';
 import moment = require('moment');
-import { etatTransfertFrequence } from './checkAnswer'
+import { etatTransfertFrequence, etatLogonConnexion } from './checkAnswer'
 
 export class Vol {
     /** identifiant unique d'un vol (heure en ms ?) */
@@ -25,7 +25,8 @@ export class Vol {
     private islogCpdlcComplete: boolean;
     /*etat des differents transferts de frequence*/
     private listeEtatTransfertFrequence: etatTransfertFrequence[];
-
+    /*etat des differents transferts de frequence*/
+    private listeEtatLogonConnexion: etatLogonConnexion[];
 
     // PARAMETRES LIES AU LOGON 
     /**Adresse  Mode S vide si route ifps = NON ... inutile a traiter -> a supprimer */
@@ -69,6 +70,7 @@ export class Vol {
         this.haslogCpdlc = false;
         this.islogCpdlcComplete = false;
         this.listeEtatTransfertFrequence = [];
+        this.listeEtatLogonConnexion = [];
     }
 
 
@@ -150,7 +152,10 @@ export class Vol {
         this.listeEtatTransfertFrequence = listeEtatTransfertFrequence;
     }
 
-
+    public setListeEtatLogonConnexion(listeEtatLogonConnexion: etatLogonConnexion[]): void {
+        this.listeEtatLogonConnexion = listeEtatLogonConnexion;
+    }
+    
 
 
     public addElt(elt: EtatCpdlc): void {
@@ -233,5 +238,10 @@ export class Vol {
     public getListeEtatTransfertFrequence(): etatTransfertFrequence[] {
         return this.listeEtatTransfertFrequence;
     }
+
+    public getListeEtatLogonConnexion(): etatLogonConnexion[] {
+        return this.listeEtatLogonConnexion;
+    }
+    
 
 } 
