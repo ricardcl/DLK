@@ -261,6 +261,11 @@ export class ParseurLPLN {
               // TODO: 
               break; 
             } 
+            case 'TRFDL': { 
+              monEtat = Etat.TransfertEnCours; 
+              // TODO: 
+              break; 
+            } 
             case 'FIN TRFDL': { 
               monEtat = Etat.RetourALaVoix; 
               // TODO: 

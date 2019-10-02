@@ -12,7 +12,7 @@ export class MixInfos {
   private dates: Dates;
   private grapheEtat: GrapheEtat;
   private uneMinute: number = 60000;
-  private timeout: number = 2 * 60000;
+  private timeout: number = 2 * this.uneMinute;
   private frequences: Frequences;
 
   constructor() {
@@ -452,7 +452,7 @@ return monvolFinal;
 
         }
 
-        if ((etatCpdlcTemp.getTitle() == "TRARTV") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
+        if ((etatCpdlcTemp.getTitle() == "TRARTV") && ( etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"]) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
           //console.log("date TRARTV timeout:", dateTemp);
           //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isTRARTV = true;
@@ -582,7 +582,7 @@ return monvolFinal;
 
         }
 
-        if ((etatCpdlcTemp.getTitle() == "TRARTV") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
+        if ((etatCpdlcTemp.getTitle() == "TRARTV") && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"]) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
          // console.log("date TRARTV timeout:", dateTemp);
          // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
           etatTransfertFreq.isTRARTV = true;
