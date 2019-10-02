@@ -206,7 +206,7 @@ export class MixInfos {
       console.log(element.frequence, element.dateTransfert, element.isTRARTV);
     });
 
-
+    monvolFinal.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
 
     return monvolFinal;
   }
@@ -287,7 +287,7 @@ export class MixInfos {
 
     /** Recuperation des infos de cheangement d'état */
 
-    monvolLpln.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexionLPLN(monvolLpln.getListeLogs()));
+    monvolLpln.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolLpln.getListeLogs()));
     /** console.log("array tabEtatLogonConnexionLPLNs: ");
     monvolLpln.getListeEtatLogonConnexion().forEach(element => {
       console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
@@ -367,7 +367,7 @@ export class MixInfos {
 
 
     monvolVemgsa = this.sortLogs(monvolVemgsa);
-
+    monvolVemgsa.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolVemgsa.getListeLogs()));
     return monvolVemgsa;
   }
 
@@ -643,7 +643,7 @@ export class MixInfos {
 
 
 
-  private evaluationEtatsLogonConnexionLPLN(listeLogs: EtatCpdlc[]): etatLogonConnexion[] {
+  private evaluationEtatsLogonConnexion(listeLogs: EtatCpdlc[]): etatLogonConnexion[] {
     let tabEtatLogonConnexionTemp: etatLogonConnexion[] = [];
     let infoSupp: boolean;
 
@@ -703,7 +703,7 @@ export class MixInfos {
           }
           else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
             etatLogonConnexion.etat = Etat.Logue;
-            etatLogonConnexion.infoEtat = "Déconnexion";
+            etatLogonConnexion.infoEtat = "Deconnexion";
             infoSupp = true
           }
           break;
@@ -746,10 +746,10 @@ export class MixInfos {
       }
 
     });
-    console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");
+    /**console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");
     tabEtatLogonConnexionTemp.forEach(element => {
       console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
-    });
+    });*/
     let tabEtatLogonConnexion: etatLogonConnexion[] = [];
 
     for (let index = 0; index < tabEtatLogonConnexionTemp.length; index++) {
@@ -759,7 +759,11 @@ export class MixInfos {
 
       if (index > 0) {
         const elementPrevious = tabEtatLogonConnexionTemp[index - 1];
-        if (((element.etat == Etat.NonLogue) || (element.etat == Etat.Logue)) && (element.infoEtat == elementPrevious.infoEtat)) {
+
+        if  ((element.etat == Etat.Logue) && (element.infoEtat == "DemandeDeconnexion") && (elementPrevious.infoEtat =="Deconnexion")) {
+          tabEtatLogonConnexion.pop();
+        }
+        else  if (((element.etat == Etat.NonLogue) || ((element.etat == Etat.Logue) && (element.etat == Etat.Logue))) && (element.infoEtat == elementPrevious.infoEtat)) {
           tabEtatLogonConnexion.pop();
           tabEtatLogonConnexion.pop();
           tabEtatLogonConnexion.push(element);
@@ -767,11 +771,13 @@ export class MixInfos {
       }
 
     }
-    console.log("AFTER array tabEtatLogonConnexionLPLNs: ");
+    /**console.log("AFTER array tabEtatLogonConnexionLPLNs: ");
     tabEtatLogonConnexion.forEach(element => {
       console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
-    });
+    });*/
     return tabEtatLogonConnexion;
   }
+
+
 
 }
