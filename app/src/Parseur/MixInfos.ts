@@ -166,48 +166,48 @@ export class MixInfos {
     let diffVemgsaMaxLpln: number;
 
     volLpln.getListeLogs().forEach((eltL, key) => {
-     // console.log("ajout supp LPLN: ", eltL.getTitle(), eltL.getDate());
+      // console.log("ajout supp LPLN: ", eltL.getTitle(), eltL.getDate());
 
       diffVemgsaMinLpln = this.dates.diffDates(creneau.dateMin, eltL.getDate());
       diffVemgsaMaxLpln = this.dates.diffDates(eltL.getDate(), creneau.dateMax);
       vemgsaMinVsLpln = this.dates.isDateSup(creneau.dateMin, eltL.getDate());
-      vemgsaMaxVsLpln = this.dates.isDateSup(eltL.getDate(),creneau.dateMax);
+      vemgsaMaxVsLpln = this.dates.isDateSup(eltL.getDate(), creneau.dateMax);
 
-     // console.log("diffVemgsaMinLpln",diffVemgsaMinLpln,"diffVemgsaMaxLpln", diffVemgsaMaxLpln,"vemgsaMinVsLpln",vemgsaMinVsLpln,"vemgsaMaxVsLpln",vemgsaMaxVsLpln );
-      
-      if ( ((diffVemgsaMinLpln > this.uneMinute) && vemgsaMinVsLpln) || ((diffVemgsaMaxLpln > 2*this.uneMinute) && vemgsaMaxVsLpln))  {
-      monvolFinal.addElt(eltL);
-     // console.log("ajout supp LPLN: ", eltL.getDate());
+      // console.log("diffVemgsaMinLpln",diffVemgsaMinLpln,"diffVemgsaMaxLpln", diffVemgsaMaxLpln,"vemgsaMinVsLpln",vemgsaMinVsLpln,"vemgsaMaxVsLpln",vemgsaMaxVsLpln );
 
-    }
-  });
+      if (((diffVemgsaMinLpln > this.uneMinute) && vemgsaMinVsLpln) || ((diffVemgsaMaxLpln > 2 * this.uneMinute) && vemgsaMaxVsLpln)) {
+        monvolFinal.addElt(eltL);
+        // console.log("ajout supp LPLN: ", eltL.getDate());
 
-  //console.log("resultat vol final : ");
-  monvolFinal = this.sortLogs(monvolFinal);
+      }
+    });
 
-
-
-  monvolFinal = this.grapheEtat.grapheMix(monvolFinal);
-
-  // console.log("debut logs collectes et tries");
-  monvolFinal.getListeLogs().forEach(etatCpdlc => {
-    //console.log("contenu  map before: ",etatCpdlc.getDetaillog()); 
-    // console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-  });
-  // console.log("fin logs collectes et tries");
+    //console.log("resultat vol final : ");
+    monvolFinal = this.sortLogs(monvolFinal);
 
 
 
+    monvolFinal = this.grapheEtat.grapheMix(monvolFinal);
 
-  monvolFinal.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceMIX(monvolFinal.getListeLogs()));
-console.log("array tabEtatsTransfertFrequences: ");
-monvolFinal.getListeEtatTransfertFrequence().forEach(element => {
-  console.log(element.frequence, element.dateTransfert, element.isTRARTV);
-});
+    // console.log("debut logs collectes et tries");
+    monvolFinal.getListeLogs().forEach(etatCpdlc => {
+      //console.log("contenu  map before: ",etatCpdlc.getDetaillog()); 
+      // console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+    });
+    // console.log("fin logs collectes et tries");
 
 
 
-return monvolFinal;
+
+    monvolFinal.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceMIX(monvolFinal.getListeLogs()));
+    console.log("array tabEtatsTransfertFrequences: ");
+    monvolFinal.getListeEtatTransfertFrequence().forEach(element => {
+      console.log(element.frequence, element.dateTransfert, element.isTRARTV);
+    });
+
+
+
+    return monvolFinal;
   }
 
 
@@ -215,441 +215,430 @@ return monvolFinal;
 
 
   public InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, parseurLPLN: ParseurLPLN): Vol {
-  console.log("Classe MixInfos Fonction InfosLpln");
-  //Initialisation du vol issu des donnees LPLN 
-  let monvolLpln = new Vol(arcid, plnid);
-  monvolLpln = parseurLPLN.parseur(arcid, plnid);
-  
-
-  let nbLogsCpdlc: number = 0;
-  let hasCPASREQ: boolean = false;
-  let hasCPCEND: boolean = false;
-
-  //RECUPERATION DES ATTRIBUTS 
-
-  if (monvolLpln.getAdrDeposee() == monvolLpln.getAdrModeSInf()) {
-    monvolLpln.setCmpAdrModeS("OK");
-  } else { monvolLpln.setCmpAdrModeS("KO"); }
+    console.log("Classe MixInfos Fonction InfosLpln");
+    //Initialisation du vol issu des donnees LPLN 
+    let monvolLpln = new Vol(arcid, plnid);
+    monvolLpln = parseurLPLN.parseur(arcid, plnid);
 
 
-  if (monvolLpln.getLogonAccepte()) {
-    monvolLpln.setConditionsLogon("OK");
+    let nbLogsCpdlc: number = 0;
+    let hasCPASREQ: boolean = false;
+    let hasCPCEND: boolean = false;
+
+    //RECUPERATION DES ATTRIBUTS 
+
+    if (monvolLpln.getAdrDeposee() == monvolLpln.getAdrModeSInf()) {
+      monvolLpln.setCmpAdrModeS("OK");
+    } else { monvolLpln.setCmpAdrModeS("KO"); }
+
+
+    if (monvolLpln.getLogonAccepte()) {
+      monvolLpln.setConditionsLogon("OK");
+    }
+
+
+
+
+    //console.log("debut logs LPLN collectes et tries");
+
+    monvolLpln.getListeLogs().forEach(etatCpdlc => {
+      if (etatCpdlc.getTitle() == 'CPCASREQ') {
+        monvolLpln.setLogonInitie("OK");
+        hasCPASREQ = true;
+      }
+
+      if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
+        monvolLpln.setLogonAccepte("OK");
+
+      }
+      if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F')) {
+        monvolLpln.setLogonAccepte("KO");
+      }
+      if (etatCpdlc.getTitle() == 'CPCEND') {
+        hasCPCEND = true;
+      }
+
+      if (etatCpdlc.getIsTypeCPC() == true) {
+        nbLogsCpdlc++;
+      }
+
+      // console.log("date: ", etatCpdlc.getDate(), "jour: ", etatCpdlc.getJour(), "heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
+      //console.log("LogLPLN: ", etatCpdlc.getLog());
+    });
+
+    if (nbLogsCpdlc != 0) {
+      monvolLpln.setHaslogCpdlc(true);
+    }
+    if (hasCPASREQ && hasCPCEND) {
+      monvolLpln.setIslogCpdlcComplete(true);
+    }
+
+
+
+
+    monvolLpln.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceLPLN(monvolLpln.getListeLogs()));
+    console.log("array tabEtatsTransfertFrequences: ");
+    monvolLpln.getListeEtatTransfertFrequence().forEach(element => {
+      console.log(element.frequence, element.dateTransfert, element.isTRARTV);
+    });
+
+
+
+    //console.log("LogonInitie: ", monvolLpln.getLogonInitie(), "\nLogonAccepte: ", monvolLpln.getLogonAccepte(),
+    //  "\nAdep: ", monvolLpln.getAdep(), "\nAdes: ", monvolLpln.getAdes());
+
+    //console.log("fin logs LPLN collectes et tries");
+
+
+
+
+    return monvolLpln;
+
+
   }
 
+  public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA, creneau: datesFile, chosenHoraire?: datesFile): Vol {
+    console.log("Classe MixInfos Fonction InfosVemgsa");
 
+    //console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);
+    //console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
+    //Initialisation du vol issu des donnees VEMGSA 
+    let monvolVemgsa = new Vol(arcid, plnid);
+    //pv.identification(arcid, plnid, fichierSourceVemgsa); 
 
+    monvolVemgsa = ParseurVEMGSA.parseur(arcid, plnid, fichierSourceVemgsa, creneau, chosenHoraire);
+    let nbLogsCpdlc: number = 0;
+    let hasCPASREQ: boolean = false;
+    let hasCPCEND: boolean = false;
 
-  //console.log("debut logs LPLN collectes et tries");
+    //RECUPERATION DES ATTRIBUTS 
 
-  monvolLpln.getListeLogs().forEach(etatCpdlc => {
-    if (etatCpdlc.getTitle() == 'CPCASREQ') {
-      monvolLpln.setLogonInitie("OK");
-      hasCPASREQ = true;
+    if (monvolVemgsa.getLogonAccepte()) {
+      monvolVemgsa.setConditionsLogon("OK")
+    }
+    else { monvolVemgsa.setConditionsLogon("KO"); }
+
+    //console.log("debut logs VEMGSA collectes et tries"); 
+
+    monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
+      if (etatCpdlc.getTitle() == 'CPCASREQ') {
+        monvolVemgsa.setAdep(etatCpdlc.getDetaillog()['ADEP']);
+        monvolVemgsa.setAdes(etatCpdlc.getDetaillog()['ADES']);
+        monvolVemgsa.setAdrDeposee(etatCpdlc.getDetaillog()['ARCADDR']);
+        monvolVemgsa.setArcid(etatCpdlc.getDetaillog()['ARCID']);
+        monvolVemgsa.setLogonInitie("OK");
+        hasCPASREQ = true;
+      }
+
+      if (etatCpdlc.getTitle() == 'CPCEND') {
+        hasCPCEND = true;
+      }
+      if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
+        monvolVemgsa.setLogonAccepte("OK");
+      } else { monvolVemgsa.setLogonAccepte("KO"); }
+
+      //console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat()); 
+      //console.log("LogVEMGSA: ", etatCpdlc.getLog()); 
+
+      if (etatCpdlc.getIsTypeCPC() == true) {
+        nbLogsCpdlc++;
+      }
+
+    });
+    if (nbLogsCpdlc != 0) {
+      monvolVemgsa.setHaslogCpdlc(true);
+    }
+    if (hasCPASREQ && hasCPCEND) {
+      monvolVemgsa.setIslogCpdlcComplete(true);
     }
 
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
-      monvolLpln.setLogonAccepte("OK");
+    //console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),"\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte()); 
 
-    }
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F')) {
-      monvolLpln.setLogonAccepte("KO");
-    }
-    if (etatCpdlc.getTitle() == 'CPCEND') {
-      hasCPCEND = true;
-    }
 
-    if (etatCpdlc.getIsTypeCPC() == true) {
-      nbLogsCpdlc++;
-    }
+    //console.log("fin logs VEMGSA collectes et tries"); 
 
-    // console.log("date: ", etatCpdlc.getDate(), "jour: ", etatCpdlc.getJour(), "heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat());
-    //console.log("LogLPLN: ", etatCpdlc.getLog());
-  });
 
-  if (nbLogsCpdlc != 0) {
-    monvolLpln.setHaslogCpdlc(true);
+
+    monvolVemgsa.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceVEMGSA(monvolVemgsa.getListeLogs()));
+    console.log("array tabEtatsTransfertFrequences: ");
+    monvolVemgsa.getListeEtatTransfertFrequence().forEach(element => {
+      console.log(element.frequence, element.dateTransfert, element.isTRARTV);
+    });
+
+
+    monvolVemgsa = this.sortLogs(monvolVemgsa);
+
+    return monvolVemgsa;
   }
-  if (hasCPASREQ && hasCPCEND) {
-    monvolLpln.setIslogCpdlcComplete(true);
-  }
-
-
-
-
-  monvolLpln.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceLPLN(monvolLpln.getListeLogs()));
-  console.log("array tabEtatsTransfertFrequences: ");
-  monvolLpln.getListeEtatTransfertFrequence().forEach(element => {
-    console.log(element.frequence, element.dateTransfert, element.isTRARTV);
-  });
-
-
-
-  //console.log("LogonInitie: ", monvolLpln.getLogonInitie(), "\nLogonAccepte: ", monvolLpln.getLogonAccepte(),
-  //  "\nAdep: ", monvolLpln.getAdep(), "\nAdes: ", monvolLpln.getAdes());
-
-  //console.log("fin logs LPLN collectes et tries");
-
-
-
-
-  return monvolLpln;
-
-
-}
-
-  public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA, creneau: datesFile, chosenHoraire ?: datesFile): Vol {
-  console.log("Classe MixInfos Fonction InfosVemgsa");
-
-  //console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);
-  //console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
-  //Initialisation du vol issu des donnees VEMGSA 
-  let monvolVemgsa = new Vol(arcid, plnid);
-  //pv.identification(arcid, plnid, fichierSourceVemgsa); 
-
-  monvolVemgsa = ParseurVEMGSA.parseur(arcid, plnid, fichierSourceVemgsa, creneau, chosenHoraire);
-  let nbLogsCpdlc: number = 0;
-  let hasCPASREQ: boolean = false;
-  let hasCPCEND: boolean = false;
-
-  //RECUPERATION DES ATTRIBUTS 
-
-  if (monvolVemgsa.getLogonAccepte()) {
-    monvolVemgsa.setConditionsLogon("OK")
-  }
-  else { monvolVemgsa.setConditionsLogon("KO"); }
-
-  //console.log("debut logs VEMGSA collectes et tries"); 
-
-  monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
-    if (etatCpdlc.getTitle() == 'CPCASREQ') {
-      monvolVemgsa.setAdep(etatCpdlc.getDetaillog()['ADEP']);
-      monvolVemgsa.setAdes(etatCpdlc.getDetaillog()['ADES']);
-      monvolVemgsa.setAdrDeposee(etatCpdlc.getDetaillog()['ARCADDR']);
-      monvolVemgsa.setArcid(etatCpdlc.getDetaillog()['ARCID']);
-      monvolVemgsa.setLogonInitie("OK");
-      hasCPASREQ = true;
-    }
-
-    if (etatCpdlc.getTitle() == 'CPCEND') {
-      hasCPCEND = true;
-    }
-    if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
-      monvolVemgsa.setLogonAccepte("OK");
-    } else { monvolVemgsa.setLogonAccepte("KO"); }
-
-    //console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat()); 
-    //console.log("LogVEMGSA: ", etatCpdlc.getLog()); 
-
-    if (etatCpdlc.getIsTypeCPC() == true) {
-      nbLogsCpdlc++;
-    }
-
-  });
-  if (nbLogsCpdlc != 0) {
-    monvolVemgsa.setHaslogCpdlc(true);
-  }
-  if (hasCPASREQ && hasCPCEND) {
-    monvolVemgsa.setIslogCpdlcComplete(true);
-  }
-
-  //console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),"\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte()); 
-
-
-  //console.log("fin logs VEMGSA collectes et tries"); 
-
-
-
-  monvolVemgsa.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceVEMGSA(monvolVemgsa.getListeLogs()));
-  console.log("array tabEtatsTransfertFrequences: ");
-  monvolVemgsa.getListeEtatTransfertFrequence().forEach(element => {
-    console.log(element.frequence, element.dateTransfert, element.isTRARTV);
-  });
-
-
-  monvolVemgsa = this.sortLogs(monvolVemgsa);
-
-  return monvolVemgsa;
-}
 
   public sortLogs(vol: Vol): Vol {
-  console.log("Classe MixInfos Fonction sortLogs");
+    console.log("Classe MixInfos Fonction sortLogs");
 
 
-  let arrayLogTemp: EtatCpdlc[] = vol.getListeLogs();
+    let arrayLogTemp: EtatCpdlc[] = vol.getListeLogs();
 
-  let trie: boolean = false;
-  let changement: boolean;
-
-
-
-  if (arrayLogTemp.length > 1) {
-
-    while (!trie) {
-      changement = false;
-      for (let i = 0; i < arrayLogTemp.length - 1; i++) {
+    let trie: boolean = false;
+    let changement: boolean;
 
 
-        const element = arrayLogTemp[i];
-        const elementNext = arrayLogTemp[i + 1];
-        //console.log("sortLogs element.Heure", element.getHeure(), " eNext.Heure", elementNext.getHeure(), "result:", this.dates.isHeureSup(element.getHeure(), elementNext.getHeure())); 
-        if (this.dates.isDateSup(element.getDate(), elementNext.getDate())) {
-          arrayLogTemp[i] = elementNext;
-          arrayLogTemp[i + 1] = element;
-          changement = true;
 
-          //console.log("inversion: elementNext"+elementNext+" element : "+element); 
+    if (arrayLogTemp.length > 1) {
 
+      while (!trie) {
+        changement = false;
+        for (let i = 0; i < arrayLogTemp.length - 1; i++) {
+
+
+          const element = arrayLogTemp[i];
+          const elementNext = arrayLogTemp[i + 1];
+          //console.log("sortLogs element.Heure", element.getHeure(), " eNext.Heure", elementNext.getHeure(), "result:", this.dates.isHeureSup(element.getHeure(), elementNext.getHeure())); 
+          if (this.dates.isDateSup(element.getDate(), elementNext.getDate())) {
+            arrayLogTemp[i] = elementNext;
+            arrayLogTemp[i + 1] = element;
+            changement = true;
+
+            //console.log("inversion: elementNext"+elementNext+" element : "+element); 
+
+          }
         }
+        if (changement == false) { trie = true; }
+
       }
-      if (changement == false) { trie = true; }
-
     }
+
+
+    vol.setListeLogs(arrayLogTemp);
+
+    return vol;
   }
-
-
-  vol.setListeLogs(arrayLogTemp);
-
-  return vol;
-}
   //TODO : tester le fichier en entrée : existance, dates de validité pour savoir si l'aircraft id est bien dans le vemgsa ... 
 
 
   private evaluationEtatsTransfertsFrequenceLPLN(listeLogs: EtatCpdlc[]): etatTransfertFrequence[] {
-  let dateFreq: string;
-  let dateTemp: string;
-  let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
+    let dateFreq: string;
+    let dateTemp: string;
+    let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
 
-  listeLogs.forEach(etatCpdlc => {
-    let etatTransfertFreq = <etatTransfertFrequence>{};
-    if ((etatCpdlc.getTitle() == 'CPCFREQ') || (etatCpdlc.getTitle() == 'TRFDL')) {
+    listeLogs.forEach(etatCpdlc => {
+      let etatTransfertFreq = <etatTransfertFrequence>{};
+      if ((etatCpdlc.getTitle() == 'CPCFREQ') || (etatCpdlc.getTitle() == 'TRFDL')) {
 
-      console.log("--------Test transfert Frequence----------");
-      dateFreq = etatCpdlc.getDate();
-      etatTransfertFreq.dateTransfert = dateFreq;
-      console.log("date transfert:", etatTransfertFreq.dateTransfert);
+        console.log("--------Test transfert Frequence----------");
+        dateFreq = etatCpdlc.getDate();
+        etatTransfertFreq.dateTransfert = dateFreq;
+        console.log("date transfert:", etatTransfertFreq.dateTransfert);
 
-      if ( etatCpdlc.getTitle() == 'CPCFREQ'){
-        etatTransfertFreq.frequence = etatCpdlc.getDetaillog()["FREQ"];
-        console.log("frequence transfert:", etatTransfertFreq.frequence);
-      }
-
-
-      listeLogs.forEach(etatCpdlcTemp => {
-        dateTemp = etatCpdlcTemp.getDate();
-
-        if ((etatCpdlcTemp.getTitle() == "TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          //console.log("date TRFDL timeout:", dateTemp);
-          //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.positionTransfert = etatCpdlcTemp.getDetaillog()["POSITION"];
-          //console.log("etatTransfertFreq.positionTransfert", etatTransfertFreq.positionTransfert);
-
+        if (etatCpdlc.getTitle() == 'CPCFREQ') {
+          etatTransfertFreq.frequence = etatCpdlc.getDetaillog()["FREQ"];
+          console.log("frequence transfert:", etatTransfertFreq.frequence);
         }
 
-        if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          //console.log("date FIN TRFDL timeout:", dateTemp);
-          //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.isFinTRFDL = true;
-          etatTransfertFreq.dateFinTRFDL = dateTemp;
-          //console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
-          //console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
 
-        }
+        listeLogs.forEach(etatCpdlcTemp => {
+          dateTemp = etatCpdlcTemp.getDate();
 
-        if ((etatCpdlcTemp.getTitle() == "TRARTV") && ( etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"]) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
-          //console.log("date TRARTV timeout:", dateTemp);
-          //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.isTRARTV = true;
-          etatTransfertFreq.dateTRARTV = dateTemp;
-          //console.log("etatTransfertFreq.isTRARTV:", etatTransfertFreq.isTRARTV);
-          //console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
-        }
-      });
-      console.log("------------------------------------------");
+          if ((etatCpdlcTemp.getTitle() == "TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            //console.log("date TRFDL timeout:", dateTemp);
+            //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.positionTransfert = etatCpdlcTemp.getDetaillog()["POSITION"];
+            //console.log("etatTransfertFreq.positionTransfert", etatTransfertFreq.positionTransfert);
 
+          }
 
-      if (etatCpdlc.getTitle() == 'TRFDL') {
-        let trouve: boolean = false;
-        tabEtatsTransfertFrequences.forEach(element => {
-          if (element.dateTransfert == etatCpdlc.getDate() ){
-            trouve = true;
+          if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            //console.log("date FIN TRFDL timeout:", dateTemp);
+            //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isFinTRFDL = true;
+            etatTransfertFreq.dateFinTRFDL = dateTemp;
+            //console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+            //console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
+
+          }
+
+          if ((etatCpdlcTemp.getTitle() == "TRARTV") && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"]) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
+            //console.log("date TRARTV timeout:", dateTemp);
+            //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isTRARTV = true;
+            etatTransfertFreq.dateTRARTV = dateTemp;
+            //console.log("etatTransfertFreq.isTRARTV:", etatTransfertFreq.isTRARTV);
+            //console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
           }
         });
-        if (!trouve){
+        console.log("------------------------------------------");
+
+
+        if (etatCpdlc.getTitle() == 'TRFDL') {
+          let trouve: boolean = false;
+          tabEtatsTransfertFrequences.forEach(element => {
+            if (element.dateTransfert == etatCpdlc.getDate()) {
+              trouve = true;
+            }
+          });
+          if (!trouve) {
+            tabEtatsTransfertFrequences.push(etatTransfertFreq);
+          }
+
+        }
+        else {
           tabEtatsTransfertFrequences.push(etatTransfertFreq);
         }
-  
       }
-      else {
-        tabEtatsTransfertFrequences.push(etatTransfertFreq);
-      }
-    }
 
 
-  });
-  return tabEtatsTransfertFrequences;
-}
+    });
+    return tabEtatsTransfertFrequences;
+  }
 
   private evaluationEtatsTransfertsFrequenceVEMGSA(listeLogs: EtatCpdlc[]): etatTransfertFrequence[] {
-  let dateFreq: string;
-  let dateTemp: string;
-  let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
+    let dateFreq: string;
+    let dateTemp: string;
+    let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
 
-  listeLogs.forEach(etatCpdlc => {
-    let etatTransfertFreq = <etatTransfertFrequence>{};
-    if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
+    listeLogs.forEach(etatCpdlc => {
+      let etatTransfertFreq = <etatTransfertFrequence>{};
+      if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
 
-      console.log("--------Test transfert Frequence----------");
-      dateFreq = etatCpdlc.getDate();
-      etatTransfertFreq.dateTransfert = dateFreq;
-      etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
-
-      console.log("date transfert:", etatTransfertFreq.dateTransfert);
-      console.log("frequence transfert:", etatTransfertFreq.frequence);
-
-      listeLogs.forEach(etatCpdlcTemp => {
-        dateTemp = etatCpdlcTemp.getDate();
-
-
-        if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "UNA") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          //console.log("date FIN TRFDL timeout:", dateTemp);
-         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.isFinTRFDL = true;
-          etatTransfertFreq.dateFinTRFDL = dateTemp;
-         // console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
-         // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
-
-        }
-
-        if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-         // console.log("date CPDLCMSGDOWN WIL:", dateTemp);
-         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.isTransfertAcq = true;
-          etatTransfertFreq.dateTranfertAcq = dateTemp;
-        //  console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
-         // console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
-        }
-      });
-      console.log("------------------------------------------");
-
-      //cas possibles
-
-      //RTV
-      //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
-      //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
-      // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
-      
-      tabEtatsTransfertFrequences.push(etatTransfertFreq);
-    }
-
-  });
-  return tabEtatsTransfertFrequences;
-}
-
-  private evaluationEtatsTransfertsFrequenceMIX(listeLogs: EtatCpdlc[]): etatTransfertFrequence[] {
-  let dateFreq: string;
-  let dateTemp: string;
-  let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
-
-  listeLogs.forEach(etatCpdlc => {
-    let etatTransfertFreq = <etatTransfertFrequence>{};
-
-    if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))  || (etatCpdlc.getTitle() == 'TRFDL')) {
-
-     // console.log("--------Test transfert Frequence----------");
-      //console.log("test !!!!!!!!!! freq mix recuperee", etatCpdlc.getDetaillog()["FREQ"]);
-
-      dateFreq = etatCpdlc.getDate();
-      etatTransfertFreq.dateTransfert = dateFreq;
-
-      if ( etatCpdlc.getTitle() !== 'CPCFREQ'){
+        console.log("--------Test transfert Frequence----------");
+        dateFreq = etatCpdlc.getDate();
+        etatTransfertFreq.dateTransfert = dateFreq;
         etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
+
+        console.log("date transfert:", etatTransfertFreq.dateTransfert);
         console.log("frequence transfert:", etatTransfertFreq.frequence);
-      }
-     
 
-      //console.log("date transfert:", etatTransfertFreq.dateTransfert);
-      //console.log("frequence transfert:", etatTransfertFreq.frequence);
-
-      listeLogs.forEach(etatCpdlcTemp => {
-        dateTemp = etatCpdlcTemp.getDate();
-
-        if ((etatCpdlcTemp.getTitle() == "TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          //console.log("date TRFDL timeout:", dateTemp);
-          //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.positionTransfert = etatCpdlcTemp.getDetaillog()["POSITION"];
-         // console.log("etatTransfertFreq.positionTransfert", etatTransfertFreq.positionTransfert);
-
-        }
-
-        if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "UNA") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-          //console.log("date FIN TRFDL timeout:", dateTemp);
-         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.isFinTRFDL = true;
-          etatTransfertFreq.dateFinTRFDL = dateTemp;
-         // console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
-         // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
-
-        }
-
-        if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-         // console.log("date FIN TRFDL timeout:", dateTemp);
-         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.isFinTRFDL = true;
-          etatTransfertFreq.dateFinTRFDL = dateTemp;
-        //  console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
-         // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
-
-        }
-
-        if ((etatCpdlcTemp.getTitle() == "TRARTV") && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"]) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
-         // console.log("date TRARTV timeout:", dateTemp);
-         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.isTRARTV = true;
-          etatTransfertFreq.dateTRARTV = dateTemp;
-         // console.log("etatTransfertFreq.isTRARTV:", etatTransfertFreq.isTRARTV);
-         // console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
-        }
+        listeLogs.forEach(etatCpdlcTemp => {
+          dateTemp = etatCpdlcTemp.getDate();
 
 
+          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "UNA") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            //console.log("date FIN TRFDL timeout:", dateTemp);
+            // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isFinTRFDL = true;
+            etatTransfertFreq.dateFinTRFDL = dateTemp;
+            // console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+            // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
 
-        if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-         // console.log("date CPDLCMSGDOWN WIL:", dateTemp);
-         // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
-          etatTransfertFreq.isTransfertAcq = true;
-          etatTransfertFreq.dateTranfertAcq = dateTemp;
-         // console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
-         // console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
-        }
-      });
-      console.log("------------------------------------------");
+          }
 
-      //cas possibles
-
-      //RTV
-      //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
-      //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
-      // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
-      if (etatCpdlc.getTitle() == 'TRFDL') {
-        let trouve: boolean = false;
-        tabEtatsTransfertFrequences.forEach(element => {
-          if (element.dateTransfert == etatCpdlc.getDate() ){
-            trouve = true;
+          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            // console.log("date CPDLCMSGDOWN WIL:", dateTemp);
+            // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isTransfertAcq = true;
+            etatTransfertFreq.dateTranfertAcq = dateTemp;
+            //  console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
+            // console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
           }
         });
-        if (!trouve){
-          tabEtatsTransfertFrequences.push(etatTransfertFreq);
-        }
-  
-      }
-      else {
+        console.log("------------------------------------------");
+
+        //cas possibles
+
+        //RTV
+        //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
+        //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
+        // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
+
         tabEtatsTransfertFrequences.push(etatTransfertFreq);
       }
 
-    }
+    });
+    return tabEtatsTransfertFrequences;
+  }
 
-  });
-  return tabEtatsTransfertFrequences;
-}
+  private evaluationEtatsTransfertsFrequenceMIX(listeLogs: EtatCpdlc[]): etatTransfertFrequence[] {
+    let dateFreq: string;
+    let dateTemp: string;
+    let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
+
+    listeLogs.forEach(etatCpdlc => {
+      let etatTransfertFreq = <etatTransfertFrequence>{};
+
+      if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
+
+        // console.log("--------Test transfert Frequence----------");
+        //console.log("test !!!!!!!!!! freq mix recuperee", etatCpdlc.getDetaillog()["FREQ"]);
+
+        dateFreq = etatCpdlc.getDate();
+        etatTransfertFreq.dateTransfert = dateFreq;
+
+
+        etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
+        console.log("frequence transfert:", etatTransfertFreq.frequence);
+
+
+
+        //console.log("date transfert:", etatTransfertFreq.dateTransfert);
+        //console.log("frequence transfert:", etatTransfertFreq.frequence);
+
+        listeLogs.forEach(etatCpdlcTemp => {
+          dateTemp = etatCpdlcTemp.getDate();
+
+          if ((etatCpdlcTemp.getTitle() == "TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            //console.log("date TRFDL timeout:", dateTemp);
+            //console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.positionTransfert = etatCpdlcTemp.getDetaillog()["POSITION"];
+            // console.log("etatTransfertFreq.positionTransfert", etatTransfertFreq.positionTransfert);
+
+          }
+
+          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "UNA") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            //console.log("date FIN TRFDL timeout:", dateTemp);
+            // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isFinTRFDL = true;
+            etatTransfertFreq.dateFinTRFDL = dateTemp;
+            // console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+            // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
+
+          }
+
+          if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            // console.log("date FIN TRFDL timeout:", dateTemp);
+            // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isFinTRFDL = true;
+            etatTransfertFreq.dateFinTRFDL = dateTemp;
+            //  console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
+            // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
+
+          }
+
+          if ((etatCpdlcTemp.getTitle() == "TRARTV") && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"]) && (etatTransfertFreq.positionTransfert == etatCpdlcTemp.getDetaillog()["POSITION"])) {
+            // console.log("date TRARTV timeout:", dateTemp);
+            // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isTRARTV = true;
+            etatTransfertFreq.dateTRARTV = dateTemp;
+            // console.log("etatTransfertFreq.isTRARTV:", etatTransfertFreq.isTRARTV);
+            // console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
+          }
+
+
+
+          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+            // console.log("date CPDLCMSGDOWN WIL:", dateTemp);
+            // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
+            etatTransfertFreq.isTransfertAcq = true;
+            etatTransfertFreq.dateTranfertAcq = dateTemp;
+            // console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
+            // console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
+          }
+        });
+        console.log("------------------------------------------");
+
+        //cas possibles
+
+        //RTV
+        //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
+        //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
+        // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
+
+
+        tabEtatsTransfertFrequences.push(etatTransfertFreq);
+
+
+      }
+
+    });
+    return tabEtatsTransfertFrequences;
+  }
 
 
 
