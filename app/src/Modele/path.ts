@@ -13,6 +13,10 @@ export class Path {
         return Path.distPath + "/assets/system";
     }
 
+    static get logBookPath () : string {
+        return Path.distPath + "/logBook";
+    }
+
     static get STPVFilePath () : string {
         // TODO : C'est dégeulasse ! Merci de refactorer cela. Si on change le nom ca marche plus.
         return p.resolve(Path.systemPath,"STPV_G2910_CA20180816_13082018__1156")

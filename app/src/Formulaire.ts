@@ -1,5 +1,4 @@
 import { Contexte } from './Modele/enumContexte';
-const p = require('path');
 var SocketIOFileUpload = require("socketio-file-upload");
 import { checkAnswer } from './Modele/checkAnswer';
 import { Vol } from './Modele/vol';
@@ -13,6 +12,9 @@ import { Frequences } from './Parseur/frequences';
 import { datesFile } from './Parseur/date';
 import { ParseurLPLN } from './Parseur/parseurLPLN';
 import { ParseurVEMGSA } from './Parseur/ParseurVEMGSA';
+import { LogBook } from './logBook';
+
+
 
 export class Formulaire {
     private app = require('http').createServer();
@@ -26,6 +28,7 @@ export class Formulaire {
     private check: Check;
     private mixInfos: MixInfos;
     private frequences: Frequences;
+    private logBook: LogBook;
 
     constructor() {
         this.users = new UsersRepository(Path.userPath);
@@ -36,11 +39,16 @@ export class Formulaire {
         this.check = new Check();
         this.mixInfos = new MixInfos();
         this.frequences = new Frequences();
+        this.logBook = new LogBook();
     }
+
+    
+
 
     private initSocket() {
         this.io.on("connection", (socket) => {
             console.log('connexion d un client, ouverture d une socket pour la recuperation de fichier', socket.id);
+
             let clientId: string = socket.id;
             this.users.createUser(clientId);
             this.grepVEMGSA = new GrepVEMGSA(Path.userPath + "/" + clientId);
@@ -50,15 +58,19 @@ export class Formulaire {
             let uploader = new SocketIOFileUpload();
             uploader.dir = Path.userPath + "/" + clientId;
             uploader.listen(socket);
-
+            this.logBook.writeLogBook(clientId,"connexion client");
 
             socket.on("disconnect", (socket) => {
                 console.log('disconnect', clientId);
+                this.logBook.writeLogBook(clientId,"deconnexion client");
                 this.users.deleteUser(clientId);
             });
 
             uploader.on("complete", function (event) {
                 console.log("upload complete", event.file.name);
+                let log:string="telechargement fichier "+event.file.name;
+                this.logBook.writeLogBook(clientId,log);
+
                 //mixInfos("",0, event.file.name, null); 
             });
 
@@ -98,6 +110,7 @@ export class Formulaire {
             });
 
             socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer: checkAnswer, chosenHoraire) => {
+                this.logBook.writeLogBook(clientId,"analysing "+"arcid: "+arcid+"plnid: "+ plnid+"lplnfilename: "+ lplnfilename+"vemgsafilename: "+vemgsafilename +"chosenHoraire: "+ chosenHoraire);
                 if (chosenHoraire == '') {
                     chosenHoraire = undefined;
                 }
@@ -147,4 +160,6 @@ export class Formulaire {
             });
         });
     }
+
+    
 }
