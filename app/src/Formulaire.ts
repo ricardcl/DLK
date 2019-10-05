@@ -39,7 +39,7 @@ export class Formulaire {
         this.check = new Check();
         this.mixInfos = new MixInfos();
         this.frequences = new Frequences();
-        this.logBook = new LogBook();
+        this.logBook = LogBook.getInstance();
     }
 
     
@@ -66,7 +66,7 @@ export class Formulaire {
                 this.users.deleteUser(clientId);
             });
 
-            uploader.on("complete", function (event) {
+            uploader.on("complete", (event) => {
                 console.log("upload complete", event.file.name);
                 let log:string="telechargement fichier "+event.file.name;
                 this.logBook.writeLogBook(clientId,log);

@@ -8,7 +8,10 @@ if (!fs.existsSync(Path.userPath)) {
     fs.mkdirSync(Path.userPath);
 }
 
-
+// Init the log folder :
+if (!fs.existsSync(Path.logBookPath)) {
+    fs.mkdirSync(Path.logBookPath);
+}
 
 // Start application :
 new Formulaire();

@@ -14,7 +14,7 @@ export class Path {
     }
 
     static get logBookPath () : string {
-        return Path.distPath + "/logBook";
+        return Path.distPath + "/log";
     }
 
     static get STPVFilePath () : string {
