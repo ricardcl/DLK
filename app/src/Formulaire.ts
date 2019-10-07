@@ -68,7 +68,7 @@ export class Formulaire {
 
             uploader.on("complete", (event) => {
                 console.log("upload complete", event.file.name);
-                let log:string="telechargement fichier "+event.file.name;
+                let log:string="telechargement fichier "+event.file.name; 
                 this.logBook.writeLogBook(clientId,log);
 
                 //mixInfos("",0, event.file.name, null); 
