@@ -786,6 +786,7 @@ export class MixInfos {
     let tabEtatConnexion: etatLogonConnexionSimplifiee[] = [];
     let tabEtatLogon: etatLogonConnexionSimplifiee[] = [];
     let tabEtatLogonTemp: etatLogonConnexionSimplifiee[] = [];
+    let tabLog: etatLogonConnexionSimplifiee[] = [];
 
     //RECUPERATION DES INFORMATION DE LOGON
     for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
@@ -815,15 +816,16 @@ export class MixInfos {
           tabEtatLogonTemp.push(newElement);
         }
       }
-      if (index == tabEtatLogonConnexion.length -1 ){
-        tabEtatLogonTemp[tabEtatLogonTemp.length - 1].toDate = tabEtatLogonConnexion[tabEtatLogonConnexion.length-1].dateChgtEtat;
+      if (index == tabEtatLogonConnexion.length - 1) {
+        tabEtatLogonTemp[tabEtatLogonTemp.length - 1].toDate = tabEtatLogonConnexion[tabEtatLogonConnexion.length - 1].dateChgtEtat;
       }
     }
+    //suppression des changements d etat immediats
     tabEtatLogonTemp.forEach(element => {
-      if (element.fromDate !== element.toDate){
+      if (element.fromDate !== element.toDate) {
         tabEtatLogon.push(element);
       }
-      
+
     });
 
     //RECUPERATION DES INFORMATION DE CONNEXION
@@ -835,7 +837,7 @@ export class MixInfos {
       newElement.name = "connexion";
       newElement.infoEtat = element.etat;
       if (index == 0) {
-        if(element.etat == Etat.Connecte){
+        if (element.etat == Etat.Connecte) {
           tabEtatConnexion.push(newElement);
         }
       }
@@ -850,27 +852,46 @@ export class MixInfos {
       }
     }
 
-    console.log("!!!!!!!!!!!!!!!!!!TEST tabEtatConnexion!!!!!!!!!!!!!!");
-    tabEtatConnexion.forEach(element => {
-      console.log("element: ", element);
+    //RECUPERATION DES INFORMATION de LOG IMPORTANT POUR  L UTILISATEUR tabLog
+    for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
+      const element = tabEtatLogonConnexion[index];
+      let newElement = <etatLogonConnexionSimplifiee>{};
+      newElement.fromDate = element.dateChgtEtat;
+      newElement.name = "logs";
+      newElement.logs = element.infoEtat;
 
-    });
-    console.log("!!!!!!!!!!!!!!!!!! FIN TEST!!!!!!!!!!!!!");
-    console.log("!!!!!!!!!!!!!!!!!!TEST tabEtatLogon!!!!!!!!!!!!!!");
-    tabEtatLogon.forEach(element => {
-      console.log("element: ", element);
+      if (index == 0) {
+        tabLog.push(newElement);
+      }
+      else {
+        const elementPrevious = tabLog[tabLog.length - 1];
+        if (elementPrevious.fromDate == element.dateChgtEtat) {
+          tabLog[tabLog.length - 1].logs += " -"+element.etat;
+        }
+        else {
+          tabLog.push(newElement);
+        }
+      }
+    }
 
+
+    //REMPLISSAGE DU TABLEAU DE LOGON CONNEXION EN RESPECTANT L ORDRE SUIVANT :
+    //INFOS DE LOGS
+    //INFOS DE CONNEXION
+    //INFOS DE LOGON
+
+     tabLog.forEach(element => {
+      tabEtatLogonConnexionSimplifie.push(element);
     });
-    console.log("!!!!!!!!!!!!!!!!!! FIN TEST!!!!!!!!!!!!!");
+
     tabEtatConnexion.forEach(element => {
       tabEtatLogonConnexionSimplifie.push(element);
-
     });
+
     tabEtatLogon.forEach(element => {
       tabEtatLogonConnexionSimplifie.push(element);
-
     });
-    
+
     return tabEtatLogonConnexionSimplifie;
   }
 

@@ -45,6 +45,6 @@ export interface etatLogonConnexionSimplifiee {
     fromDate: string; 
     toDate: string;
     name: string; //connexion/logon/frequence
-    infoEtat: string; //logue, non logue , connecte, non connecte
-    logs:[etatLogonConnexion];
+    infoEtat?: string; //logue, non logue , connecte, non connecte
+    logs?:string;
 }
