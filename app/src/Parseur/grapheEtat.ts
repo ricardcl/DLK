@@ -75,7 +75,7 @@ export class GrapheEtat {
                     if (monEtat == Etat.DemandeConnexion) {
 
                         if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
-                            monEtat = Etat.Associe;
+                            monEtat = Etat.Connecte;
                         }
                         else if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
                             monEtat = Etat.Logue;

@@ -4,7 +4,7 @@ export enum Etat {
     DemandeLogonAutorisee = "DEMANDE_LOGON_AUTORISEE",
     Logue = "LOGUE",
     DemandeConnexion = "DEMANDE_CONNEXION",
-    Associe= "ASSOCIE",
+    Connecte= "CONNECTE",
     TransfertEnCours = "TRANSFERT_EN_COURS",
     NonTransferable = "NON_TRANSFERABLE",
     Transferable = "TRANSFERABLE",

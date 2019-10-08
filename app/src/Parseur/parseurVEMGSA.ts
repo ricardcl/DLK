@@ -165,7 +165,7 @@ export class ParseurVEMGSA {
           if (monEtat == Etat.DemandeConnexion) {
 
             if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
-              monEtat = Etat.Associe;
+              monEtat = Etat.Connecte;
             }
             else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
               monEtat = Etat.Logue;

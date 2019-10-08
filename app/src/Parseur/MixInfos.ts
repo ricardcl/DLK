@@ -4,7 +4,7 @@ import { ParseurVEMGSA } from './ParseurVEMGSA';
 import { GrapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Dates, datesFile } from './date';
-import { etatTransfertFrequence, etatLogonConnexion } from '../Modele/checkAnswer';
+import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee } from '../Modele/checkAnswer';
 import { Frequences } from './frequences';
 import { Etat } from '../Modele/enumEtat';
 
@@ -205,6 +205,8 @@ export class MixInfos {
     monvolFinal.getListeEtatTransfertFrequence().forEach(element => {
       console.log(element.frequence, element.dateTransfert, element.isTRARTV);
     });
+
+    this.evaluationEtatsLogonConnexionSimplifie(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
 
     monvolFinal.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
 
@@ -697,8 +699,8 @@ export class MixInfos {
         case 'CPCCOMSTAT': {
           //console.log('CPCCOMSTAT'); 
           if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
-            etatLogonConnexion.etat = Etat.Associe;
-            etatLogonConnexion.infoEtat = "Connecte/associe";
+            etatLogonConnexion.etat = Etat.Connecte;
+            etatLogonConnexion.infoEtat = "Connecte";
             infoSupp = true
           }
           else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
@@ -760,10 +762,10 @@ export class MixInfos {
       if (index > 0) {
         const elementPrevious = tabEtatLogonConnexionTemp[index - 1];
 
-        if  ((element.etat == Etat.Logue) && (element.infoEtat == "DemandeDeconnexion") && (elementPrevious.infoEtat =="Deconnexion")) {
+        if ((element.etat == Etat.Logue) && (element.infoEtat == "DemandeDeconnexion") && (elementPrevious.infoEtat == "Deconnexion")) {
           tabEtatLogonConnexion.pop();
         }
-        else  if (((element.etat == Etat.NonLogue) || ((element.etat == Etat.Logue) && (element.etat == Etat.Logue))) && (element.infoEtat == elementPrevious.infoEtat)) {
+        else if (((element.etat == Etat.NonLogue) || ((element.etat == Etat.Logue) && (element.etat == Etat.Logue))) && (element.infoEtat == elementPrevious.infoEtat)) {
           tabEtatLogonConnexion.pop();
           tabEtatLogonConnexion.pop();
           tabEtatLogonConnexion.push(element);
@@ -778,6 +780,56 @@ export class MixInfos {
     return tabEtatLogonConnexion;
   }
 
+  private evaluationEtatsLogonConnexionSimplifie(tabEtatLogonConnexion: etatLogonConnexion[]): etatLogonConnexionSimplifiee[] {
+    let tabEtatLogonConnexionSimplifie: etatLogonConnexionSimplifiee[] = [];
+    let tabEtatConnexionTemp: etatLogonConnexion[] = [];
+    let tabEtatConnexion: etatLogonConnexionSimplifiee[] = [];
 
+    //RECUPERATION DES INFORMATION DE CONNEXION
+
+    // let dateMax:string = tabEtatConnexionTemp[tabEtatConnexionTemp.length-1].dateChgtEtat;
+    //let infoSuppConnexion: boolean = false;
+
+    for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
+
+
+      const element = tabEtatLogonConnexion[index];
+      let newElement = <etatLogonConnexionSimplifiee>{};
+      newElement.fromDate = element.dateChgtEtat;
+      newElement.toDate = element.dateChgtEtat;
+      newElement.name = "connexion";
+      newElement.infoEtat = element.etat;
+
+
+      if (index == 0) {
+        if (element.etat == Etat.Connecte) {
+          tabEtatConnexion.push(newElement);
+        }
+      }
+
+      else {
+        const elementPrevious = tabEtatLogonConnexion[index - 1];
+
+        if ((elementPrevious.etat !== element.etat) && (element.etat == Etat.Connecte)) {
+          tabEtatConnexion.push(newElement);
+        }
+        else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.Connecte)) {
+          tabEtatConnexion[tabEtatConnexion.length - 1].toDate = element.dateChgtEtat;
+        }
+
+
+      }
+    }
+
+    console.log("!!!!!!!!!!!!!!!!!!TEST tabEtatConnexion!!!!!!!!!!!!!!");
+    tabEtatConnexion.forEach(element => {
+      console.log("element: ", element);
+
+    });
+    console.log("!!!!!!!!!!!!!!!!!! FIN TEST!!!!!!!!!!!!!");
+
+
+    return tabEtatConnexion;
+  }
 
 }

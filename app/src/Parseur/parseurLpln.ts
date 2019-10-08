@@ -202,7 +202,7 @@ export class ParseurLPLN {
               if (monEtat == Etat.DemandeConnexion) { 
  
                 if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") { 
-                  monEtat = Etat.Associe; 
+                  monEtat = Etat.Connecte; 
                 } 
                 else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") { 
                   monEtat = Etat.Logue; 
@@ -223,7 +223,7 @@ export class ParseurLPLN {
             } 
             case 'CPCCLOSLNK': { 
               //console.log('CPCCLOSLNK'); 
-              if ((monEtat == Etat.Associe) && log.getDetaillog()["FREQ"] !== undefined) { 
+              if ((monEtat == Etat.Connecte) && log.getDetaillog()["FREQ"] !== undefined) { 
                 monEtat = Etat.TransfertEnCours; 
               } 
               if ((monEtat == Etat.TransfertEnCours) && log.getDetaillog()["FREQ"] !== undefined) { 
