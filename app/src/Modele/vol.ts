@@ -1,6 +1,6 @@
 import { EtatCpdlc } from './etatCpdlc';
 import moment = require('moment');
-import { etatTransfertFrequence, etatLogonConnexion } from './checkAnswer'
+import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee } from './checkAnswer'
 
 export class Vol {
     /** identifiant unique d'un vol (heure en ms ?) */
@@ -27,6 +27,8 @@ export class Vol {
     private listeEtatTransfertFrequence: etatTransfertFrequence[];
     /*etat des differents transferts de frequence*/
     private listeEtatLogonConnexion: etatLogonConnexion[];
+      /*etat des differents transferts de frequence*/
+    private timelineEtatLogonConnexion: etatLogonConnexionSimplifiee[];
 
     // PARAMETRES LIES AU LOGON 
     /**Adresse  Mode S vide si route ifps = NON ... inutile a traiter -> a supprimer */
@@ -71,6 +73,7 @@ export class Vol {
         this.islogCpdlcComplete = false;
         this.listeEtatTransfertFrequence = [];
         this.listeEtatLogonConnexion = [];
+        this.timelineEtatLogonConnexion = [];
     }
 
 
@@ -155,6 +158,10 @@ export class Vol {
     public setListeEtatLogonConnexion(listeEtatLogonConnexion: etatLogonConnexion[]): void {
         this.listeEtatLogonConnexion = listeEtatLogonConnexion;
     }
+    public setTimelineEtatLogonConnexion(timelineEtatLogonConnexion: etatLogonConnexionSimplifiee[]): void {
+        this.timelineEtatLogonConnexion = timelineEtatLogonConnexion;
+    }
+
     
 
 
@@ -242,6 +249,10 @@ export class Vol {
     public getListeEtatLogonConnexion(): etatLogonConnexion[] {
         return this.listeEtatLogonConnexion;
     }
+    public getTimelineEtatLogonConnexion(): etatLogonConnexionSimplifiee[] {
+        return this.timelineEtatLogonConnexion;
+    }
+    
     
 
 } 

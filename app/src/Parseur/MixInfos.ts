@@ -207,8 +207,8 @@ export class MixInfos {
     });
 
     this.evaluationEtatsLogonConnexionSimplifie(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
-
     monvolFinal.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
+    monvolFinal.setTimelineEtatLogonConnexion(this.evaluationEtatsLogonConnexionSimplifie(monvolFinal.getListeEtatLogonConnexion()));
 
     return monvolFinal;
   }
@@ -288,8 +288,8 @@ export class MixInfos {
 
 
     /** Recuperation des infos de cheangement d'état */
-
     monvolLpln.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolLpln.getListeLogs()));
+    monvolLpln.setTimelineEtatLogonConnexion(this.evaluationEtatsLogonConnexionSimplifie(monvolLpln.getListeEtatLogonConnexion()));
     /** console.log("array tabEtatLogonConnexionLPLNs: ");
     monvolLpln.getListeEtatLogonConnexion().forEach(element => {
       console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
@@ -370,6 +370,7 @@ export class MixInfos {
 
     monvolVemgsa = this.sortLogs(monvolVemgsa);
     monvolVemgsa.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolVemgsa.getListeLogs()));
+    monvolVemgsa.setTimelineEtatLogonConnexion(this.evaluationEtatsLogonConnexionSimplifie(monvolVemgsa.getListeEtatLogonConnexion()));
     return monvolVemgsa;
   }
 
@@ -782,42 +783,61 @@ export class MixInfos {
 
   private evaluationEtatsLogonConnexionSimplifie(tabEtatLogonConnexion: etatLogonConnexion[]): etatLogonConnexionSimplifiee[] {
     let tabEtatLogonConnexionSimplifie: etatLogonConnexionSimplifiee[] = [];
-    let tabEtatConnexionTemp: etatLogonConnexion[] = [];
     let tabEtatConnexion: etatLogonConnexionSimplifiee[] = [];
+    let tabEtatLogon: etatLogonConnexionSimplifiee[] = [];
+
+    //RECUPERATION DES INFORMATION DE LOGON
+    for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
+      const element = tabEtatLogonConnexion[index];
+      let newElement = <etatLogonConnexionSimplifiee>{};
+      newElement.fromDate = element.dateChgtEtat;
+      newElement.toDate = element.dateChgtEtat;
+      newElement.name = "logon";
+      newElement.infoEtat = element.etat;
+
+      if (index == 0) {
+        if (element.etat == Etat.Connecte) {
+          newElement.infoEtat = Etat.Logue;
+        }
+        tabEtatLogon.push(newElement);
+      }
+      else {
+        const elementPrevious = tabEtatLogonConnexion[index - 1];
+        //cas ou on passe de logue a non logue
+        if ((elementPrevious.etat !== element.etat) && (element.etat == Etat.NonLogue)) {
+          tabEtatLogon[tabEtatLogon.length - 1].toDate = element.dateChgtEtat;
+          tabEtatLogon.push(newElement);
+        }
+        //cas ou on passe de non logue a logue
+        else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.NonLogue)) {
+          tabEtatLogon[tabEtatLogon.length - 1].toDate = element.dateChgtEtat;
+          tabEtatLogon.push(newElement);
+        }
+      }
+      if (index == tabEtatLogonConnexion.length -1 ){
+        tabEtatLogon[tabEtatLogon.length - 1].toDate = tabEtatLogonConnexion[tabEtatLogonConnexion.length-1].dateChgtEtat;
+      }
+    }
 
     //RECUPERATION DES INFORMATION DE CONNEXION
-
-    // let dateMax:string = tabEtatConnexionTemp[tabEtatConnexionTemp.length-1].dateChgtEtat;
-    //let infoSuppConnexion: boolean = false;
-
     for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
-
-
       const element = tabEtatLogonConnexion[index];
       let newElement = <etatLogonConnexionSimplifiee>{};
       newElement.fromDate = element.dateChgtEtat;
       newElement.toDate = element.dateChgtEtat;
       newElement.name = "connexion";
       newElement.infoEtat = element.etat;
-
-
       if (index == 0) {
-        if (element.etat == Etat.Connecte) {
-          tabEtatConnexion.push(newElement);
-        }
+        tabEtatConnexion.push(newElement);
       }
-
       else {
         const elementPrevious = tabEtatLogonConnexion[index - 1];
-
         if ((elementPrevious.etat !== element.etat) && (element.etat == Etat.Connecte)) {
           tabEtatConnexion.push(newElement);
         }
         else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.Connecte)) {
           tabEtatConnexion[tabEtatConnexion.length - 1].toDate = element.dateChgtEtat;
         }
-
-
       }
     }
 
@@ -827,9 +847,22 @@ export class MixInfos {
 
     });
     console.log("!!!!!!!!!!!!!!!!!! FIN TEST!!!!!!!!!!!!!");
+    console.log("!!!!!!!!!!!!!!!!!!TEST tabEtatLogon!!!!!!!!!!!!!!");
+    tabEtatLogon.forEach(element => {
+      console.log("element: ", element);
 
+    });
+    console.log("!!!!!!!!!!!!!!!!!! FIN TEST!!!!!!!!!!!!!");
+    tabEtatConnexion.forEach(element => {
+      tabEtatLogonConnexionSimplifie.push(element);
 
-    return tabEtatConnexion;
+    });
+    tabEtatLogon.forEach(element => {
+      tabEtatLogonConnexionSimplifie.push(element);
+
+    });
+    
+    return tabEtatLogonConnexionSimplifie;
   }
 
 }
