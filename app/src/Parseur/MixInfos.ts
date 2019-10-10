@@ -866,7 +866,7 @@ export class MixInfos {
       else {
         const elementPrevious = tabLog[tabLog.length - 1];
         if (elementPrevious.fromDate == element.dateChgtEtat) {
-          tabLog[tabLog.length - 1].logs += " -"+element.etat;
+          tabLog[tabLog.length - 1].logs += "\n"+element.infoEtat;
         }
         else {
           tabLog.push(newElement);
