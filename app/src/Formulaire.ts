@@ -42,7 +42,7 @@ export class Formulaire {
         this.logBook = LogBook.getInstance();
     }
 
-    
+
 
 
     private initSocket() {
@@ -58,18 +58,18 @@ export class Formulaire {
             let uploader = new SocketIOFileUpload();
             uploader.dir = Path.userPath + "/" + clientId;
             uploader.listen(socket);
-            this.logBook.writeLogBook(clientId,"connexion client");
+            this.logBook.writeLogBook(clientId, "connexion client");
 
             socket.on("disconnect", (socket) => {
                 console.log('disconnect', clientId);
-                this.logBook.writeLogBook(clientId,"deconnexion client");
+                this.logBook.writeLogBook(clientId, "deconnexion client");
                 this.users.deleteUser(clientId);
             });
 
             uploader.on("complete", (event) => {
                 console.log("upload complete", event.file.name);
-                let log:string="telechargement fichier "+event.file.name; 
-                this.logBook.writeLogBook(clientId,log);
+                let log: string = "telechargement fichier " + event.file.name;
+                this.logBook.writeLogBook(clientId, log);
 
                 //mixInfos("",0, event.file.name, null); 
             });
@@ -110,7 +110,7 @@ export class Formulaire {
             });
 
             socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer: checkAnswer, chosenHoraire) => {
-                this.logBook.writeLogBook(clientId,"analysing "+"arcid: "+arcid+"plnid: "+ plnid+"lplnfilename: "+ lplnfilename+"vemgsafilename: "+vemgsafilename +"chosenHoraire: "+ chosenHoraire);
+                this.logBook.writeLogBook(clientId, "analysing " + "arcid: " + arcid + "plnid: " + plnid + "lplnfilename: " + lplnfilename + "vemgsafilename: " + vemgsafilename + "chosenHoraire: " + chosenHoraire);
                 if (chosenHoraire == '') {
                     chosenHoraire = undefined;
                 }
@@ -133,16 +133,19 @@ export class Formulaire {
 
                         if ((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 4)) {
 
-                            //let volLpln :Vol;
-                            //let volVemgsa :Vol;
-                            // volLpln = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN); 
-                            //volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename,this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire); 
+                            // let volLpln :Vol;
+                            //                 let volVemgsa :Vol;
+                            //              volLpln = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN); 
+                            //         volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename,this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire); 
 
                             socket.emit("analysedVolMix",
                                 this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN),
+                                //volLpln,
                                 this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire),
+                                //volVemgsa,
                                 this.mixInfos.mixInfos(this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire), checkanswer.arcid, checkanswer.plnid)
-                                );                                
+                                //this.mixInfos.mixInfos(volLpln,volVemgsa,checkanswer.arcid, checkanswer.plnid)
+                            );
                         }
                         else {
                             if (checkanswer.checkLPLN.valeurRetour <= 1) {
@@ -161,5 +164,5 @@ export class Formulaire {
         });
     }
 
-    
+
 }
