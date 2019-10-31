@@ -34,6 +34,20 @@ export class Formulaire {
         this.users = new UsersRepository(Path.userPath);
         this.users.deleteAllUsers();
 
+        const express = require('express');
+        const app = express();
+        app.listen(4200, function () {
+            app.get('/download', function (req, res) {
+                console.log("HELLO !!!", __dirname);
+                res.send('Bonjour tout le monde');
+            });
+    
+            app.route('/download').get((req, res) => {
+                console.log("HELLO !!!", __dirname);
+                res.download(__dirname + 'README.md', 'README.md');
+            });
+        });
+
         this.app.listen(4000);
         this.initSocket();
         this.check = new Check();
@@ -108,6 +122,7 @@ export class Formulaire {
                 socket.emit("check", resultCheck);
 
             });
+
 
             socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer: checkAnswer, chosenHoraire) => {
                 this.logBook.writeLogBook(clientId, "analysing " + "arcid: " + arcid + "plnid: " + plnid + "lplnfilename: " + lplnfilename + "vemgsafilename: " + vemgsafilename + "chosenHoraire: " + chosenHoraire);
