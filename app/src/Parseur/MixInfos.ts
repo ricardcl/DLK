@@ -479,17 +479,20 @@ export class MixInfos {
             }
           });
           if (!trouve) {
+            this.removeYear(etatTransfertFreq);
             tabEtatsTransfertFrequences.push(etatTransfertFreq);
           }
 
         }
         else {
+          this.removeYear(etatTransfertFreq);
           tabEtatsTransfertFrequences.push(etatTransfertFreq);
         }
       }
 
 
     });
+    
     return tabEtatsTransfertFrequences;
   }
 
@@ -542,6 +545,7 @@ export class MixInfos {
         //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
         // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
 
+        this.removeYear(etatTransfertFreq);
         tabEtatsTransfertFrequences.push(etatTransfertFreq);
       }
 
@@ -633,7 +637,7 @@ export class MixInfos {
         //8H01 ENVOI MSG CPCFREQ : 127.180 AU SERVEUR AIR
         //EVENEMENT DATE: FIN TRFDL HEURE:08h02                                                                            *
         // 120  08H03 *   TRAITEMENT TRANSACTION TRARTV POSITION ORIGINE P17 
-
+        this.removeYear(etatTransfertFreq);
 
         tabEtatsTransfertFrequences.push(etatTransfertFreq);
 
@@ -914,5 +918,12 @@ export class MixInfos {
 
     return tabEtatLogonConnexionSimplifie;
   }
-
+  private removeYear(etatTransfertFreq: etatTransfertFrequence): void {
+  console.log("elt.dateTransfert", etatTransfertFreq.dateTransfert);
+  const momentDate1 = moment(etatTransfertFreq.dateTransfert, 'DD-MM-yyyy HH mm ss');
+  if (momentDate1.isValid()) {
+    etatTransfertFreq.dateTransfert = moment(momentDate1).format('DD-MM HH mm ss')
+  }
+  console.log("etatTransfertFreq.dateTransfert after", etatTransfertFreq.dateTransfert);
+  }
 }
