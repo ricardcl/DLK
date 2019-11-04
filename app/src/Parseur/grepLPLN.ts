@@ -29,7 +29,7 @@ export class GrepLPLN {
   }
 
   public grepLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): void {
-    console.log("Classe grepLpln Fonction grepLogLPLN");
+    console.log("Classe grepLpln Fonction grepLogLPLN", "plnid",plnid,"arcid",arcid);
 
     let fichierDestination = p.resolve(this.userPath, "resultLPLN.htm");
 

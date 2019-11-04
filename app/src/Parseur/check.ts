@@ -197,7 +197,7 @@ export class Check {
                 if (id.identifie) { // SI COUPLE PLNID ARCID TROUVE A PARTIR DE L ARCID 
  
                     //RECUPERATION DES LOGS CPDLC 
-                    grepLPLN.grepLogLPLN(arcid, plnid, fichierSourceLpln); 
+                    grepLPLN.grepLogLPLN(arcid, id.plnid, fichierSourceLpln); 
                     // TEST VOL DECLARE CPDLC 
                     //TODO 
                     answer.plnid = id.plnid; 
@@ -215,7 +215,7 @@ export class Check {
                 id = this.identificationLpln(arcid, plnid, fichierSourceLpln, grepLPLN); 
                 if (id.identifie) { 
                     //RECUPERATION DES LOGS CPDLC 
-                    grepLPLN.grepLogLPLN(arcid, plnid, fichierSourceLpln); 
+                    grepLPLN.grepLogLPLN(id.arcid, plnid, fichierSourceLpln); 
                     // TEST VOL DECLARE CPDLC 
                     //TODO 
                     answer.arcid = id.arcid; 
