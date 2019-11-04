@@ -7,6 +7,7 @@ import { Dates, datesFile } from './date';
 import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee } from '../Modele/checkAnswer';
 import { Frequences } from './frequences';
 import { Etat } from '../Modele/enumEtat';
+import moment = require('moment');
 
 export class MixInfos {
 
@@ -859,6 +860,9 @@ export class MixInfos {
       newElement.fromDate = element.dateChgtEtat;
       newElement.name = "logs";
       newElement.logs = element.infoEtat;
+      // newElement.fromDate= String(moment(newElement.fromDate).format('DD-MM HH mm'));
+      // newElement.toDate= String(moment(newElement.toDate).format('DD-MM HH mm'));
+
 
       if (index == 0) {
         tabLog.push(newElement);
@@ -866,7 +870,11 @@ export class MixInfos {
       else {
         const elementPrevious = tabLog[tabLog.length - 1];
         if (elementPrevious.fromDate == element.dateChgtEtat) {
+<<<<<<< HEAD
           tabLog[tabLog.length - 1].logs += "\n"+element.infoEtat;
+=======
+          tabLog[tabLog.length - 1].logs += "\n" + element.infoEtat;
+>>>>>>> develop
         }
         else {
           tabLog.push(newElement);
@@ -891,6 +899,22 @@ export class MixInfos {
     tabEtatLogon.forEach(element => {
       tabEtatLogonConnexionSimplifie.push(element);
     });
+    
+        tabEtatLogonConnexionSimplifie.forEach(element => {
+          console.log("element.fromDate", element.fromDate);
+          const momentDate1 = moment(element.fromDate, 'DD-MM-yyyy HH mm ss');
+          if (momentDate1.isValid()) {
+            element.fromDate = moment(momentDate1).format('DD-MM HH mm ss')
+          }
+          console.log("element.fromDate after", element.fromDate);
+    
+          console.log("element.toDate", element.toDate);
+          const momentDate2 = moment(element.toDate, 'DD-MM-yyyy HH mm ss');
+          if (momentDate2.isValid()) {
+            element.toDate = moment(momentDate2).format('DD-MM HH mm ss')
+          }
+          console.log("element.toDate after", element.toDate);
+        });
 
     return tabEtatLogonConnexionSimplifie;
   }
