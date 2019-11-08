@@ -121,7 +121,7 @@ export class GrapheEtat {
                         }
                     }
                     //Cas ou le serveur air n a pas repondu assez tot, le vol passe vtr donc closelink obligatoire -> demande deconnexion en cours
-                    if (monEtat == Etat.DemandeDeconnexion) {
+                    else if (monEtat == Etat.DemandeDeconnexion) {
                         if ((etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "UNA") || (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "STB")) {
                             monEtat = Etat.DemandeDeconnexion;
                         }
