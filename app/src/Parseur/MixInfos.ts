@@ -515,10 +515,8 @@ export class MixInfos {
 
         listeLogs.forEach(etatCpdlcTemp => {
           dateTemp = etatCpdlcTemp.getDate();
-
-
-          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "UNA") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-            //console.log("date FIN TRFDL timeout:", dateTemp);
+                                                                
+          if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
             // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
             etatTransfertFreq.dateFinTRFDL = dateTemp;
@@ -527,14 +525,15 @@ export class MixInfos {
 
           }
 
-          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-            // console.log("date CPDLCMSGDOWN WIL:", dateTemp);
+         else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
             // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isTransfertAcq = true;
             etatTransfertFreq.dateTranfertAcq = dateTemp;
             //  console.log("etatTransfertFreq.isTransfertAcq:", etatTransfertFreq.isTransfertAcq);
             // console.log("etatTransfertFreq.dateTranfertAcq", etatTransfertFreq.dateTranfertAcq);
           }
+
+
         });
         console.log("------------------------------------------");
 
@@ -620,7 +619,7 @@ export class MixInfos {
 
 
 
-          if ((etatCpdlcTemp.getTitle() == "CPDLCMSGDOWN") && (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+          if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
             // console.log("date CPDLCMSGDOWN WIL:", dateTemp);
             // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isTransfertAcq = true;
