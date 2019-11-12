@@ -11,7 +11,9 @@ export interface checkAnswerInitial {
     creneauVemgsa?: datesFile; //pour VEMGSA 
     datesFichierVemgsa?: datesFile; //pour VEMGSA 
 } 
-  
+ 
+
+ 
 export interface checkAnswer { 
     analysePossible: boolean; 
     plnid?: number; 
@@ -46,4 +48,3 @@ export interface etatLogonConnexionSimplifiee {
     infoEtat?: string; //logue, non logue , connecte, non connecte
     logs?:string;
 }
-

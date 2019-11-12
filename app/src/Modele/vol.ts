@@ -2,18 +2,6 @@ import { EtatCpdlc } from './etatCpdlc';
 import moment = require('moment');
 import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee } from './checkAnswer'
 
-export interface etatFichierCharge { 
-    name: string; 
-   // plnid: number; 
-    // arcid: string; 
-    isId : boolean; 
-    dateMin : string; //Date min des logs relatifs au vol demande
-    dateMax : string; //Date max des logs relatifs au vol demande
-    islogCpdlcComplete: boolean; 
-    haslogCpdlc: boolean; 
-    isFlightCpdlc: boolean;   
-}
-
 export class Vol {
     /** identifiant unique d'un vol (heure en ms ?) */
     private id: string;
@@ -39,11 +27,8 @@ export class Vol {
     private listeEtatTransfertFrequence: etatTransfertFrequence[];
     /*etat des differents transferts de frequence*/
     private listeEtatLogonConnexion: etatLogonConnexion[];
-    /*etat des differents transferts de frequence*/
+      /*etat des differents transferts de frequence*/
     private timelineEtatLogonConnexion: etatLogonConnexionSimplifiee[];
-
-
-   // private etatFichierLplnCharge: etatFichierCharge;
 
     // PARAMETRES LIES AU LOGON 
     /**Adresse  Mode S vide si route ifps = NON ... inutile a traiter -> a supprimer */
@@ -89,7 +74,6 @@ export class Vol {
         this.listeEtatTransfertFrequence = [];
         this.listeEtatLogonConnexion = [];
         this.timelineEtatLogonConnexion = [];
-       // this.etatFichierLplnCharge = <etatFichierCharge>{};
     }
 
 
