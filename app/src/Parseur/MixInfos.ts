@@ -68,20 +68,20 @@ export class MixInfos {
       monvolFinal.setCmpAdrModeS("KO");
     }
 
-    if ((volLpln.getLogonInitie()) || (volVemgsa.getLogonInitie())) {
+    if ((volLpln.getLogonInitie() == "OK") || (volVemgsa.getLogonInitie() == "OK" )) {
       monvolFinal.setLogonInitie("OK");
     }
     else { monvolFinal.setLogonInitie("KO"); }
 
-    if ((volLpln.getLogonAccepte()) || (volVemgsa.getLogonAccepte())) {
+    if ((volLpln.getLogonAccepte()== "OK") || (volVemgsa.getLogonAccepte()== "OK")) {
       monvolFinal.setLogonAccepte("OK");
     }
     else {
       monvolFinal.setLogonAccepte("KO");
     }
 
-    if ((monvolFinal.getLogonAccepte()) || (monvolFinal.getCmpAdep() && monvolFinal.getCmpAdes()
-      && monvolFinal.getCmpAdrModeS() && monvolFinal.getCmpArcid() && monvolFinal.getEquipementCpdlc())) {
+    if ((monvolFinal.getLogonAccepte()== "OK") || ((monvolFinal.getCmpAdep()== "OK") && (monvolFinal.getCmpAdes()== "OK")
+      && (monvolFinal.getCmpAdrModeS()== "OK") && (monvolFinal.getCmpArcid()== "OK") && (monvolFinal.getEquipementCpdlc()== "EQUIPE"))) {
       monvolFinal.setConditionsLogon("OK");
     }
     else {
@@ -236,7 +236,7 @@ export class MixInfos {
     } else { monvolLpln.setCmpAdrModeS("KO"); }
 
 
-    if (monvolLpln.getLogonAccepte()) {
+    if (monvolLpln.getLogonAccepte() == "OK") {
       monvolLpln.setConditionsLogon("OK");
     }
 
@@ -316,7 +316,7 @@ export class MixInfos {
 
     //RECUPERATION DES ATTRIBUTS 
 
-    if (monvolVemgsa.getLogonAccepte()) {
+    if (monvolVemgsa.getLogonAccepte()== "OK") {
       monvolVemgsa.setConditionsLogon("OK")
     }
     else { monvolVemgsa.setConditionsLogon("KO"); }
