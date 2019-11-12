@@ -1,9 +1,10 @@
 import { Identifiants } from "../Modele/identifiants";
 import {  Split } from './split';
+import { ReadLine } from "../scripts/node-readline/node-readline";
+
 
 
 const fs = require('fs');
-let readline = require("../scripts/node-readline/node-readline");
 const p = require('path');
 
 
@@ -15,12 +16,14 @@ const p = require('path');
 export class GrepLPLN {
   private userPath: string;
   private split: Split;
+  private readLine: ReadLine;
 
   constructor(userPath: string) {
     console.log("Je rentre dans le constructor GrepLPLN ");
 
     this.userPath = userPath;
     this.split = new Split ();
+    this.readLine = new ReadLine();
   }
 
 
@@ -36,7 +39,7 @@ export class GrepLPLN {
     let fichierSource = p.resolve(this.userPath, fichierSourceLpln);
 
 
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let w = fs.openSync(fichierDestination, "w");
 
     //Test de l'ouverture du fichier
@@ -47,7 +50,7 @@ export class GrepLPLN {
     //Traitement du fichier
     do {
       //Test de la fin de fichier
-      let mylogCpdlc = readline.fgets(r);
+      let mylogCpdlc = this.readLine.fgets(r);
       if (mylogCpdlc === false) { break; }
       //Test du début des logs concernant le vol dans le SL AIX
       let info1Lpln = mylogCpdlc.match("NUMERO PLN: " + plnid);
@@ -58,7 +61,7 @@ export class GrepLPLN {
         //console.log(mylogCpdlc);
         //Lecture des logs concernant le vol dans le SL AIX
         do {
-          mylogCpdlc = readline.fgets(r);
+          mylogCpdlc = this.readLine.fgets(r);
           if (mylogCpdlc === false) { break; }
 
           //Recuperation des infos DLK generales
@@ -88,7 +91,7 @@ export class GrepLPLN {
             let nbSep = 0;
             do {
 
-              mylogCpdlc = readline.fgets(r);
+              mylogCpdlc = this.readLine.fgets(r);
               if (mylogCpdlc === false) { break; }
 
               if (mylogCpdlc.match("--------------------------------") !== null) {
@@ -113,7 +116,7 @@ export class GrepLPLN {
           if (info4Lpln !== null) {
             fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
             do {
-              mylogCpdlc = readline.fgets(r);
+              mylogCpdlc = this.readLine.fgets(r);
               if (mylogCpdlc === false) { break; }
 
               let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
@@ -129,8 +132,8 @@ export class GrepLPLN {
         } while ((mylogCpdlc.match("Separateur d'impression") == null) && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null))&& ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
       }
 
-    } while (!readline.eof(r));
-    readline.fclose(r);
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
     fs.closeSync(w);
   }
 
@@ -144,7 +147,7 @@ export class GrepLPLN {
     //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
     //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
     let arcid = "";
     //Test de l'ouverture du fichier
@@ -155,7 +158,7 @@ export class GrepLPLN {
     //Traitement du fichier
     do {
       //Test de la fin de fichier
-      var mylogCpdlc = readline.fgets(r);
+      var mylogCpdlc = this.readLine.fgets(r);
       if (mylogCpdlc === false) { break; }
       //Test du début des logs concernant le vol dans le SL AIX
       let info1Lpln = mylogCpdlc.match(motif);
@@ -166,8 +169,8 @@ export class GrepLPLN {
         break;
       }
 
-    } while (!readline.eof(r));
-    readline.fclose(r);
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
 
     return arcid;
   }
@@ -180,7 +183,7 @@ export class GrepLPLN {
     //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
     //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
     //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
     let plnid = 0;
     //Test de l'ouverture du fichier
@@ -191,7 +194,7 @@ export class GrepLPLN {
     //Traitement du fichier
     do {
       //Test de la fin de fichier
-      var mylogCpdlc = readline.fgets(r);
+      var mylogCpdlc = this.readLine.fgets(r);
       if (mylogCpdlc === false) { break; }
       //Test du début des logs concernant le vol dans le SL AIX
       let info1Lpln = mylogCpdlc.match(motif);
@@ -201,8 +204,8 @@ export class GrepLPLN {
         break;
       }
 
-    } while (!readline.eof(r));
-    readline.fclose(r);
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
 
     return plnid;
   }
@@ -215,7 +218,7 @@ export class GrepLPLN {
     let tabArcid= [];
     let tabId=[];
 
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
     let arcidTemp;
 
@@ -227,7 +230,7 @@ export class GrepLPLN {
     //Traitement du fichier
     do {
       //Test de la fin de fichier
-      var mylogCpdlc = readline.fgets(r);
+      var mylogCpdlc = this.readLine.fgets(r);
       if (mylogCpdlc === false) { break; }
       //Test du début des logs concernant le vol dans le SL AIX
       let info1Lpln = mylogCpdlc.match(motif);
@@ -246,8 +249,8 @@ export class GrepLPLN {
         }
       }
 
-    } while (!readline.eof(r));
-    readline.fclose(r);
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
 
     tabId.forEach(element => {
       console.log("tabId finale : ", element.arcid, " " , element.plnid); 
@@ -265,7 +268,7 @@ export class GrepLPLN {
     let result: boolean = false;
     let fichierSource = fichierSourceLpln;
 
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
     let plnid = 0;
     //Test de l'ouverture du fichier
@@ -276,7 +279,7 @@ export class GrepLPLN {
     //Traitement du fichier
     do {
       //Test de la fin de fichier
-      var mylogCpdlc = readline.fgets(r);
+      var mylogCpdlc = this.readLine.fgets(r);
       if (mylogCpdlc === false) { break; }
       //Test du début des logs concernant le vol dans le SL AIX
       let info1Lpln = mylogCpdlc.match(motif);
@@ -291,8 +294,8 @@ export class GrepLPLN {
         }
       }
 
-    } while (!readline.eof(r));
-    readline.fclose(r);
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
 
     return result;
   }
@@ -306,7 +309,7 @@ export class GrepLPLN {
     let result: boolean = false;
     let fichierSource = fichierSourceLpln;
 
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
     //Test de l'ouverture du fichier
     if (r === false) {
@@ -316,7 +319,7 @@ export class GrepLPLN {
     //Traitement du fichier
     do {
       //Test de la fin de fichier
-      var mylogCpdlc = readline.fgets(r);
+      var mylogCpdlc = this.readLine.fgets(r);
       if (mylogCpdlc === false) { break; }
       //Test du début des logs concernant le vol dans le SL AIX
       let info1Lpln = mylogCpdlc.match(motif);
@@ -333,8 +336,8 @@ export class GrepLPLN {
         }
       }
 
-    } while (!readline.eof(r));
-    readline.fclose(r);
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
 
     return result;
   }

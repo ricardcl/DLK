@@ -119,8 +119,16 @@ export class Formulaire {
                 console.log("analysedVol");
                 switch (this.contexte) {
                     case Contexte.LPLN:
+                        console.log("!!!!JSON this.logBook.writeFlightLogFile");
+                        this.logBook.writeFlightLogFile(this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN));
+
                         console.log("analysedVol Contexte.LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
                         socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN));
+
+
+                        console.log("!!!!JSON this.logBook.readFlightLogFile");
+                        this.logBook.readFlightLogFile();
+
                         break;
                     case Contexte.VEMGSA:
                         console.log("analysedVol Contexte.VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);

@@ -1,9 +1,9 @@
 const fs = require('fs');
 const p = require('path');
-let readline = require("../scripts/node-readline/node-readline");
 
 
 import { Dates, datesFile, arrayDatesFile } from './date';
+import { ReadLine } from '../scripts/node-readline/node-readline';
 
 /**
  * Classe regroupant les fonctions qui accedent directement au fichier VEMGSA en lecture
@@ -16,6 +16,7 @@ export class GrepVEMGSA {
   private uneMinute: number;
   private uneHeure: number;
   private troisHeures: number;
+  private readLine: ReadLine;
   //private diffMax: number;
 
   constructor(userPath: string) {
@@ -27,7 +28,7 @@ export class GrepVEMGSA {
     //this.diffMax = 10 * this.uneMinute;
     this.uneHeure = 60 * this.uneMinute;
     this.troisHeures = 3 * this.uneHeure;
-
+    this.readLine = new ReadLine();
   }
 
   public getUserPath(): string {
@@ -54,7 +55,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     for (let fichier of fichierSourceVemgsa) {
       console.log("fichier : ", fichier);
       let fichierSource = fichier;
-      let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+      let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
       let motif = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
       if (plnid < 1000) {
@@ -77,7 +78,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
           console.log("-----------------> reqid ", reqid);
         }
         do {
-          let mylogCpdlc = readline.fgets(r);
+          let mylogCpdlc = this.readLine.fgets(r);
           //mylogCpdlc=mylogCpdlc.toString();
           if (mylogCpdlc === false) { break; }
 
@@ -147,10 +148,10 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
           }
 
-        } while (!readline.eof(r));
+        } while (!this.readLine.eof(r));
 
       }
-      readline.fclose(r);
+      this.readLine.fclose(r);
     }
     fs.closeSync(w);
   }
@@ -165,7 +166,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let arcid = "";
 
 
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
     let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;
     let motif2 = /(.*)(CPCASRES)(.*)(-PLNID )(.*)(-REQID)(.*)/;
@@ -178,7 +179,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     }
     else {
       do {
-        let mylogCpdlc = readline.fgets(r);
+        let mylogCpdlc = this.readLine.fgets(r);
         mylogCpdlc = mylogCpdlc.toString();
         if (mylogCpdlc === false) { break; }
 
@@ -211,9 +212,9 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
         }
 
 
-      } while (!readline.eof(r));
+      } while (!this.readLine.eof(r));
     }
-    readline.fclose(r);
+    this.readLine.fclose(r);
     return arcid;
   }
 
@@ -228,7 +229,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
  
 
     //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
     let motif1 = /(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-ATNLOGON)(.*)(-REQID)(.*)/;
@@ -242,7 +243,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     }
     else {
       do {
-        let mylogCpdlc = readline.fgets(r);
+        let mylogCpdlc = this.readLine.fgets(r);
         mylogCpdlc = mylogCpdlc.toString();
         if (mylogCpdlc === false) { break; }
 
@@ -270,10 +271,10 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
           }
         }
-      } while (!readline.eof(r));
+      } while (!this.readLine.eof(r));
     }
 
-    readline.fclose(r);
+    this.readLine.fclose(r);
     return arcid;
 
 
@@ -292,7 +293,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
     console.log("--------------->grepPlnidFromArcid :  creneau ",creneau );
 
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
 
@@ -304,7 +305,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     }
     else {
       do {
-        let mylogCpdlc = readline.fgets(r);
+        let mylogCpdlc = this.readLine.fgets(r);
         if (mylogCpdlc === false) { break; }
 
         let infoLpln1 = mylogCpdlc.match(motifVemgsa);
@@ -325,7 +326,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
               console.log("cas 1");
               console.log("reqid : " + reqid);
               do {
-                mylogCpdlc = readline.fgets(r);
+                mylogCpdlc = this.readLine.fgets(r);
                 mylogCpdlc = mylogCpdlc.toString();
                 if ((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") !== null)) {
                   console.log("cas 1A");
@@ -348,7 +349,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                   break;
                 }
 
-              } while (!readline.eof(r));
+              } while (!this.readLine.eof(r));
 
               break;
             }
@@ -366,10 +367,10 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
         }
 
 
-      } while (!readline.eof(r));
+      } while (!this.readLine.eof(r));
     }
 
-    readline.fclose(r);
+    this.readLine.fclose(r);
 
 
     return plnid;
@@ -383,7 +384,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let fichierSource = fichierSourceVemgsa;
     let reqid = 0;
 
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
 
@@ -394,7 +395,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     }
     else {
       do {
-        let mylogCpdlc = readline.fgets(r);
+        let mylogCpdlc = this.readLine.fgets(r);
         if (mylogCpdlc === false) { break; }
 
         let infoLpln1 = mylogCpdlc.match(motifVemgsa);
@@ -414,10 +415,10 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
             }
           }
         }
-      } while (!readline.eof(r));
+      } while (!this.readLine.eof(r));
     }
 
-    readline.fclose(r);
+    this.readLine.fclose(r);
     return reqid;
 
 
@@ -455,7 +456,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     console.log("Classe grepVemgsa Fonction grepPlageHoraireFichier");
 
     let fichierSource = fichierSourceVemgsa;
-    let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motif = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
     //26/09/2018 07H54'11" -TITLE CPCCLOSLNK-PLNID 7466  	,
@@ -472,7 +473,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     }
     else {
       do {
-        let mylogCpdlc = readline.fgets(r);
+        let mylogCpdlc = this.readLine.fgets(r);
         if (mylogCpdlc === false) { break; }
 
         if (mylogCpdlc.match(motif) !== null) {
@@ -495,8 +496,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
             }
           }
         }
-      } while (!readline.eof(r));
-      readline.fclose(r);
+      } while (!this.readLine.eof(r));
+      this.readLine.fclose(r);
 
     }
 
@@ -553,7 +554,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
     for (let fichier of fichierSourceVemgsa) {
       let fichierSource = fichier;
-      let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+      let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
 
       if (r === false) {
         console.log("Error, can't open ", fichierSource);
@@ -561,7 +562,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
       }
       else {
         do {
-          let mylogCpdlc = readline.fgets(r);
+          let mylogCpdlc = this.readLine.fgets(r);
           if (mylogCpdlc === false) { break; }
 
           if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null)) {
@@ -593,9 +594,9 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
               }
             }
           }
-        } while (!readline.eof(r));
+        } while (!this.readLine.eof(r));
       }
-      readline.fclose(r);
+      this.readLine.fclose(r);
     }
     result.dates.forEach(element => { console.log(element); });
     return result;
@@ -621,7 +622,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
     for (let fichier of fichierSourceVemgsa) {
       let fichierSource = fichier;
-      let r = readline.fopen(p.resolve(this.userPath, fichierSource), "r");
+      let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
 
       if (r === false) {
         console.log("Error, can't open ", fichierSource);
@@ -629,7 +630,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
       }
       else {
         do {
-          let mylogCpdlc = readline.fgets(r);
+          let mylogCpdlc = this.readLine.fgets(r);
           if (mylogCpdlc === false) { break; }
 
           if ((mylogCpdlc.match(motifVemgsa) !== null) && ((mylogCpdlc.match(arcid) !== null))) {
@@ -680,9 +681,9 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
           }
-        } while (!readline.eof(r));
+        } while (!this.readLine.eof(r));
       }
-      readline.fclose(r);
+      this.readLine.fclose(r);
     }
     result.dates.forEach(element => { console.log(element); });
 

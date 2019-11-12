@@ -8,7 +8,6 @@ import { Split } from './split';
 
 
 
-let readline = require("../scripts/node-readline/node-readline");
 
 import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { Identifiants } from '../Modele/identifiants';
@@ -16,6 +15,8 @@ import { GrepVEMGSA } from './grepVEMGSA';
 import { Path } from '../Modele/path';
 import { Frequences } from './frequences';
 import {  datesFile } from './date';
+import { ReadLine } from '../scripts/node-readline/node-readline';
+
 
 const p = require('path');
 
@@ -23,7 +24,7 @@ export class ParseurVEMGSA {
   private grep: GrepVEMGSA;
   private split: Split;
   private frequences : Frequences;
-
+  private readLine: ReadLine;
 
 
   constructor(grep: GrepVEMGSA) {
@@ -32,6 +33,8 @@ export class ParseurVEMGSA {
     this.grep = grep;
     this.split = new Split();
     this.frequences = new Frequences();
+    this.readLine = new ReadLine();
+
   }
 
  
@@ -48,7 +51,7 @@ export class ParseurVEMGSA {
 
     /* Ouverture du fichier à analyser*/
 
-    let r = readline.fopen(source, "r");
+    let r = this.readLine.fopen(source, "r");
     if (r === false) {    // Test de l ouverture du fichier
       console.log("Error, can't open ", source);
       process.exit(1);
@@ -67,7 +70,7 @@ export class ParseurVEMGSA {
 
     do {
       //lecture d'une ligne du fichier
-      let mylogCpdlc = readline.fgets(r);
+      let mylogCpdlc = this.readLine.fgets(r);
       //Test de fin de fichier
       if (mylogCpdlc === false) { break; }
 
@@ -254,11 +257,11 @@ export class ParseurVEMGSA {
 
 
       numeroLigne += 1;
-    } while (!readline.eof(r));
+    } while (!this.readLine.eof(r));
 
 
 
-    readline.fclose(r);
+    this.readLine.fclose(r);
     //fs.closeSync(w);
 
 

@@ -5,7 +5,6 @@ import { Split } from './split';
 import * as moment from 'moment'; 
  
 //let fsplit = new split(); 
-let readline = require("../scripts/node-readline/node-readline"); 
  
 const p = require('path'); 
 import { DetailCpdlc } from '../Modele/detailCpdlc'; 
@@ -13,6 +12,7 @@ import { Identifiants } from '../Modele/identifiants';
 import { GrepLPLN } from './grepLPLN'; 
 import { Path } from '../Modele/path'; 
 import { Dates } from './date'; 
+import { ReadLine } from '../scripts/node-readline/node-readline';
 import { Frequences } from './frequences'; 
  
 
@@ -22,7 +22,8 @@ export class ParseurLPLN {
   private split: Split; 
   private dates: Dates; 
   private frequences: Frequences; 
- 
+  private readLine: ReadLine;
+
  
   constructor(grep: GrepLPLN) { 
     console.log("Je rentre dans le constructor parseurLpln "); 
@@ -31,6 +32,8 @@ export class ParseurLPLN {
     this.split = new Split(); 
     this.dates = new Dates(); 
     this.frequences = new Frequences(); 
+    this.readLine = new ReadLine();
+
   } 
  
  
@@ -52,7 +55,7 @@ export class ParseurLPLN {
  
     /* Ouverture du fichier à analyser*/ 
  
-    let r = readline.fopen(source, "r"); 
+    let r = this.readLine.fopen(source, "r"); 
     if (r === false) {    // Test de l ouverture du fichier 
       console.log("Error, can't open ", source); 
       process.exit(1); 
@@ -72,7 +75,7 @@ export class ParseurLPLN {
  
     do { 
       //lecture d'une ligne du fichier 
-      let mylogCpdlc = readline.fgets(r); 
+      let mylogCpdlc = this.readLine.fgets(r); 
       //Test de fin de fichier 
       if (mylogCpdlc === false) { break; } 
  
@@ -376,11 +379,11 @@ export class ParseurLPLN {
  
  
       numeroLigne += 1; 
-    } while (!readline.eof(r)); 
+    } while (!this.readLine.eof(r)); 
  
  
  
-    readline.fclose(r); 
+    this.readLine.fclose(r); 
     //fs.closeSync(w); 
  
     return monvol; 
@@ -390,7 +393,7 @@ export class ParseurLPLN {
  
     /* Ouverture du fichier à analyser*/ 
     const source = p.resolve(this.grep.getUserPath(), "resultLPLN.htm"); //Fichier en entree a analyser     
-    let r = readline.fopen(source, "r"); 
+    let r = this.readLine.fopen(source, "r"); 
     if (r === false) {    // Test de l ouverture du fichier 
       console.log("Error, can't open ", source); 
       process.exit(1); 
@@ -399,7 +402,7 @@ export class ParseurLPLN {
     let isEquipe: boolean = false; 
     do { 
       //lecture d'une ligne du fichier 
-      let mylogCpdlc = readline.fgets(r); 
+      let mylogCpdlc = this.readLine.fgets(r); 
       //Test de fin de fichier 
       if (mylogCpdlc === false) { break; } 
  
@@ -413,9 +416,9 @@ export class ParseurLPLN {
         } 
         break; 
       } 
-    } while (!readline.eof(r)); 
+    } while (!this.readLine.eof(r)); 
  
-    readline.fclose(r); 
+    this.readLine.fclose(r); 
     return isEquipe; 
   } 
  
@@ -620,7 +623,7 @@ export class ParseurLPLN {
  
  
   private isFichierLisible(fichier: string): number { 
-    let fd = readline.fopen(fichier, "r"); 
+    let fd = this.readLine.fopen(fichier, "r"); 
     //Test de l'ouverture du fichier 
     if (fd === false) { 
       console.log("Error, can't open ", fichier); 

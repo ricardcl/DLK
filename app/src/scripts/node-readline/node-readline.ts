@@ -1,50 +1,69 @@
 
 const fs = require('fs');
-let filePtr = {};
-let fileBuffer = {};
-let buffer =   Buffer.alloc(4096);
 
 
-export function fopen (path:string, mode:string):number {
-  let handle = fs.openSync(path, mode); //Returns an integer representing the file descriptor.
-  filePtr[handle] = 0;
-  fileBuffer[handle]= [];
-  return handle;
-}
 
-export function fclose(handle) {
-  fs.closeSync(handle);
-  if (handle in filePtr) {
-    delete filePtr[handle];
-    delete fileBuffer[handle];
+export class ReadLine {
+
+  private  filePtr ;
+  private fileBuffer;
+  private buffer ;
+
+  
+  constructor() {
+      this.filePtr = {};
+      this.fileBuffer = {};
+      this.buffer =   Buffer.alloc(4096);
   }
-  return;
-}
 
-
-
-
-export function fgets(handle) {
-  if(fileBuffer[handle].length == 0)
-  {
-    let pos = filePtr[handle];
-    let br = fs.readSync(handle, buffer, 0, 4096, pos);
-    if(br < 4096) {
-      delete filePtr[handle];
-      if(br == 0)  return false;
-    }
-    let lst = buffer.slice(0, br).toString().split("\n");
-    let minus = 0;
-    if(lst.length > 1) {
-      var x = lst.pop();
-      minus = x.length;
-    }
-    fileBuffer[handle] = lst;
-    filePtr[handle] = pos + br - minus;
+  public  fopen (path:string, mode:string):any {
+    let handle = fs.openSync(path, mode); //Returns an integer representing the file descriptor.
+    this.filePtr[handle] = 0;
+    this.fileBuffer[handle]= [];
+    return handle;
   }
-  return fileBuffer[handle].shift();
+
+  public fclose(handle) {
+    fs.closeSync(handle);
+    if (handle in this.filePtr) {
+      delete this.filePtr[handle];
+      delete this.fileBuffer[handle];
+    }
+    return;
+  }
+  
+  
+  
+  
+  public fgets(handle) {
+    if(this.fileBuffer[handle].length == 0)
+    {
+      let pos = this.filePtr[handle];
+      let br = fs.readSync(handle, this.buffer, 0, 4096, pos);
+      if(br < 4096) {
+        delete this.filePtr[handle];
+        if(br == 0)  return false;
+      }
+      let lst = this.buffer.slice(0, br).toString().split("\n");
+      let minus = 0;
+      if(lst.length > 1) {
+        var x = lst.pop();
+        minus = x.length;
+      }
+      this.fileBuffer[handle] = lst;
+      this.filePtr[handle] = pos + br - minus;
+    }
+    return this.fileBuffer[handle].shift();
+  }
+  
+  public eof (handle) {
+    return (handle in this.filePtr) == false && (this.fileBuffer[handle].length == 0);
+  }
+  
+ 
+  
+  
+
+
 }
 
-export function eof (handle) {
-  return (handle in filePtr) == false && (fileBuffer[handle].length == 0);
-}

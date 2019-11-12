@@ -1,7 +1,7 @@
 import { Path } from "../Modele/path";
+import { ReadLine } from "../scripts/node-readline/node-readline";
 
 
-let readline = require("../scripts/node-readline/node-readline");
 const fs = require('fs');
 const p = require('path');
 
@@ -11,10 +11,12 @@ const p = require('path');
 export class Frequences {
 
   private fichierFreq : string;
+  private readLine: ReadLine;
 
  constructor(){
   console.log("Je rentre dans le constructor Frequences ");
     this.fichierFreq = p.resolve(Path.systemPath, "freq.htm");
+    this.readLine = new ReadLine();
   }
 
 
@@ -40,7 +42,7 @@ public GbdiToFreq(fichierSource) {
   var dateFichierDest = "Pas de date definie";
 
   //Test de la date du fichier gbdi pour vérifier s'il y a besoin de mettre à jour la liste des fréquences
-  let r = readline.fopen(fichierSource, "r");
+  let r = this.readLine.fopen(fichierSource, "r");
 
   if (r === false) {
     console.log("Error, can't open ", fichierSource);
@@ -60,7 +62,7 @@ public GbdiToFreq(fichierSource) {
 
 
     do {
-      var ligneGbdi = readline.fgets(r);
+      var ligneGbdi = this.readLine.fgets(r);
       if (ligneGbdi === false) { break; }
       var infoLigneGbdi = ligneGbdi.match(motif);
 
@@ -72,9 +74,9 @@ public GbdiToFreq(fichierSource) {
         }
 
       }
-    } while (!readline.eof(r));
+    } while (!this.readLine.eof(r));
 
-    readline.fclose(r);
+    this.readLine.fclose(r);
     fs.closeSync(w2);
 
   }
@@ -100,7 +102,7 @@ public freqToSecteur(freq) {
 
 
 
-  var r = readline.fopen(this.fichierFreq, "r");
+  var r = this.readLine.fopen(this.fichierFreq, "r");
   if (r === false) {
     console.log("Error, can't open ", this.fichierFreq);
     process.exit(1);
@@ -109,7 +111,7 @@ public freqToSecteur(freq) {
     var secteur = null;
     var motifSecteur = /[A-Z|0-9][A-Z|0-9]/;
     do {
-      var ligne = readline.fgets(r);
+      var ligne = this.readLine.fgets(r);
       if (ligne === false) { break; }
       if (ligne.match(freq) !== null) {
         console.log("ligne lue : " + ligne);
@@ -117,8 +119,8 @@ public freqToSecteur(freq) {
         //console.log("secteur  : "+secteur);
 
       }
-    } while (!readline.eof(r));
-    readline.fclose(r);
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
 
   }
   return secteur;
