@@ -33,6 +33,13 @@ export class MixInfos {
 
 
     //RECUPERATION DES ATTRIBUTS 
+    if (volVemgsa.getDate() !== ""){
+      monvolFinal.setDate(volVemgsa.getDate());
+    }
+    else{
+      monvolFinal.setDate(volLpln.getDate());
+    }
+
     if (volLpln.getAdep() == volVemgsa.getAdep()) {
       monvolFinal.setAdep(volLpln.getAdep());
       monvolFinal.setCmpAdep("OK");
@@ -236,7 +243,7 @@ export class MixInfos {
     } else { monvolLpln.setCmpAdrModeS("KO"); }
 
 
-    if (monvolLpln.getLogonAccepte()) {
+    if (monvolLpln.getLogonAccepte() == "OK") {
       monvolLpln.setConditionsLogon("OK");
     }
 

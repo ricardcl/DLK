@@ -101,7 +101,9 @@ export class ParseurVEMGSA {
         log.setDate(moment(momentDate).format('DD-MM-YYYY HH mm ss'));
 
         log.setAssociable(Boolean(infoGen.toString().replace(motifDateHeure, "$8")));
-
+        if (monvol.getDate() == ""){
+          monvol.setDate(log.getJour());
+        }
       }
       //Stockage des infos suivantes
 

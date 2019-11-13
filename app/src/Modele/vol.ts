@@ -17,6 +17,8 @@ export class Vol {
     private adep: string;
     /**Aeroport de destination*/
     private ades: string;
+    /**Date du vol */
+    private date: string;
     /*liste des logs concernant le vol */
     private listeLogs: EtatCpdlc[];
     /*Presence de logs CPDLC */
@@ -61,6 +63,7 @@ export class Vol {
         this.id = moment().format();
         this.arcid = arcid;
         this.plnid = plnid;
+        this.date="";
         this.listeLogs = [];
         this.logonInitie = "NA";
         this.logonAccepte = "NA";
@@ -100,6 +103,10 @@ export class Vol {
 
     public setAdes(ades: string): void {
         this.ades = ades;
+    }
+
+    public setDate(date: string): void {
+        this.date = date;
     }
 
     public setLogonInitie(logonInitie: string): void {
@@ -206,6 +213,10 @@ export class Vol {
 
     public getAdes(): string {
         return this.ades;
+    }
+
+    public getDate(): string {
+        return this.date;
     }
 
     public getLogonInitie(): string {

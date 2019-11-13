@@ -130,6 +130,9 @@ export class ParseurLPLN {
             log.setHeure(moment(momentDate).format('HH mm ss')); 
             log.setDate(moment(momentDate).format('DD-MM HH mm ss')); 
  
+            if (monvol.getDate() == ""){
+              monvol.setDate(log.getJour());
+            }
           } 
  
  
