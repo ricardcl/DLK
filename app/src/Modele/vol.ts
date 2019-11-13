@@ -29,7 +29,7 @@ export class Vol {
     private listeEtatTransfertFrequence: etatTransfertFrequence[];
     /*etat des differents transferts de frequence*/
     private listeEtatLogonConnexion: etatLogonConnexion[];
-      /*etat des differents transferts de frequence*/
+    /*etat des differents transferts de frequence*/
     private timelineEtatLogonConnexion: etatLogonConnexionSimplifiee[];
 
     // PARAMETRES LIES AU LOGON 
@@ -57,16 +57,26 @@ export class Vol {
     private conditionsLogon: string;
     /** */
 
+    // PARAMETRES LIES A LA CONNEXION
+    /**Connexion initiee par le STPV vers l aeronef  */
+    private isConnexionInitiee: boolean;
+    /**Connexion etablie vers l aeronef  */
+    private isConnexionEtablie: boolean;
+    /**Perte de connexion avec l aeronef  */
+    private isConnexionPerdue: boolean;
 
 
     constructor(arcid: string, plnid: number) {
         this.id = moment().format();
         this.arcid = arcid;
         this.plnid = plnid;
-        this.date="";
+        this.date = "";
         this.listeLogs = [];
         this.logonInitie = "NA";
         this.logonAccepte = "NA";
+        this.isConnexionInitiee = false;
+        this.isConnexionEtablie = false;
+        this.isConnexionPerdue = false;
         this.cmpAdrModeS = "NA";
         this.cmpAdep = "NA";
         this.cmpAdes = "NA";
@@ -116,6 +126,19 @@ export class Vol {
     public setLogonAccepte(logonAccepte: string): void {
         this.logonAccepte = logonAccepte;
     }
+
+    public setIsConnexionInitiee(isConnexionInitiee: boolean): void {
+        this.isConnexionInitiee = isConnexionInitiee;
+    }
+
+    public setIsConnexionEtablie(isConnexionEtablie: boolean): void {
+        this.isConnexionEtablie = isConnexionEtablie;
+    }
+
+    public setIsConnexionPerdue(isConnexionPerdue: boolean): void {
+        this.isConnexionPerdue = isConnexionPerdue;
+    }
+
     public setArcid(arcid: string): void {
         this.arcid = arcid;
     }
@@ -169,7 +192,7 @@ export class Vol {
         this.timelineEtatLogonConnexion = timelineEtatLogonConnexion;
     }
 
-    
+
 
 
     public addElt(elt: EtatCpdlc): void {
@@ -227,6 +250,18 @@ export class Vol {
         return this.logonAccepte;
     }
 
+    public getIsConnexionInitiee(): boolean {
+        return this.isConnexionInitiee;
+    }
+
+    public getIsConnexionEtablie(): boolean {
+        return this.isConnexionEtablie;
+    }
+
+    public getIsConnexionPerdue(): boolean {
+        return this.isConnexionPerdue;
+    }
+
     public getCmpAdrModeS(): string {
         return this.cmpAdrModeS;
     }
@@ -263,7 +298,7 @@ export class Vol {
     public getTimelineEtatLogonConnexion(): etatLogonConnexionSimplifiee[] {
         return this.timelineEtatLogonConnexion;
     }
-    
-    
+
+
 
 } 

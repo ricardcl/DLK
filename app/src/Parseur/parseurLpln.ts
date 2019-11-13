@@ -205,7 +205,7 @@ export class ParseurLPLN {
             } 
             case 'CPCCOMSTAT': { 
               //console.log('CPCCOMSTAT'); 
-              if (monEtat == Etat.DemandeConnexion) { 
+            
  
                 if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") { 
                   monEtat = Etat.Connecte; 
@@ -214,10 +214,7 @@ export class ParseurLPLN {
                   monEtat = Etat.Logue; 
                   let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air"; 
                 } 
-              } 
-              else { 
-                monEtat = Etat.Logue; 
-              } 
+
               break; 
             } 
             case 'CPCEND': { 

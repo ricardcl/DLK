@@ -33,10 +33,10 @@ export class MixInfos {
 
 
     //RECUPERATION DES ATTRIBUTS 
-    if (volVemgsa.getDate() !== ""){
+    if (volVemgsa.getDate() !== "") {
       monvolFinal.setDate(volVemgsa.getDate());
     }
-    else{
+    else {
       monvolFinal.setDate(volLpln.getDate());
     }
 
@@ -218,6 +218,11 @@ export class MixInfos {
     monvolFinal.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
     monvolFinal.setTimelineEtatLogonConnexion(this.evaluationEtatsLogonConnexionSimplifie(monvolFinal.getListeEtatLogonConnexion()));
 
+    let valeursConnexion:{isConnexionInitiee: boolean,isConnexionEtablie: boolean,isConnexionPerdue:boolean}  = this.evaluationConnexion(monvolFinal.getListeLogs());
+    monvolFinal.setIsConnexionInitiee(valeursConnexion.isConnexionInitiee);
+    monvolFinal.setIsConnexionEtablie(valeursConnexion.isConnexionEtablie);
+    monvolFinal.setIsConnexionPerdue(valeursConnexion.isConnexionPerdue);
+
     return monvolFinal;
   }
 
@@ -302,6 +307,12 @@ export class MixInfos {
     monvolLpln.getListeEtatLogonConnexion().forEach(element => {
       console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
     });*/
+
+    let valeursConnexion:{isConnexionInitiee: boolean,isConnexionEtablie: boolean,isConnexionPerdue:boolean}  = this.evaluationConnexion(monvolLpln.getListeLogs());
+    monvolLpln.setIsConnexionInitiee(valeursConnexion.isConnexionInitiee);
+    monvolLpln.setIsConnexionEtablie(valeursConnexion.isConnexionEtablie);
+    monvolLpln.setIsConnexionPerdue(valeursConnexion.isConnexionPerdue);
+
     return monvolLpln;
 
 
@@ -379,6 +390,13 @@ export class MixInfos {
     monvolVemgsa = this.sortLogs(monvolVemgsa);
     monvolVemgsa.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolVemgsa.getListeLogs()));
     monvolVemgsa.setTimelineEtatLogonConnexion(this.evaluationEtatsLogonConnexionSimplifie(monvolVemgsa.getListeEtatLogonConnexion()));
+
+    let valeursConnexion:{isConnexionInitiee: boolean,isConnexionEtablie: boolean,isConnexionPerdue:boolean}  = this.evaluationConnexion(monvolVemgsa.getListeLogs());
+    monvolVemgsa.setIsConnexionInitiee(valeursConnexion.isConnexionInitiee);
+    monvolVemgsa.setIsConnexionEtablie(valeursConnexion.isConnexionEtablie);
+    monvolVemgsa.setIsConnexionPerdue(valeursConnexion.isConnexionPerdue);
+
+
     return monvolVemgsa;
   }
 
@@ -680,6 +698,50 @@ export class MixInfos {
   }
 
 
+
+  private evaluationConnexion(listeLogs: EtatCpdlc[]): {isConnexionInitiee: boolean,isConnexionEtablie: boolean,isConnexionPerdue:boolean} {
+ 
+
+    let isConnexionInitiee: boolean = false;
+    let isConnexionEtablie: boolean = false;
+    let isConnexionPerdue: boolean = false;
+    let isDeconnexionDemandee: boolean = false;
+  
+    listeLogs.forEach(log => {
+      //automate a etat sur la variable etat 
+      switch (log.getTitle()) {
+        case 'CPCOPENLNK': {
+          //console.log('CPCOPENLNK'); 
+          isConnexionInitiee = true;
+          break;
+        }
+        case 'CPCCOMSTAT': {
+          //console.log('CPCCOMSTAT'); 
+          if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
+            isConnexionEtablie = true;
+          }
+          else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
+            if (isConnexionEtablie && !isDeconnexionDemandee) {
+              isConnexionPerdue = true;
+            }
+          }
+          break;
+        }
+        case 'CPCCLOSLNK': {
+          //console.log('CPCCLOSLNK'); 
+          isDeconnexionDemandee = true;
+          break;
+        }
+        default: {
+          // console.log("je passe dans default",log.getTitle()); 
+          break;
+        }
+      }
+
+
+    });
+    return {isConnexionInitiee,isConnexionEtablie, isConnexionPerdue };
+  }
 
 
   private evaluationEtatsLogonConnexion(listeLogs: EtatCpdlc[]): etatLogonConnexion[] {
