@@ -215,7 +215,7 @@ export class MixInfos {
     });
 
     //this.evaluationEtatsLogonConnexionSimplifie(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
-   
+
 
     monvolFinal.initLogonConnexionResults();
 
@@ -301,8 +301,8 @@ export class MixInfos {
 
 
 
-    
- 
+
+
     monvolLpln.initLogonConnexionResults();
 
     return monvolLpln;
@@ -390,7 +390,7 @@ export class MixInfos {
 
 
     monvolVemgsa = this.sortLogs(monvolVemgsa);
- 
+
 
 
 
@@ -546,6 +546,9 @@ export class MixInfos {
     let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
 
     listeLogs.forEach(etatCpdlc => {
+      let isCPDLCMSGDOWN: boolean = false; // indique si on a deja recu une reponse pour le transfert de frequence
+      //objectif traiter le cas ou on recoit un UNABLE  puis WILCO pour un meme transfert 
+
       let etatTransfertFreq = <etatTransfertFrequence>{};
       if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
 
@@ -567,10 +570,10 @@ export class MixInfos {
             etatTransfertFreq.dateFinTRFDL = dateTemp;
             // console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
             // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
-
+            isCPDLCMSGDOWN = true;
           }
 
-          else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+          else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)  && (!isCPDLCMSGDOWN)) {
             // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isTransfertAcq = true;
             etatTransfertFreq.dateTranfertAcq = dateTemp;
@@ -603,6 +606,10 @@ export class MixInfos {
     let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
 
     listeLogs.forEach(etatCpdlc => {
+
+      let isCPDLCMSGDOWN: boolean = false; // indique si on a deja recu une reponse pour le transfert de frequence
+      //objectif traiter le cas ou on recoit un UNABLE  puis WILCO pour un meme transfert 
+
       let etatTransfertFreq = <etatTransfertFrequence>{};
 
       if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
@@ -662,12 +669,13 @@ export class MixInfos {
             etatTransfertFreq.isFinTRFDL = true;
             etatTransfertFreq.isTransfertAcq = false;
             etatTransfertFreq.dateFinTRFDL = dateTemp;
+            isCPDLCMSGDOWN = true;
             // console.log("etatTransfertFreq.isFinTRFDL", etatTransfertFreq.isFinTRFDL);
             // console.log("etatTransfertFreq.dateFinTRFDL", etatTransfertFreq.dateFinTRFDL);
 
           }
 
-          else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
+          else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)  && (!isCPDLCMSGDOWN)) {
             // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isTransfertAcq = true;
             etatTransfertFreq.dateTranfertAcq = dateTemp;
@@ -698,9 +706,9 @@ export class MixInfos {
 
 
 
- 
 
-  
+
+
   private removeYear(etatTransfertFreq: etatTransfertFrequence): void {
     console.log("elt.dateTransfert", etatTransfertFreq.dateTransfert);
     const momentDate1 = moment(etatTransfertFreq.dateTransfert, 'DD-MM-yyyy HH mm ss');
