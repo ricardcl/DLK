@@ -1,6 +1,7 @@
 import { EtatCpdlc } from './etatCpdlc';
 import moment = require('moment');
-import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee } from './checkAnswer'
+import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee, erreurVol } from './checkAnswer'
+import { Etat } from './enumEtat';
 
 export class Vol {
     /** identifiant unique d'un vol (heure en ms ?) */
@@ -55,6 +56,9 @@ export class Vol {
     private cmpArcid: string;
     /**conditions du logon remplies/ logon effectue  */
     private conditionsLogon: string;
+    /* */
+
+
     /** */
 
     // PARAMETRES LIES A LA CONNEXION
@@ -64,6 +68,11 @@ export class Vol {
     private isConnexionEtablie: boolean;
     /**Perte de connexion avec l aeronef  */
     private isConnexionPerdue: boolean;
+
+
+    /**Attributs utilisés côté client */
+    private listeErreurs: erreurVol[];
+
 
 
     constructor(arcid: string, plnid: number) {
@@ -87,6 +96,8 @@ export class Vol {
         this.listeEtatTransfertFrequence = [];
         this.listeEtatLogonConnexion = [];
         this.timelineEtatLogonConnexion = [];
+        this.listeErreurs = [];
+
     }
 
 
@@ -195,6 +206,7 @@ export class Vol {
 
 
 
+
     public addElt(elt: EtatCpdlc): void {
         this.getListeLogs().push(elt);
     }
@@ -299,6 +311,439 @@ export class Vol {
         return this.timelineEtatLogonConnexion;
     }
 
+    public getListeErreurs(): erreurVol[] {
+        return this.listeErreurs;
+    }
+
+
+
+
+
+
+    private evaluationEtatsLogonConnexion(): void {
+        let tabEtatLogonConnexionTemp: etatLogonConnexion[] = [];
+        let infoSupp: boolean;
+
+        this.listeLogs.forEach(log => {
+            let etatLogonConnexion = <etatLogonConnexion>{};
+            etatLogonConnexion.dateChgtEtat = log.getDate();
+            etatLogonConnexion.log = log.getTitle();
+            infoSupp = false;
+            //automate a etat sur la variable etat 
+            switch (log.getTitle()) {
+                case 'CPCASREQ': {
+
+                    etatLogonConnexion.etat = Etat.NonLogue;
+                    etatLogonConnexion.infoEtat = "DemandeLogonEnCours";
+                    infoSupp = true;
+                    break;
+                }
+                case 'CPCASRES': {
+                    if ((log.getDetaillog()["ATNASSOC"] == "S") || (log.getDetaillog()["ATNASSOC"] == "L")) {
+                        etatLogonConnexion.etat = Etat.NonLogue;
+                        etatLogonConnexion.infoEtat = "DemandeLogonEncoursAutoriseeParStpv";
+                        infoSupp = true;
+                    }
+                    else if (log.getDetaillog()["ATNASSOC"] == "F") {
+                        etatLogonConnexion.etat = Etat.NonLogue;
+                        etatLogonConnexion.infoEtat = "DemandeLogonRefuseeParStpv";
+                        infoSupp = true;
+                    }
+                    break;
+                }
+                case 'CPCVNRES': {
+                    if (log.getDetaillog()["GAPPSTATUS"] == "A") {
+                        etatLogonConnexion.etat = Etat.Logue;
+                        etatLogonConnexion.infoEtat = "LogonAcceptee";
+                        infoSupp = true;
+                    }
+                    else if (log.getDetaillog()["GAPPSTATUS"] == "F") {
+                        etatLogonConnexion.etat = Etat.NonLogue;
+                        etatLogonConnexion.infoEtat = "EchecLogon";
+                        infoSupp = true;
+                    }
+                    break;
+                }
+                case 'CPCOPENLNK': {
+                    //console.log('CPCOPENLNK'); 
+                    etatLogonConnexion.etat = Etat.Logue;
+                    etatLogonConnexion.infoEtat = "DemandeConnexion";
+                    infoSupp = true
+                    break;
+                }
+                case 'CPCCOMSTAT': {
+                    //console.log('CPCCOMSTAT'); 
+                    if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
+                        etatLogonConnexion.etat = Etat.Connecte;
+                        etatLogonConnexion.infoEtat = "Connecte";
+                        infoSupp = true
+                    }
+                    else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
+                        etatLogonConnexion.etat = Etat.Logue;
+                        etatLogonConnexion.infoEtat = "Deconnexion";
+                        infoSupp = true
+                    }
+                    break;
+                }
+                case 'CPCEND': {
+                    //console.log('CPCEND'); 
+                    etatLogonConnexion.etat = Etat.NonLogue;
+                    etatLogonConnexion.infoEtat = "Fin du vol";
+                    infoSupp = true
+                    break;
+                }
+                case 'CPCCLOSLNK': {
+                    //console.log('CPCCLOSLNK'); 
+                    etatLogonConnexion.etat = Etat.Logue;
+                    etatLogonConnexion.infoEtat = "DemandeDeconnexion";
+                    infoSupp = true
+                    break;
+                }
+                case 'FIN VOL': {
+                    // console.log("je passe dans FIN VOL !!!!!!!!!!!!!!!!!!!!");
+                    etatLogonConnexion.etat = Etat.NonLogue;
+                    etatLogonConnexion.infoEtat = "Fin du vol";
+                    infoSupp = true
+                    break;
+                }
+                case 'FPCLOSE': {
+                    etatLogonConnexion.etat = Etat.NonLogue;
+                    etatLogonConnexion.infoEtat = "Fin du vol";
+                    infoSupp = true
+                    break;
+                }
+                default: {
+                    // console.log("je passe dans default",log.getTitle()); 
+                    break;
+                }
+            }
+            if (infoSupp) {
+                tabEtatLogonConnexionTemp.push(etatLogonConnexion);
+
+            }
+
+        });
+        /**console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");
+        tabEtatLogonConnexionTemp.forEach(element => {
+          console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
+        });*/
+        let tabEtatLogonConnexion: etatLogonConnexion[] = [];
+
+        for (let index = 0; index < tabEtatLogonConnexionTemp.length; index++) {
+
+            const element = tabEtatLogonConnexionTemp[index];
+            tabEtatLogonConnexion.push(element);
+
+            if (index > 0) {
+                const elementPrevious = tabEtatLogonConnexionTemp[index - 1];
+
+                if ((element.etat == Etat.Logue) && (element.infoEtat == "DemandeDeconnexion") && (elementPrevious.infoEtat == "Deconnexion")) {
+                    tabEtatLogonConnexion.pop();
+                }
+                else if (((element.etat == Etat.NonLogue) || ((element.etat == Etat.Logue) && (element.etat == Etat.Logue))) && (element.infoEtat == elementPrevious.infoEtat)) {
+                    tabEtatLogonConnexion.pop();
+                    tabEtatLogonConnexion.pop();
+                    tabEtatLogonConnexion.push(element);
+                }
+            }
+
+        }
+        /**console.log("AFTER array tabEtatLogonConnexionLPLNs: ");
+        tabEtatLogonConnexion.forEach(element => {
+          console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
+        });*/
+
+        this.setListeEtatLogonConnexion(tabEtatLogonConnexion);
+
+
+    }
+
+
+    private evaluationEtatsLogonConnexionSimplifie(): void {
+        let tabEtatLogonConnexionSimplifie: etatLogonConnexionSimplifiee[] = [];
+        let tabEtatConnexion: etatLogonConnexionSimplifiee[] = [];
+        let tabEtatLogon: etatLogonConnexionSimplifiee[] = [];
+        let tabEtatLogonTemp: etatLogonConnexionSimplifiee[] = [];
+        let tabLog: etatLogonConnexionSimplifiee[] = [];
+
+
+        let tabEtatLogonConnexion: etatLogonConnexion[] = this.getListeEtatLogonConnexion();
+
+        //RECUPERATION DES INFORMATION DE LOGON
+        for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
+            const element = tabEtatLogonConnexion[index];
+            let newElement = <etatLogonConnexionSimplifiee>{};
+            newElement.fromDate = element.dateChgtEtat;
+            newElement.toDate = element.dateChgtEtat;
+            newElement.name = "logon";
+            newElement.infoEtat = element.etat;
+
+            if (index == 0) {
+                if (element.etat == Etat.Connecte) {
+                    newElement.infoEtat = Etat.Logue;
+                }
+                tabEtatLogonTemp.push(newElement);
+            }
+            else {
+                const elementPrevious = tabEtatLogonConnexion[index - 1];
+                //cas ou on passe de logue a non logue
+                if ((elementPrevious.etat !== element.etat) && (element.etat == Etat.NonLogue)) {
+                    tabEtatLogonTemp[tabEtatLogonTemp.length - 1].toDate = element.dateChgtEtat;
+                    tabEtatLogonTemp.push(newElement);
+                }
+                //cas ou on passe de non logue a logue
+                else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.NonLogue)) {
+                    tabEtatLogonTemp[tabEtatLogonTemp.length - 1].toDate = element.dateChgtEtat;
+                    tabEtatLogonTemp.push(newElement);
+                }
+            }
+            if (index == tabEtatLogonConnexion.length - 1) {
+                tabEtatLogonTemp[tabEtatLogonTemp.length - 1].toDate = tabEtatLogonConnexion[tabEtatLogonConnexion.length - 1].dateChgtEtat;
+            }
+        }
+        //suppression des changements d etat immediats
+        tabEtatLogonTemp.forEach(element => {
+            if (element.fromDate !== element.toDate) {
+                tabEtatLogon.push(element);
+            }
+
+        });
+
+        //RECUPERATION DES INFORMATION DE CONNEXION
+        for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
+            const element = tabEtatLogonConnexion[index];
+            let newElement = <etatLogonConnexionSimplifiee>{};
+            newElement.fromDate = element.dateChgtEtat;
+            newElement.toDate = element.dateChgtEtat;
+            newElement.name = "connexion";
+            newElement.infoEtat = element.etat;
+            if (index == 0) {
+                if (element.etat == Etat.Connecte) {
+                    tabEtatConnexion.push(newElement);
+                }
+            }
+            else {
+                const elementPrevious = tabEtatLogonConnexion[index - 1];
+                if ((elementPrevious.etat !== element.etat) && (element.etat == Etat.Connecte)) {
+                    tabEtatConnexion.push(newElement);
+                }
+                else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.Connecte)) {
+                    tabEtatConnexion[tabEtatConnexion.length - 1].toDate = element.dateChgtEtat;
+                }
+            }
+        }
+
+        //RECUPERATION DES INFORMATION de LOG IMPORTANT POUR  L UTILISATEUR tabLog
+        for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
+            const element = tabEtatLogonConnexion[index];
+            let newElement = <etatLogonConnexionSimplifiee>{};
+            newElement.fromDate = element.dateChgtEtat;
+            newElement.name = "logs";
+            newElement.logs = element.infoEtat;
+            // newElement.fromDate= String(moment(newElement.fromDate).format('DD-MM HH mm'));
+            // newElement.toDate= String(moment(newElement.toDate).format('DD-MM HH mm'));
+
+
+            if (index == 0) {
+                tabLog.push(newElement);
+            }
+            else {
+                const elementPrevious = tabLog[tabLog.length - 1];
+                if (elementPrevious.fromDate == element.dateChgtEtat) {
+                    tabLog[tabLog.length - 1].logs += "\n" + element.infoEtat;
+                }
+                else {
+                    tabLog.push(newElement);
+                }
+            }
+        }
+
+
+        //REMPLISSAGE DU TABLEAU DE LOGON CONNEXION EN RESPECTANT L ORDRE SUIVANT :
+        //INFOS DE LOGS
+        //INFOS DE CONNEXION
+        //INFOS DE LOGON
+
+        tabLog.forEach(element => {
+            tabEtatLogonConnexionSimplifie.push(element);
+        });
+
+        tabEtatConnexion.forEach(element => {
+            tabEtatLogonConnexionSimplifie.push(element);
+        });
+
+        tabEtatLogon.forEach(element => {
+            tabEtatLogonConnexionSimplifie.push(element);
+        });
+
+        tabEtatLogonConnexionSimplifie.forEach(element => {
+            console.log("element.fromDate", element.fromDate);
+            const momentDate1 = moment(element.fromDate, 'DD-MM-yyyy HH mm ss');
+            if (momentDate1.isValid()) {
+                element.fromDate = moment(momentDate1).format('DD-MM HH mm ss')
+            }
+            console.log("element.fromDate after", element.fromDate);
+
+            console.log("element.toDate", element.toDate);
+            const momentDate2 = moment(element.toDate, 'DD-MM-yyyy HH mm ss');
+            if (momentDate2.isValid()) {
+                element.toDate = moment(momentDate2).format('DD-MM HH mm ss')
+            }
+            console.log("element.toDate after", element.toDate);
+        });
+
+
+        this.setTimelineEtatLogonConnexion(tabEtatLogonConnexionSimplifie);
+
+    }
+
+
+    private setListeErreurs() {
+
+
+        if (this.getLogonAccepte() !== "OK") {
+            this.listeErreurs.push({ date: this.getDate(), type: "logon NOK", infos: this.evaluateEtatLogon() });
+        }
+        this.getListeEtatTransfertFrequence().forEach(element => {
+            if (element.isTransfertAcq !== true) {
+                this.listeErreurs.push({ date: element.dateTransfert, type: "echec de transfert", infos: "timeout" + element.isFinTRFDL });
+            }
+        });
+        let resultConnexion: {connexion: string, explication: string } = this.evaluateEtatConnexion();
+
+        if (resultConnexion.connexion == "KO") {
+            this.listeErreurs.push({ date: this.getDate(), type: "connexion NOK", infos: resultConnexion.explication });
+        }
+
+        console.log("nb erreurs : ", this.getListeErreurs().length);
+        this.getListeErreurs().push()
+
+    }
+
+    /**
+ * Evalue a partir des information de logon si un message d'erreur doit être affiche  l utilisateur
+ */
+    private evaluateEtatLogon(): string {
+
+        let explication: string;
+
+
+        if (this.getLogonInitie() === "OK") {
+            explication = "Logon Rejeté par le STPV";
+        }
+        else {
+            if (this.getConditionsLogon() === "OK") {
+                explication = "Pas de logon Initié par le bord";
+            }
+            else {
+                if (this.getEquipementCpdlc() !== "EQUIPE") {
+                    explication = "Vol non déclaré CPDLC";
+                }
+                else {
+                    explication = "l'un des paramètres déclarés dans le plan de vol n'est pas cohérent avec celui envoyé par le bord ";
+                    explication += "adep: " + this.getAdep() + "ades: " + this.getAdes() + "arcid: " + this.getArcid() + "adrDeposee: " + this.getAdrDeposee() + "adrModeS: " + this.getAdrModeSInf();
+                }
+            }
+        }
+
+
+        return explication;
+    }
+
+    /**
+     * Evalue a partir des information de connexion si un message d'erreur doit être affiche  l utilisateur
+     */
+    private evaluateEtatConnexion(): { connexion: string, explication: string } {
+        let connexion: string;
+        let explication: string;
+        if (this.getLogonAccepte() !== "OK") {
+            if (!this.getIsConnexionInitiee() && !this.getIsConnexionEtablie()) {
+                connexion = "KO";
+                explication = "Pas de connexion possible car vol non logue ";
+            }
+        }
+        else {
+
+            if (!this.getIsConnexionInitiee()) {
+                connexion = "KO";
+                explication = "Pas de connexion initiée par le STPV ";
+            }
+            else if (!this.getIsConnexionEtablie()) {
+                connexion = "KO";
+                explication = "Echec de connexion avec l'aeronef ";
+            }
+            else if (this.getIsConnexionPerdue()) {
+                connexion = "KO";
+                explication = "Perte de connexion avec l'aeronef ";
+            }
+
+        }
+
+        return { connexion, explication };
+    }
+
+
+
+    /**
+     * Evalue a partir des messages echanges s'il y a eu une connecion initiee, etablie ou perdue
+     */
+    private evaluationConnexion(): void {
+
+
+        let isConnexionInitiee: boolean = false;
+        let isConnexionEtablie: boolean = false;
+        let isConnexionPerdue: boolean = false;
+        let isDeconnexionDemandee: boolean = false;
+
+        this.listeLogs.forEach(log => {
+            //automate a etat sur la variable etat 
+            switch (log.getTitle()) {
+                case 'CPCOPENLNK': {
+                    //console.log('CPCOPENLNK'); 
+                    isConnexionInitiee = true;
+                    break;
+                }
+                case 'CPCCOMSTAT': {
+                    //console.log('CPCCOMSTAT'); 
+                    if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
+                        isConnexionEtablie = true;
+                    }
+                    else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
+                        if (isConnexionEtablie && !isDeconnexionDemandee) {
+                            isConnexionPerdue = true;
+                        }
+                    }
+                    break;
+                }
+                case 'CPCCLOSLNK': {
+                    //console.log('CPCCLOSLNK'); 
+                    isDeconnexionDemandee = true;
+                    break;
+                }
+                default: {
+                    // console.log("je passe dans default",log.getTitle()); 
+                    break;
+                }
+            }
+
+
+        });
+        this.setIsConnexionInitiee(isConnexionInitiee);
+        this.setIsConnexionEtablie(isConnexionEtablie);
+        this.setIsConnexionPerdue(isConnexionPerdue);
+    }
+
+    public initLogonConnexionResults(): void {
+        this.evaluationEtatsLogonConnexion();
+        this.evaluationEtatsLogonConnexionSimplifie();
+        //Evalue a partir des messages echanges s'il y a eu une connecion initiee, etablie ou perdue
+        this.evaluationConnexion();
+        //Evalue a partir des information de logon si un message d'erreur doit être affiche  l utilisateur
+        this.evaluateEtatLogon();
+        //Evalue a partir des information de connexion si un message d'erreur doit être affiche  l utilisateur
+        this.evaluateEtatConnexion();
+        this.setListeErreurs();
+    }
 
 
 } 

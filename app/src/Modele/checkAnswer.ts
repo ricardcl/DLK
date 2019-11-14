@@ -48,3 +48,9 @@ export interface etatLogonConnexionSimplifiee {
     infoEtat?: string; //logue, non logue , connecte, non connecte
     logs?:string;
 }
+
+export interface erreurVol {
+    date: string;
+    type : string;
+    infos : string;
+}

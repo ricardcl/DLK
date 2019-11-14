@@ -214,14 +214,10 @@ export class MixInfos {
       console.log(element.frequence, element.dateTransfert, element.isTRARTV);
     });
 
-    this.evaluationEtatsLogonConnexionSimplifie(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
-    monvolFinal.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
-    monvolFinal.setTimelineEtatLogonConnexion(this.evaluationEtatsLogonConnexionSimplifie(monvolFinal.getListeEtatLogonConnexion()));
+    //this.evaluationEtatsLogonConnexionSimplifie(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
+   
 
-    let valeursConnexion:{isConnexionInitiee: boolean,isConnexionEtablie: boolean,isConnexionPerdue:boolean}  = this.evaluationConnexion(monvolFinal.getListeLogs());
-    monvolFinal.setIsConnexionInitiee(valeursConnexion.isConnexionInitiee);
-    monvolFinal.setIsConnexionEtablie(valeursConnexion.isConnexionEtablie);
-    monvolFinal.setIsConnexionPerdue(valeursConnexion.isConnexionPerdue);
+    monvolFinal.initLogonConnexionResults();
 
     return monvolFinal;
   }
@@ -300,18 +296,14 @@ export class MixInfos {
      });*/
 
 
-    /** Recuperation des infos de cheangement d'état */
-    monvolLpln.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolLpln.getListeLogs()));
-    monvolLpln.setTimelineEtatLogonConnexion(this.evaluationEtatsLogonConnexionSimplifie(monvolLpln.getListeEtatLogonConnexion()));
-    /** console.log("array tabEtatLogonConnexionLPLNs: ");
-    monvolLpln.getListeEtatLogonConnexion().forEach(element => {
-      console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
-    });*/
 
-    let valeursConnexion:{isConnexionInitiee: boolean,isConnexionEtablie: boolean,isConnexionPerdue:boolean}  = this.evaluationConnexion(monvolLpln.getListeLogs());
-    monvolLpln.setIsConnexionInitiee(valeursConnexion.isConnexionInitiee);
-    monvolLpln.setIsConnexionEtablie(valeursConnexion.isConnexionEtablie);
-    monvolLpln.setIsConnexionPerdue(valeursConnexion.isConnexionPerdue);
+
+
+
+
+    
+ 
+    monvolLpln.initLogonConnexionResults();
 
     return monvolLpln;
 
@@ -334,10 +326,7 @@ export class MixInfos {
 
     //RECUPERATION DES ATTRIBUTS 
 
-    if (monvolVemgsa.getLogonAccepte()) {
-      monvolVemgsa.setConditionsLogon("OK")
-    }
-    else { monvolVemgsa.setConditionsLogon("KO"); }
+
 
     //console.log("debut logs VEMGSA collectes et tries"); 
 
@@ -354,9 +343,15 @@ export class MixInfos {
       if (etatCpdlc.getTitle() == 'CPCEND') {
         hasCPCEND = true;
       }
-      if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
-        monvolVemgsa.setLogonAccepte("OK");
-      } else { monvolVemgsa.setLogonAccepte("KO"); }
+
+      if (etatCpdlc.getTitle() == 'CPCASRES') {
+        if ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L')) {
+          monvolVemgsa.setLogonAccepte("OK");
+        }
+        else {
+          monvolVemgsa.setLogonAccepte("KO");
+        }
+      }
 
       //console.log("heure: ", etatCpdlc.getHeure(), "msg: ", etatCpdlc.getTitle(), " etat: ", etatCpdlc.getEtat()); 
       //console.log("LogVEMGSA: ", etatCpdlc.getLog()); 
@@ -366,6 +361,13 @@ export class MixInfos {
       }
 
     });
+
+    if (monvolVemgsa.getLogonAccepte()) {
+      monvolVemgsa.setConditionsLogon("OK")
+    }
+    else { monvolVemgsa.setConditionsLogon("KO"); }
+
+
     if (nbLogsCpdlc != 0) {
       monvolVemgsa.setHaslogCpdlc(true);
     }
@@ -388,14 +390,11 @@ export class MixInfos {
 
 
     monvolVemgsa = this.sortLogs(monvolVemgsa);
-    monvolVemgsa.setListeEtatLogonConnexion(this.evaluationEtatsLogonConnexion(monvolVemgsa.getListeLogs()));
-    monvolVemgsa.setTimelineEtatLogonConnexion(this.evaluationEtatsLogonConnexionSimplifie(monvolVemgsa.getListeEtatLogonConnexion()));
+ 
 
-    let valeursConnexion:{isConnexionInitiee: boolean,isConnexionEtablie: boolean,isConnexionPerdue:boolean}  = this.evaluationConnexion(monvolVemgsa.getListeLogs());
-    monvolVemgsa.setIsConnexionInitiee(valeursConnexion.isConnexionInitiee);
-    monvolVemgsa.setIsConnexionEtablie(valeursConnexion.isConnexionEtablie);
-    monvolVemgsa.setIsConnexionPerdue(valeursConnexion.isConnexionPerdue);
 
+
+    monvolVemgsa.initLogonConnexionResults();
 
     return monvolVemgsa;
   }
@@ -699,318 +698,9 @@ export class MixInfos {
 
 
 
-  private evaluationConnexion(listeLogs: EtatCpdlc[]): {isConnexionInitiee: boolean,isConnexionEtablie: boolean,isConnexionPerdue:boolean} {
  
 
-    let isConnexionInitiee: boolean = false;
-    let isConnexionEtablie: boolean = false;
-    let isConnexionPerdue: boolean = false;
-    let isDeconnexionDemandee: boolean = false;
   
-    listeLogs.forEach(log => {
-      //automate a etat sur la variable etat 
-      switch (log.getTitle()) {
-        case 'CPCOPENLNK': {
-          //console.log('CPCOPENLNK'); 
-          isConnexionInitiee = true;
-          break;
-        }
-        case 'CPCCOMSTAT': {
-          //console.log('CPCCOMSTAT'); 
-          if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
-            isConnexionEtablie = true;
-          }
-          else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
-            if (isConnexionEtablie && !isDeconnexionDemandee) {
-              isConnexionPerdue = true;
-            }
-          }
-          break;
-        }
-        case 'CPCCLOSLNK': {
-          //console.log('CPCCLOSLNK'); 
-          isDeconnexionDemandee = true;
-          break;
-        }
-        default: {
-          // console.log("je passe dans default",log.getTitle()); 
-          break;
-        }
-      }
-
-
-    });
-    return {isConnexionInitiee,isConnexionEtablie, isConnexionPerdue };
-  }
-
-
-  private evaluationEtatsLogonConnexion(listeLogs: EtatCpdlc[]): etatLogonConnexion[] {
-    let tabEtatLogonConnexionTemp: etatLogonConnexion[] = [];
-    let infoSupp: boolean;
-
-    listeLogs.forEach(log => {
-      let etatLogonConnexion = <etatLogonConnexion>{};
-      etatLogonConnexion.dateChgtEtat = log.getDate();
-      etatLogonConnexion.log = log.getTitle();
-      infoSupp = false;
-      //automate a etat sur la variable etat 
-      switch (log.getTitle()) {
-        case 'CPCASREQ': {
-
-          etatLogonConnexion.etat = Etat.NonLogue;
-          etatLogonConnexion.infoEtat = "DemandeLogonEnCours";
-          infoSupp = true;
-          break;
-        }
-        case 'CPCASRES': {
-          if ((log.getDetaillog()["ATNASSOC"] == "S") || (log.getDetaillog()["ATNASSOC"] == "L")) {
-            etatLogonConnexion.etat = Etat.NonLogue;
-            etatLogonConnexion.infoEtat = "DemandeLogonEncoursAutoriseeParStpv";
-            infoSupp = true;
-          }
-          else if (log.getDetaillog()["ATNASSOC"] == "F") {
-            etatLogonConnexion.etat = Etat.NonLogue;
-            etatLogonConnexion.infoEtat = "DemandeLogonRefuseeParStpv";
-            infoSupp = true;
-          }
-          break;
-        }
-        case 'CPCVNRES': {
-          if (log.getDetaillog()["GAPPSTATUS"] == "A") {
-            etatLogonConnexion.etat = Etat.Logue;
-            etatLogonConnexion.infoEtat = "LogonAcceptee";
-            infoSupp = true;
-          }
-          else if (log.getDetaillog()["GAPPSTATUS"] == "F") {
-            etatLogonConnexion.etat = Etat.NonLogue;
-            etatLogonConnexion.infoEtat = "EchecLogon";
-            infoSupp = true;
-          }
-          break;
-        }
-        case 'CPCOPENLNK': {
-          //console.log('CPCOPENLNK'); 
-          etatLogonConnexion.etat = Etat.Logue;
-          etatLogonConnexion.infoEtat = "DemandeConnexion";
-          infoSupp = true
-          break;
-        }
-        case 'CPCCOMSTAT': {
-          //console.log('CPCCOMSTAT'); 
-          if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
-            etatLogonConnexion.etat = Etat.Connecte;
-            etatLogonConnexion.infoEtat = "Connecte";
-            infoSupp = true
-          }
-          else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
-            etatLogonConnexion.etat = Etat.Logue;
-            etatLogonConnexion.infoEtat = "Deconnexion";
-            infoSupp = true
-          }
-          break;
-        }
-        case 'CPCEND': {
-          //console.log('CPCEND'); 
-          etatLogonConnexion.etat = Etat.NonLogue;
-          etatLogonConnexion.infoEtat = "Fin du vol";
-          infoSupp = true
-          break;
-        }
-        case 'CPCCLOSLNK': {
-          //console.log('CPCCLOSLNK'); 
-          etatLogonConnexion.etat = Etat.Logue;
-          etatLogonConnexion.infoEtat = "DemandeDeconnexion";
-          infoSupp = true
-          break;
-        }
-        case 'FIN VOL': {
-          // console.log("je passe dans FIN VOL !!!!!!!!!!!!!!!!!!!!");
-          etatLogonConnexion.etat = Etat.NonLogue;
-          etatLogonConnexion.infoEtat = "Fin du vol";
-          infoSupp = true
-          break;
-        }
-        case 'FPCLOSE': {
-          etatLogonConnexion.etat = Etat.NonLogue;
-          etatLogonConnexion.infoEtat = "Fin du vol";
-          infoSupp = true
-          break;
-        }
-        default: {
-          // console.log("je passe dans default",log.getTitle()); 
-          break;
-        }
-      }
-      if (infoSupp) {
-        tabEtatLogonConnexionTemp.push(etatLogonConnexion);
-
-      }
-
-    });
-    /**console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");
-    tabEtatLogonConnexionTemp.forEach(element => {
-      console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
-    });*/
-    let tabEtatLogonConnexion: etatLogonConnexion[] = [];
-
-    for (let index = 0; index < tabEtatLogonConnexionTemp.length; index++) {
-
-      const element = tabEtatLogonConnexionTemp[index];
-      tabEtatLogonConnexion.push(element);
-
-      if (index > 0) {
-        const elementPrevious = tabEtatLogonConnexionTemp[index - 1];
-
-        if ((element.etat == Etat.Logue) && (element.infoEtat == "DemandeDeconnexion") && (elementPrevious.infoEtat == "Deconnexion")) {
-          tabEtatLogonConnexion.pop();
-        }
-        else if (((element.etat == Etat.NonLogue) || ((element.etat == Etat.Logue) && (element.etat == Etat.Logue))) && (element.infoEtat == elementPrevious.infoEtat)) {
-          tabEtatLogonConnexion.pop();
-          tabEtatLogonConnexion.pop();
-          tabEtatLogonConnexion.push(element);
-        }
-      }
-
-    }
-    /**console.log("AFTER array tabEtatLogonConnexionLPLNs: ");
-    tabEtatLogonConnexion.forEach(element => {
-      console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
-    });*/
-    return tabEtatLogonConnexion;
-  }
-
-  private evaluationEtatsLogonConnexionSimplifie(tabEtatLogonConnexion: etatLogonConnexion[]): etatLogonConnexionSimplifiee[] {
-    let tabEtatLogonConnexionSimplifie: etatLogonConnexionSimplifiee[] = [];
-    let tabEtatConnexion: etatLogonConnexionSimplifiee[] = [];
-    let tabEtatLogon: etatLogonConnexionSimplifiee[] = [];
-    let tabEtatLogonTemp: etatLogonConnexionSimplifiee[] = [];
-    let tabLog: etatLogonConnexionSimplifiee[] = [];
-
-    //RECUPERATION DES INFORMATION DE LOGON
-    for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
-      const element = tabEtatLogonConnexion[index];
-      let newElement = <etatLogonConnexionSimplifiee>{};
-      newElement.fromDate = element.dateChgtEtat;
-      newElement.toDate = element.dateChgtEtat;
-      newElement.name = "logon";
-      newElement.infoEtat = element.etat;
-
-      if (index == 0) {
-        if (element.etat == Etat.Connecte) {
-          newElement.infoEtat = Etat.Logue;
-        }
-        tabEtatLogonTemp.push(newElement);
-      }
-      else {
-        const elementPrevious = tabEtatLogonConnexion[index - 1];
-        //cas ou on passe de logue a non logue
-        if ((elementPrevious.etat !== element.etat) && (element.etat == Etat.NonLogue)) {
-          tabEtatLogonTemp[tabEtatLogonTemp.length - 1].toDate = element.dateChgtEtat;
-          tabEtatLogonTemp.push(newElement);
-        }
-        //cas ou on passe de non logue a logue
-        else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.NonLogue)) {
-          tabEtatLogonTemp[tabEtatLogonTemp.length - 1].toDate = element.dateChgtEtat;
-          tabEtatLogonTemp.push(newElement);
-        }
-      }
-      if (index == tabEtatLogonConnexion.length - 1) {
-        tabEtatLogonTemp[tabEtatLogonTemp.length - 1].toDate = tabEtatLogonConnexion[tabEtatLogonConnexion.length - 1].dateChgtEtat;
-      }
-    }
-    //suppression des changements d etat immediats
-    tabEtatLogonTemp.forEach(element => {
-      if (element.fromDate !== element.toDate) {
-        tabEtatLogon.push(element);
-      }
-
-    });
-
-    //RECUPERATION DES INFORMATION DE CONNEXION
-    for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
-      const element = tabEtatLogonConnexion[index];
-      let newElement = <etatLogonConnexionSimplifiee>{};
-      newElement.fromDate = element.dateChgtEtat;
-      newElement.toDate = element.dateChgtEtat;
-      newElement.name = "connexion";
-      newElement.infoEtat = element.etat;
-      if (index == 0) {
-        if (element.etat == Etat.Connecte) {
-          tabEtatConnexion.push(newElement);
-        }
-      }
-      else {
-        const elementPrevious = tabEtatLogonConnexion[index - 1];
-        if ((elementPrevious.etat !== element.etat) && (element.etat == Etat.Connecte)) {
-          tabEtatConnexion.push(newElement);
-        }
-        else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.Connecte)) {
-          tabEtatConnexion[tabEtatConnexion.length - 1].toDate = element.dateChgtEtat;
-        }
-      }
-    }
-
-    //RECUPERATION DES INFORMATION de LOG IMPORTANT POUR  L UTILISATEUR tabLog
-    for (let index = 0; index < tabEtatLogonConnexion.length; index++) {
-      const element = tabEtatLogonConnexion[index];
-      let newElement = <etatLogonConnexionSimplifiee>{};
-      newElement.fromDate = element.dateChgtEtat;
-      newElement.name = "logs";
-      newElement.logs = element.infoEtat;
-      // newElement.fromDate= String(moment(newElement.fromDate).format('DD-MM HH mm'));
-      // newElement.toDate= String(moment(newElement.toDate).format('DD-MM HH mm'));
-
-
-      if (index == 0) {
-        tabLog.push(newElement);
-      }
-      else {
-        const elementPrevious = tabLog[tabLog.length - 1];
-        if (elementPrevious.fromDate == element.dateChgtEtat) {
-          tabLog[tabLog.length - 1].logs += "\n" + element.infoEtat;
-        }
-        else {
-          tabLog.push(newElement);
-        }
-      }
-    }
-
-
-    //REMPLISSAGE DU TABLEAU DE LOGON CONNEXION EN RESPECTANT L ORDRE SUIVANT :
-    //INFOS DE LOGS
-    //INFOS DE CONNEXION
-    //INFOS DE LOGON
-
-    tabLog.forEach(element => {
-      tabEtatLogonConnexionSimplifie.push(element);
-    });
-
-    tabEtatConnexion.forEach(element => {
-      tabEtatLogonConnexionSimplifie.push(element);
-    });
-
-    tabEtatLogon.forEach(element => {
-      tabEtatLogonConnexionSimplifie.push(element);
-    });
-
-    tabEtatLogonConnexionSimplifie.forEach(element => {
-      console.log("element.fromDate", element.fromDate);
-      const momentDate1 = moment(element.fromDate, 'DD-MM-yyyy HH mm ss');
-      if (momentDate1.isValid()) {
-        element.fromDate = moment(momentDate1).format('DD-MM HH mm ss')
-      }
-      console.log("element.fromDate after", element.fromDate);
-
-      console.log("element.toDate", element.toDate);
-      const momentDate2 = moment(element.toDate, 'DD-MM-yyyy HH mm ss');
-      if (momentDate2.isValid()) {
-        element.toDate = moment(momentDate2).format('DD-MM HH mm ss')
-      }
-      console.log("element.toDate after", element.toDate);
-    });
-
-    return tabEtatLogonConnexionSimplifie;
-  }
   private removeYear(etatTransfertFreq: etatTransfertFrequence): void {
     console.log("elt.dateTransfert", etatTransfertFreq.dateTransfert);
     const momentDate1 = moment(etatTransfertFreq.dateTransfert, 'DD-MM-yyyy HH mm ss');
@@ -1019,4 +709,7 @@ export class MixInfos {
     }
     console.log("etatTransfertFreq.dateTransfert after", etatTransfertFreq.dateTransfert);
   }
+
+
+
 }
