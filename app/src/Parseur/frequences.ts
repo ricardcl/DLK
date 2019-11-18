@@ -1,7 +1,5 @@
 import { Path } from "../Modele/path";
 import { ReadLine } from "../scripts/node-readline/node-readline";
-
-
 const fs = require('fs');
 const p = require('path');
 

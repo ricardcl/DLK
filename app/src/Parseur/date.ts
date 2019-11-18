@@ -1,7 +1,5 @@
 import * as moment from 'moment';
 
-
-
 export interface datesFile {
     dateMin: string;
     dateMax: string;

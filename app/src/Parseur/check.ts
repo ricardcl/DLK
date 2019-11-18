@@ -1,6 +1,3 @@
-import { Vol } from '../Modele/vol'; 
-import { ParseurLPLN } from './ParseurLPLN'; 
-import { ParseurVEMGSA } from './ParseurVEMGSA'; 
 import { Identifiants } from '../Modele/identifiants'; 
 import { Contexte } from '../Modele/enumContexte'; 
 import { checkAnswer, checkAnswerInitial } from '../Modele/checkAnswer'; 

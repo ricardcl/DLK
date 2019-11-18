@@ -1,9 +1,7 @@
-const fs = require('fs');
-const p = require('path');
-
-
 import { Dates, datesFile, arrayDatesFile } from './date';
 import { ReadLine } from '../scripts/node-readline/node-readline';
+const fs = require('fs');
+const p = require('path');
 
 /**
  * Classe regroupant les fonctions qui accedent directement au fichier VEMGSA en lecture

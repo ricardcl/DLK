@@ -1,6 +1,6 @@
 const p = require('path');
 const fs = require('fs');
-import moment = require('moment');
+import * as moment from 'moment';
 import { Path } from './Modele/path';
 import { Vol } from './Modele/vol';
 import { ReadLine } from './scripts/node-readline/node-readline';

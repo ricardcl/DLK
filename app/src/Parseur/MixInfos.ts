@@ -6,8 +6,7 @@ import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Dates, datesFile } from './date';
 import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee } from '../Modele/checkAnswer';
 import { Frequences } from './frequences';
-import { Etat } from '../Modele/enumEtat';
-import moment = require('moment');
+import * as moment from 'moment';
 
 export class MixInfos {
 
@@ -30,7 +29,6 @@ export class MixInfos {
 
     //Initialisation du vol final issu des donnees LPLN et VEMGSA 
     let monvolFinal = new Vol(arcid, plnid);
-
 
     //RECUPERATION DES ATTRIBUTS 
     if (volVemgsa.getDate() !== "") {
@@ -294,12 +292,6 @@ export class MixInfos {
      monvolLpln.getListeEtatTransfertFrequence().forEach(element => {
        console.log(element.frequence, element.dateTransfert, element.isTRARTV);
      });*/
-
-
-
-
-
-
 
 
 

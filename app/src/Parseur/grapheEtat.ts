@@ -1,6 +1,5 @@
 import { Vol } from '../Modele/vol';
 import { Etat } from '../Modele/enumEtat';
-import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { Frequences } from './frequences';
 
 export class GrapheEtat {

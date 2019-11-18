@@ -1,9 +1,6 @@
 import { Identifiants } from "../Modele/identifiants";
 import {  Split } from './split';
 import { ReadLine } from "../scripts/node-readline/node-readline";
-
-
-
 const fs = require('fs');
 const p = require('path');
 

@@ -3,21 +3,13 @@ import { Vol } from '../Modele/vol';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
 import * as moment from 'moment';
-
 import { Split } from './split';
-
-
-
-
 import { DetailCpdlc } from '../Modele/detailCpdlc';
-import { Identifiants } from '../Modele/identifiants';
 import { GrepVEMGSA } from './grepVEMGSA';
 import { Path } from '../Modele/path';
 import { Frequences } from './frequences';
 import { datesFile } from './date';
 import { ReadLine } from '../scripts/node-readline/node-readline';
-
-
 const p = require('path');
 
 export class ParseurVEMGSA {
@@ -26,19 +18,14 @@ export class ParseurVEMGSA {
   private frequences: Frequences;
   private readLine: ReadLine;
 
-
   constructor(grep: GrepVEMGSA) {
     console.log("Je rentre dans le constructor parseurVemgsa ");
-
     this.grep = grep;
     this.split = new Split();
     this.frequences = new Frequences();
     this.readLine = new ReadLine();
 
   }
-
-
-
 
 
   public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau: datesFile, chosenHoraire?: datesFile): Vol {
@@ -106,11 +93,7 @@ export class ParseurVEMGSA {
         }
       }
       //Stockage des infos suivantes
-
       let myMap: DetailCpdlc[] = this.split.stringToDetailCpdlc(infoLog);
-
-
-
 
       log.setDetailLog(myMap);
       log.setTitle(log.getDetaillog()['TITLE']);
@@ -128,17 +111,11 @@ export class ParseurVEMGSA {
         }
       }
 
-
-
       numeroLigne += 1;
     } while (!this.readLine.eof(r));
 
-
-
     this.readLine.fclose(r);
     //fs.closeSync(w);
-
-
 
     return monvol;
   }
