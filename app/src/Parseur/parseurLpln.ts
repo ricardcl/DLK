@@ -154,131 +154,16 @@ export class ParseurLPLN {
  
  
           //automate a etat sur la variable etat 
-          switch (log.getTitle()) { 
-            case 'CPCASREQ': { 
-              if (monEtat == Etat.NonLogue) { 
-                monEtat = Etat.DemandeLogon; 
-              } 
-              else { 
-                monEtat = Etat.Unknown; 
-              } 
-              break; 
-            } 
-            case 'CPCASRES': { 
-              if ((log.getDetaillog()["ATNASSOC"] == "S") || (log.getDetaillog()["ATNASSOC"] == "L")) { 
-                monEtat = Etat.DemandeLogonAutorisee; 
-              } 
-              else if (log.getDetaillog()["ATNASSOC"] == "F") { 
-                monEtat = Etat.NonLogue; 
-              } 
-              else { 
-                monEtat = Etat.Unknown; 
-              } 
-              break; 
-            } 
-            case 'CPCVNRES': { 
-              if (log.getDetaillog()["GAPPSTATUS"] == "A") { 
-                monEtat = Etat.Logue; 
-              } 
-              else if (log.getDetaillog()["GAPPSTATUS"] == "F") { 
-                monEtat = Etat.NonLogue; 
-              } 
-              else { 
-                monEtat = Etat.Unknown; 
-              } 
-              break; 
-            } 
-            case 'CPCOPENLNK': { 
-              if (monEtat == Etat.Logue) { 
-                monEtat = Etat.DemandeConnexion; 
-              } 
-              else { 
-                monEtat = Etat.Unknown; 
-              } 
-              break; 
-            } 
-            case 'CPCCOMSTAT': { 
-                if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") { 
-                  monEtat = Etat.Connecte; 
-                } 
-                else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") { 
-                  monEtat = Etat.Logue; 
-                } 
-              break; 
-            } 
-            case 'CPCEND': { 
-              monEtat = Etat.FinVol; 
-              break; 
-            } 
-            case 'CPCCLOSLNK': { 
-              if ((monEtat == Etat.Connecte) && log.getDetaillog()["FREQ"] !== undefined) { 
-                monEtat = Etat.TransfertEnCours; 
-              } 
-              if ((monEtat == Etat.TransfertEnCours) && log.getDetaillog()["FREQ"] !== undefined) { 
-                let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]); 
-                let detail = <DetailCpdlc>{}; 
-                detail.key = "FREQ"; 
-                detail.value = freq; 
-                log.addDetail(detail); 
-                monEtat = Etat.TransfertEnCours; 
-              } 
-              else { 
-                monEtat = Etat.DemandeDeconnexion; 
-              } 
-              break; 
-            } 
-            case 'CPCMSGDOWN': { 
-              if (monEtat == Etat.TransfertEnCours) { 
-                if ((log.getDetaillog()["CPDLCMSGDOWN"] == "WIL") || (log.getDetaillog()["CPDLCMSGDOWN"] == "LCK")) { 
-                  monEtat = Etat.Transfere; 
-                } 
-                else if ((log.getDetaillog()["CPDLCMSGDOWN"] == "UNA") || (log.getDetaillog()["CPDLCMSGDOWN"] == "STB")) { 
-                  monEtat = Etat.RetourALaVoix; 
-                } 
-              } 
-              else { 
-                monEtat = Etat.Unknown; 
-              } 
-              break; 
-            } 
-            case 'CPCFREQ': { 
-              monEtat = Etat.TransfertEnCours; 
-              break; 
-            } 
-            case 'TRFDL': { 
-              monEtat = Etat.TransfertEnCours; 
-              break; 
-            } 
-            case 'FIN TRFDL': { 
-              monEtat = Etat.RetourALaVoix; 
-              break; 
-            } 
-            case 'FIN VOL': {   
-              monEtat = Etat.FinVol; 
-              break; 
-            } 
-            case 'FPCLOSE': { 
-              monEtat = Etat.FinVol; 
-              break; 
-            } 
-            case 'TRARTV': { 
-              monEtat = Etat.RetourALaVoixAcquitte;  
-              break; 
-            } 
-            case 'CPCMSGUP': { 
-              // TODO: 
-              break; 
-            } 
-            case 'CPCNXTCNTR': { 
-              // TODO: 
-              break; 
-            } 
-            default: { 
-              break; 
-            } 
-          } 
- 
-          log.setEtat(monEtat); 
+          if ((log.getTitle() == "CPCCLOSLNK") || (log.getTitle() == "CPCFREQ"))  {
+            if  (log.getDetaillog()["FREQ"] !== undefined){
+              let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
+              let detail = <DetailCpdlc>{};
+              detail.key = "FREQ";
+              detail.value = freq;            
+              log.addDetail(detail);
+            }
+           }
+
         } 
       } 
       else { 

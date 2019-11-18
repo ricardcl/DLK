@@ -12,7 +12,7 @@ export class GrapheEtat {
         this.frequences = new Frequences();
     }
 
-    public grapheMix(vol: Vol): Vol {
+    public evaluateGrapheEtat(vol: Vol): Vol {
         console.log("Classe grapheEtat Fonction grapheMix");
 
         let monEtat: Etat = Etat.NonLogue;// Etat CPDLC par defaut
@@ -68,6 +68,8 @@ export class GrapheEtat {
                     break;
                 }
                 case 'CPCCLOSLNK': {
+                    // if ((monEtat == Etat.Connecte) && log.getDetaillog()["FREQ"] !== undefined) { 
+
                     if (etatCpdlc.getDetaillog()["FREQ"] !== undefined) {
                         monEtat = Etat.TransfertEnCours;
                     }

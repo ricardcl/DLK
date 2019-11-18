@@ -196,7 +196,7 @@ export class MixInfos {
 
 
 
-   monvolFinal = this.grapheEtat.grapheMix(monvolFinal);
+   monvolFinal = this.grapheEtat.evaluateGrapheEtat(monvolFinal);
 
     // console.log("debut logs collectes et tries");
     monvolFinal.getListeLogs().forEach(etatCpdlc => {
@@ -304,7 +304,7 @@ export class MixInfos {
 
 
     monvolLpln.initLogonConnexionResults();
-
+    monvolLpln = this.grapheEtat.evaluateGrapheEtat(monvolLpln);
     return monvolLpln;
 
 
@@ -406,6 +406,7 @@ export class MixInfos {
 
 
     monvolVemgsa.initLogonConnexionResults();
+    monvolVemgsa = this.grapheEtat.evaluateGrapheEtat(monvolVemgsa);
 
     return monvolVemgsa;
   }
