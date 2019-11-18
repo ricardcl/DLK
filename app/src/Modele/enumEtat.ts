@@ -14,4 +14,5 @@ export enum Etat {
     DemandeDeconnexion = "DEMANDE_DECONNEXION",
     FinVol = "FIN_VOL",
     Unknown = "",
+
 }

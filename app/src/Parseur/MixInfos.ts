@@ -75,19 +75,19 @@ export class MixInfos {
       monvolFinal.setCmpAdrModeS("KO");
     }
 
-    if ((volLpln.getLogonInitie()) || (volVemgsa.getLogonInitie())) {
+    if ((volLpln.getLogonInitie() == "OK") || (volVemgsa.getLogonInitie() == "OK")) {
       monvolFinal.setLogonInitie("OK");
     }
     else { monvolFinal.setLogonInitie("KO"); }
 
-    if ((volLpln.getLogonAccepte()) || (volVemgsa.getLogonAccepte())) {
+    if ((volLpln.getLogonAccepte() == "OK") || (volVemgsa.getLogonAccepte() == "OK")) {
       monvolFinal.setLogonAccepte("OK");
     }
     else {
       monvolFinal.setLogonAccepte("KO");
     }
 
-    if ((monvolFinal.getLogonAccepte()) || (monvolFinal.getCmpAdep() && monvolFinal.getCmpAdes()
+    if ((monvolFinal.getLogonAccepte() == "OK") || (monvolFinal.getCmpAdep() && monvolFinal.getCmpAdes()
       && monvolFinal.getCmpAdrModeS() && monvolFinal.getCmpArcid() && monvolFinal.getEquipementCpdlc())) {
       monvolFinal.setConditionsLogon("OK");
     }
@@ -323,7 +323,7 @@ export class MixInfos {
     let nbLogsCpdlc: number = 0;
     let hasCPASREQ: boolean = false;
     let hasCPCEND: boolean = false;
-
+    let isLogue: boolean = false;
     //RECUPERATION DES ATTRIBUTS 
 
 
@@ -344,6 +344,12 @@ export class MixInfos {
         hasCPCEND = true;
       }
 
+      //pour determiner si le vol a depasse le stade du logon
+      if ((etatCpdlc.getTitle() == 'CPCOPENLNK')||(etatCpdlc.getTitle() == 'CPCCOMSTAT')
+      ||(etatCpdlc.getTitle() == 'CPCCLOSLNK')||(etatCpdlc.getTitle() == 'CPCMSGDOWN')||(etatCpdlc.getTitle() == 'CPCMSGUP')) {
+        isLogue = true;
+      }
+
       if (etatCpdlc.getTitle() == 'CPCASRES') {
         if ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L')) {
           monvolVemgsa.setLogonAccepte("OK");
@@ -362,7 +368,7 @@ export class MixInfos {
 
     });
 
-    if (monvolVemgsa.getLogonAccepte()) {
+    if (monvolVemgsa.getLogonAccepte() == "OK") {
       monvolVemgsa.setConditionsLogon("OK")
     }
     else { monvolVemgsa.setConditionsLogon("KO"); }
@@ -373,6 +379,10 @@ export class MixInfos {
     }
     if (hasCPASREQ && hasCPCEND) {
       monvolVemgsa.setIslogCpdlcComplete(true);
+    }
+
+    if(isLogue){
+      monvolVemgsa.setLogonAccepte("OK");
     }
 
     //console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),"\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte()); 
@@ -576,7 +586,7 @@ export class MixInfos {
             isCPDLCMSGDOWN = true;
           }
 
-          else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)  && (!isCPDLCMSGDOWN)) {
+          else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout) && (!isCPDLCMSGDOWN)) {
             // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isTransfertAcq = true;
             etatTransfertFreq.dateTranfertAcq = dateTemp;
@@ -680,7 +690,7 @@ export class MixInfos {
 
           }
 
-          else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)  && (!isCPDLCMSGDOWN)) {
+          else if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] == "WIL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout) && (!isCPDLCMSGDOWN)) {
             // console.log("diff de temps:", this.dates.diffDates(dateFreq, dateTemp));
             etatTransfertFreq.isTransfertAcq = true;
             etatTransfertFreq.dateTranfertAcq = dateTemp;

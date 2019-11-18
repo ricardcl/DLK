@@ -204,17 +204,12 @@ export class ParseurLPLN {
               break; 
             } 
             case 'CPCCOMSTAT': { 
-              //console.log('CPCCOMSTAT'); 
-            
- 
                 if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") { 
                   monEtat = Etat.Connecte; 
                 } 
                 else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") { 
                   monEtat = Etat.Logue; 
-                  let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air"; 
                 } 
-
               break; 
             } 
             case 'CPCEND': { 

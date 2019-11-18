@@ -320,6 +320,9 @@ export class Vol {
 
 
 
+    /**
+     * 1: genere a partir de la liste des logs, la liste reduite des logs responsables des changements d etat de logon ou de connexion
+     */
     private evaluationEtatsLogonConnexion(): void {
         let tabEtatLogonConnexionTemp: etatLogonConnexion[] = [];
         let infoSupp: boolean;
@@ -458,7 +461,12 @@ export class Vol {
 
     }
 
-
+    /**
+     *  a partir de la liste reduite des logs responsables des changements d etat de logon ou de connexion, 
+     * Genere les informations a afficher dans la timeline de logon/connexion
+     * ces informations sont triees dans l ordre suivant :   INFOS DE LOGS , INFOS DE CONNEXION , INFOS DE LOGON, pour un affichage adapté côté client sur la timeline
+     * On parle d'etat simplifie , car seuls les attributs fromDate, toDate, name = {logon, connexion, logs}, etat  sont renseignes 
+     */
     private evaluationEtatsLogonConnexionSimplifie(): void {
         let tabEtatLogonConnexionSimplifie: etatLogonConnexionSimplifiee[] = [];
         let tabEtatConnexion: etatLogonConnexionSimplifiee[] = [];
@@ -598,6 +606,7 @@ export class Vol {
     }
 
 
+    /** Mets a jour la liste "listeErreurs de l'objet vol "contenant toutes les erreurs de logon, connexion, transfert de frequence a afficher a l utilisateur */
     private setListeErreurs() {
 
         //ERREURS DE LOGON
@@ -615,23 +624,22 @@ export class Vol {
         //ERREURS DE TRANSFERT DE FREQUENCE
         this.getListeEtatTransfertFrequence().forEach(element => {
             if (element.isTransfertAcq !== true) {
-                let infos:string = "timeout"  ;
-                let deltaTSecondes:number = element.deltaT / 1000;
-           if ((deltaTSecondes > 0) && (deltaTSecondes <60)){
-            infos += " delta T: "+deltaTSecondes+" secondes"+" hyp : délai de reception par le bord";
-           }
-           else if ((deltaTSecondes >= 60) && (deltaTSecondes <100)){
-            infos += " delta T: "+deltaTSecondes+" secondes"+" hyp : délai reception réponse bord";
-        }
-                this.listeErreurs.push({ date: element.dateTransfert, type: "echec de transfert", infos: infos});
+                let infos: string = "timeout";
+                let deltaTSecondes: number = element.deltaT / 1000;
+                if ((deltaTSecondes > 0) && (deltaTSecondes < 60)) {
+                    infos += " delta T: " + deltaTSecondes + " secondes" + " hyp : délai de reception par le bord";
+                }
+                else if ((deltaTSecondes >= 60) && (deltaTSecondes < 100)) {
+                    infos += " delta T: " + deltaTSecondes + " secondes" + " hyp : délai reception réponse bord";
+                }
+                this.listeErreurs.push({ date: element.dateTransfert, type: "echec de transfert", infos: infos });
             }
         });
         console.log("nb erreurs : ", this.getListeErreurs().length);
-        this.getListeErreurs().push()
 
     }
 
-     
+
 
     /**
  * Evalue a partir des information de logon si un message d'erreur doit être affiche  l utilisateur
@@ -746,10 +754,16 @@ export class Vol {
         this.setIsConnexionPerdue(isConnexionPerdue);
     }
 
+    /**
+     * 1: genere a partir de la liste des logs, la liste reduite des logs responsables des changements d etat de logon ou de connexion
+     * 2: genere a partir de la liste reduite des logs responsables des changements d etat de logon ou de connexion, 
+     * les informations a afficher dans la timeline de logon/connexion
+     * 3: Analyse les logs pour determiner si une connexion a ete initiee, etablie, perdue ou si une deconnexion a ete demandee
+     * 4: Genere une liste contenant toutes les erreurs de logon, connexion, transfert de frequence a afficher a lutilisateur
+     */
     public initLogonConnexionResults(): void {
         this.evaluationEtatsLogonConnexion();
         this.evaluationEtatsLogonConnexionSimplifie();
-        //Evalue a partir des messages echanges s'il y a eu une connecion initiee, etablie ou perdue
         this.evaluationConnexion();
         this.setListeErreurs();
     }

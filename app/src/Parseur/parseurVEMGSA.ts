@@ -156,7 +156,6 @@ export class ParseurVEMGSA {
           break;
         }
         case 'CPCOPENLNK': {
-          //console.log('CPCOPENLNK');
           if (monEtat == Etat.Logue) {
             monEtat = Etat.DemandeConnexion;
           }
@@ -166,30 +165,19 @@ export class ParseurVEMGSA {
           break;
         }
         case 'CPCCOMSTAT': {
-          //console.log('CPCCOMSTAT');
-          if (monEtat == Etat.DemandeConnexion) {
-
             if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
               monEtat = Etat.Connecte;
             }
             else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
               monEtat = Etat.Logue;
-              let causeEchec = "demande de connexion a echoue , raisons de l echec dans les logs du serveur air";
             }
-          }
-          else {
-            monEtat = Etat.Logue;
-          }
           break;
         }
         case 'CPCEND': {
-          //console.log('CPCEND');
           monEtat = Etat.FinVol;
-
           break;
         }
         case 'CPCCLOSLNK': {
-          //console.log('CPCCLOSLNK');
           if (log.getDetaillog()["FREQ"] !== undefined) {
             let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
             let detail = <DetailCpdlc>{};
