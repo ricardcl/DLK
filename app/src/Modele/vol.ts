@@ -328,6 +328,7 @@ export class Vol {
         let infoSupp: boolean;
 
         this.listeLogs.forEach(log => {
+           // log.setEtat(Etat.Unknown);
             let etatLogonConnexion = <etatLogonConnexion>{};
             etatLogonConnexion.dateChgtEtat = log.getDate();
             etatLogonConnexion.log = log.getTitle();
@@ -335,7 +336,6 @@ export class Vol {
             //automate a etat sur la variable etat 
             switch (log.getTitle()) {
                 case 'CPCASREQ': {
-
                     etatLogonConnexion.etat = Etat.NonLogue;
                     etatLogonConnexion.infoEtat = "DemandeLogonEnCours";
                     infoSupp = true;
@@ -424,6 +424,7 @@ export class Vol {
                 tabEtatLogonConnexionTemp.push(etatLogonConnexion);
 
             }
+           // log.setEtat( etatLogonConnexion.etat);
 
         });
         /**console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");

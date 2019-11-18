@@ -196,7 +196,7 @@ export class MixInfos {
 
 
 
-    monvolFinal = this.grapheEtat.grapheMix(monvolFinal);
+   monvolFinal = this.grapheEtat.grapheMix(monvolFinal);
 
     // console.log("debut logs collectes et tries");
     monvolFinal.getListeLogs().forEach(etatCpdlc => {
@@ -345,6 +345,7 @@ export class MixInfos {
       }
 
       //pour determiner si le vol a depasse le stade du logon
+      //permet de traiter le cas ou : le fichier VEMGSA est incomplet, debut des logs apres le logon 
       if ((etatCpdlc.getTitle() == 'CPCOPENLNK')||(etatCpdlc.getTitle() == 'CPCCOMSTAT')
       ||(etatCpdlc.getTitle() == 'CPCCLOSLNK')||(etatCpdlc.getTitle() == 'CPCMSGDOWN')||(etatCpdlc.getTitle() == 'CPCMSGUP')) {
         isLogue = true;

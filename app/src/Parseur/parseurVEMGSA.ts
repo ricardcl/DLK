@@ -120,7 +120,6 @@ export class ParseurVEMGSA {
       //automate a etat sur la variable etat
       switch (log.getTitle()) {
         case 'CPCASREQ': {
-          //console.log('CPCASREQ');
           if (monEtat == Etat.NonLogue) {
             monEtat = Etat.DemandeLogon;
           }
@@ -130,7 +129,6 @@ export class ParseurVEMGSA {
           break;
         }
         case 'CPCASRES': {
-          //console.log('CPCASRES');
           if ((log.getDetaillog()["ATNASSOC"] == "S") || (log.getDetaillog()["ATNASSOC"] == "L")) {
             monEtat = Etat.DemandeLogonAutorisee;
           }
@@ -143,7 +141,6 @@ export class ParseurVEMGSA {
           break;
         }
         case 'CPCVNRES': {
-          //console.log('CPCVNRES');
           if (log.getDetaillog()["GAPPSTATUS"] == "A") {
             monEtat = Etat.Logue;
           }
@@ -186,15 +183,12 @@ export class ParseurVEMGSA {
             log.addDetail(detail);
             monEtat = Etat.TransfertEnCours;
           }
-
           else {
             monEtat = Etat.DemandeDeconnexion;
           }
           break;
         }
         case 'CPCMSGDOWN': {
-          //console.log('CPCMSGDOWN');
-          //  console.log('CPCMSGDOWN :'+log.getInfoMap().get("CPDLCMSGDOWN"));
           if (monEtat == Etat.TransfertEnCours) {
             if ((log.getDetaillog()["CPDLCMSGDOWN"] == "WIL") || (log.getDetaillog()["CPDLCMSGDOWN"] == "LCK")) {
               monEtat = Etat.Transfere;
@@ -212,7 +206,6 @@ export class ParseurVEMGSA {
           else {
             monEtat = Etat.Unknown;
           }
-
           break;
         }
         case 'CPCFREQ': {
@@ -222,19 +215,14 @@ export class ParseurVEMGSA {
           detail.value = freq;
           log.addDetail(detail);
           monEtat = Etat.TransfertEnCours;
-
-          //console.log('CPCFREQ');
-          // TODO:
           break;
         }
         case 'CPCMSGUP': {
           monEtat = Etat.Unknown;
-          // TODO:
           break;
         }
         case 'CPCNXTCNTR': {
           monEtat = Etat.Unknown;;
-          // TODO:
           break;
         }
         default: {

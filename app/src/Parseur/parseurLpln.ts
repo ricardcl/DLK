@@ -139,10 +139,8 @@ export class ParseurLPLN {
           //Stockage des infos générales 
           let myMap = this.recuperationCPC(infoLog); 
           log.setTitle(myMap['TITLE']); 
- 
           log.setDetailLog(myMap); 
-          //TEST !!!!
-          
+         
  
           if (log.getTitle().match("CPC")){
             log.setIsTypeCPC(true);
@@ -158,7 +156,6 @@ export class ParseurLPLN {
           //automate a etat sur la variable etat 
           switch (log.getTitle()) { 
             case 'CPCASREQ': { 
-              //console.log('CPCASREQ'); 
               if (monEtat == Etat.NonLogue) { 
                 monEtat = Etat.DemandeLogon; 
               } 
@@ -168,7 +165,6 @@ export class ParseurLPLN {
               break; 
             } 
             case 'CPCASRES': { 
- 
               if ((log.getDetaillog()["ATNASSOC"] == "S") || (log.getDetaillog()["ATNASSOC"] == "L")) { 
                 monEtat = Etat.DemandeLogonAutorisee; 
               } 
@@ -181,7 +177,6 @@ export class ParseurLPLN {
               break; 
             } 
             case 'CPCVNRES': { 
-              //console.log('CPCVNRES'); 
               if (log.getDetaillog()["GAPPSTATUS"] == "A") { 
                 monEtat = Etat.Logue; 
               } 
@@ -194,7 +189,6 @@ export class ParseurLPLN {
               break; 
             } 
             case 'CPCOPENLNK': { 
-              //console.log('CPCOPENLNK'); 
               if (monEtat == Etat.Logue) { 
                 monEtat = Etat.DemandeConnexion; 
               } 
@@ -213,14 +207,10 @@ export class ParseurLPLN {
               break; 
             } 
             case 'CPCEND': { 
-              //console.log('CPCEND'); 
- 
               monEtat = Etat.FinVol; 
- 
               break; 
             } 
             case 'CPCCLOSLNK': { 
-              //console.log('CPCCLOSLNK'); 
               if ((monEtat == Etat.Connecte) && log.getDetaillog()["FREQ"] !== undefined) { 
                 monEtat = Etat.TransfertEnCours; 
               } 
@@ -238,7 +228,6 @@ export class ParseurLPLN {
               break; 
             } 
             case 'CPCMSGDOWN': { 
-              //console.log('CPCMSGDOWN'); 
               if (monEtat == Etat.TransfertEnCours) { 
                 if ((log.getDetaillog()["CPDLCMSGDOWN"] == "WIL") || (log.getDetaillog()["CPDLCMSGDOWN"] == "LCK")) { 
                   monEtat = Etat.Transfere; 
@@ -246,7 +235,6 @@ export class ParseurLPLN {
                 else if ((log.getDetaillog()["CPDLCMSGDOWN"] == "UNA") || (log.getDetaillog()["CPDLCMSGDOWN"] == "STB")) { 
                   monEtat = Etat.RetourALaVoix; 
                 } 
- 
               } 
               else { 
                 monEtat = Etat.Unknown; 
@@ -255,65 +243,42 @@ export class ParseurLPLN {
             } 
             case 'CPCFREQ': { 
               monEtat = Etat.TransfertEnCours; 
-              //console.log('CPCFREQ'); 
-              // TODO: 
               break; 
             } 
             case 'TRFDL': { 
               monEtat = Etat.TransfertEnCours; 
-              // TODO: 
               break; 
             } 
             case 'FIN TRFDL': { 
               monEtat = Etat.RetourALaVoix; 
-              // TODO: 
               break; 
             } 
-            case 'FIN VOL': { 
-             // console.log("je passe dans FIN VOL !!!!!!!!!!!!!!!!!!!!");
-              
+            case 'FIN VOL': {   
               monEtat = Etat.FinVol; 
-              // TODO: 
               break; 
             } 
             case 'FPCLOSE': { 
               monEtat = Etat.FinVol; 
-              // TODO: 
               break; 
             } 
             case 'TRARTV': { 
-              monEtat = Etat.RetourALaVoixAcquitte; 
-              // TODO: 
+              monEtat = Etat.RetourALaVoixAcquitte;  
               break; 
             } 
             case 'CPCMSGUP': { 
-              //console.log('CPCMSGUP'); 
               // TODO: 
               break; 
             } 
             case 'CPCNXTCNTR': { 
-              //console.log('CPCNXTCNTR'); 
               // TODO: 
               break; 
             } 
             default: { 
-             // console.log("je passe dans default",log.getTitle()); 
               break; 
             } 
           } 
  
-          //console.log("HEURE:"+log.heure); 
-          //console.log(log.getMapCpdlc()); 
           log.setEtat(monEtat); 
-          //console.log("monEtat",monEtat); 
- 
-          /*console.log(log.getHeureLogCpdlc()+ " --> "+log.title + " Etat calcule : "+monEtat); 
-          // UNITID : info non remontee dans le log LPLN 
-           
-          if (log.getFrequence() !== null) { 
-          console.log("freq recuperee : "+log.getFrequence()); 
-          console.log("Transfert vers : "+ frequences.freqToSecteur(log.getFrequence())); 
-          }*/ 
         } 
       } 
       else { 
