@@ -13,5 +13,5 @@ export enum Etat {
     RetourALaVoixAcquitte = "RETOUR_A_LA_VOIX_ACQUITTE",
     DemandeDeconnexion = "DEMANDE_DECONNEXION",
     FinVol = "FIN_VOL",
-    Unknown = "UNKNOWN",
+    Unknown = "",
 }

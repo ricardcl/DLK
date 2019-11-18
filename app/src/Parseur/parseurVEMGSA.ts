@@ -240,17 +240,17 @@ export class ParseurVEMGSA {
           break;
         }
         case 'CPCMSGUP': {
-          //console.log('CPCMSGUP');
+          monEtat = Etat.Unknown;
           // TODO:
           break;
         }
         case 'CPCNXTCNTR': {
-          //console.log('CPCNXTCNTR');
+          monEtat = Etat.Unknown;;
           // TODO:
           break;
         }
         default: {
-          //console.log('etats.title');
+          monEtat = Etat.Unknown;
           break;
         }
 

@@ -600,25 +600,38 @@ export class Vol {
 
     private setListeErreurs() {
 
-
+        //ERREURS DE LOGON
         if (this.getLogonAccepte() !== "OK") {
             this.listeErreurs.push({ date: this.getDate(), type: "logon NOK", infos: this.evaluateEtatLogon() });
         }
-        this.getListeEtatTransfertFrequence().forEach(element => {
-            if (element.isTransfertAcq !== true) {
-                this.listeErreurs.push({ date: element.dateTransfert, type: "echec de transfert", infos: "timeout" + element.isFinTRFDL });
-            }
-        });
-        let resultConnexion: {connexion: string, explication: string } = this.evaluateEtatConnexion();
+
+        //ERREURS DE CONNEXION
+        let resultConnexion: { connexion: string, explication: string } = this.evaluateEtatConnexion();
 
         if (resultConnexion.connexion == "KO") {
             this.listeErreurs.push({ date: this.getDate(), type: "connexion NOK", infos: resultConnexion.explication });
         }
 
+        //ERREURS DE TRANSFERT DE FREQUENCE
+        this.getListeEtatTransfertFrequence().forEach(element => {
+            if (element.isTransfertAcq !== true) {
+                let infos:string = "timeout"  ;
+                let deltaTSecondes:number = element.deltaT / 1000;
+           if ((deltaTSecondes > 0) && (deltaTSecondes <60)){
+            infos += " delta T: "+deltaTSecondes+" secondes"+" hyp : délai de reception par le bord";
+           }
+           else if ((deltaTSecondes >= 60) && (deltaTSecondes <100)){
+            infos += " delta T: "+deltaTSecondes+" secondes"+" hyp : délai reception réponse bord";
+        }
+                this.listeErreurs.push({ date: element.dateTransfert, type: "echec de transfert", infos: infos});
+            }
+        });
         console.log("nb erreurs : ", this.getListeErreurs().length);
         this.getListeErreurs().push()
 
     }
+
+     
 
     /**
  * Evalue a partir des information de logon si un message d'erreur doit être affiche  l utilisateur
@@ -738,10 +751,6 @@ export class Vol {
         this.evaluationEtatsLogonConnexionSimplifie();
         //Evalue a partir des messages echanges s'il y a eu une connecion initiee, etablie ou perdue
         this.evaluationConnexion();
-        //Evalue a partir des information de logon si un message d'erreur doit être affiche  l utilisateur
-        this.evaluateEtatLogon();
-        //Evalue a partir des information de connexion si un message d'erreur doit être affiche  l utilisateur
-        this.evaluateEtatConnexion();
         this.setListeErreurs();
     }
 

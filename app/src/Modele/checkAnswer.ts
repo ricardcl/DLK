@@ -32,6 +32,7 @@ export interface etatTransfertFrequence {
     dateTRARTV ?:string;
     isTransfertAcq?: boolean; 
     dateTranfertAcq ?:string;  
+    deltaT?:number;
 }
 
 export interface etatLogonConnexion {  
