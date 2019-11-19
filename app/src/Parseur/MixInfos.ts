@@ -109,10 +109,10 @@ export class MixInfos {
       //console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure()); 
 
       //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées 
-      if (elt.getTitle() == 'CPCFREQ') {
+      if ((elt.getTitle() == 'CPCFREQ')  || ((elt.getTitle() == 'CPCCLOSLNK') && (elt.getDetaillog()["FREQ"] !== undefined))){
 
         volLpln.getListeLogs().forEach((eltL, keyL) => {
-          if (eltL.getTitle() == 'CPCFREQ') {
+          if ((eltL.getTitle() == 'CPCFREQ') || (eltL.getTitle() == 'CPCCLOSLNK')) {
             if (this.dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
               // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ")); 
               heureTransfert = eltL.getHeure();
@@ -122,9 +122,11 @@ export class MixInfos {
             //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes 
             volLpln.getListeLogs().forEach((eltL, keyL) => {
 
+            //  console.log("eltL", eltL.getTitle(),"eltL.getHeure()",eltL.getHeure(),"heureTransfert",heureTransfert );
+
               if (eltL.getTitle() == 'TRFDL') {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= this.uneMinute) {
-                  //console.log("eltL", eltL.getTitle()); 
+                  console.log("eltL TRFDL", eltL.getTitle()); 
                   positionTransfert = eltL.getDetaillog()['POSITION'];
                   //console.log("Position", positionTransfert); 
                   //console.log(" heure de transfert: ", heureTransfert); 
@@ -135,14 +137,14 @@ export class MixInfos {
               }
               if (eltL.getTitle() == 'FIN TRFDL') {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
-                  //console.log("eltL", eltL.getTitle()); 
+                  console.log("eltL FIN TRFDL", eltL.getTitle()); 
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
                   monvolFinal.addElt(eltL);
                 }
               }
               if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
-                  //console.log("eltL", eltL.getTitle()); 
+                console.log("eltL TRARTV", eltL.getTitle()); 
                   //console.log("eltL", eltL); 
                   monvolFinal.addElt(eltL);
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
