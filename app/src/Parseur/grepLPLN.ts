@@ -116,7 +116,7 @@ export class GrepLPLN {
               mylogCpdlc = this.readLine.fgets(r);
               if (mylogCpdlc === false) { break; }
 
-              let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
+              let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|FPCRD   EVT ETATDL|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
               if (info3Lpln !== null) {
                 fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                 //console.log(mylogCpdlc);
