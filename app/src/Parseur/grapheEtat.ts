@@ -17,10 +17,7 @@ export class GrapheEtat {
         let monEtat: Etat = Etat.NonLogue;// Etat CPDLC par defaut
 
         vol.getListeLogs().forEach(etatCpdlc => {
-
-            let etat: Etat = etatCpdlc.getEtat();
-
-
+            let explication: string = "";
             //automate a etat sur la variable etat
             switch (etatCpdlc.getTitle()) {
                 case 'CPCASREQ': {
@@ -54,12 +51,12 @@ export class GrapheEtat {
                     break;
                 }
                 case 'CPCCOMSTAT': {
-                        if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
-                            monEtat = Etat.Connecte;
-                        }
-                        else if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
-                            monEtat = Etat.Logue;
-                        }
+                    if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
+                        monEtat = Etat.Connecte;
+                    }
+                    else if (etatCpdlc.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
+                        monEtat = Etat.Logue;
+                    }
                     break;
                 }
                 case 'CPCEND': {
@@ -123,20 +120,56 @@ export class GrapheEtat {
                     break;
                 }
                 case 'CPCNXTCNTR': {
-                    // TODO:
+                    let nextCenter: string = "";
+                    if (etatCpdlc.getDetaillog()["UNITID"] !== undefined) {
+                        nextCenter = "à " + etatCpdlc.getDetaillog()["UNITID"];
+                    }
+                    explication = "transfert du logon " + nextCenter;
+                    break;
+                }
+                case 'ETATDL': {
+                    let result: string = "";
+                    if (monEtat == Etat.TransfertEnCours) result = "éclair blanc encadré";
+                    if (monEtat == Etat.Transfere) result = "disparition de l'éclair";
+                    if (monEtat == Etat.RetourALaVoix) result = "casque bleu";
+                    if (monEtat == Etat.RetourALaVoixAcquitte) result = "suppression du casque bleu";
+                    explication = "Mise à jour ODS: " + result;
+                    break;
+                }
+                case 'TRANSFERT': {
+                    let etatSTPV: string = "";
+                    if (etatCpdlc.getDetaillog()["ETAT"] !== undefined) {
+                        etatSTPV = "à " + etatCpdlc.getDetaillog()["ETAT"];
+                    }
+                    explication = "Changement d'état STPV du vol: " + etatSTPV;
+                    break;
+                }
+                case 'TRFSEC': {
+                    let positions: string = "";
+                    if (etatCpdlc.getDetaillog()["POSITION"] !== undefined) {
+                        positions = "pour la/les positions " + etatCpdlc.getDetaillog()["POSITION"];
+                    }
+                    explication = "Passage à l'état VTR " + positions;
                     break;
                 }
                 default: {
-                   // TODO:
+                    // TODO:
                     break;
                 }
 
             }
             //console.log("affichage : "+ etatCpdlc.afficheLogCpdlc());
             etatCpdlc.setEtat(monEtat);
+            etatCpdlc.setExplication(explication);
 
 
         });
+
+        for (let i = vol.getListeLogs().length - 1; i >= 1; i--) {
+            if (vol.getListeLogs()[i].getEtat() == vol.getListeLogs()[i - 1].getEtat()) {
+                vol.getListeLogs()[i].setEtat(Etat.Unknown);
+            }
+        }
 
         return vol;
     }

@@ -2,22 +2,32 @@ import { Etat } from './enumEtat';
 import { DetailCpdlc } from "./detailCpdlc";
 
 export class EtatCpdlc {
-  private id: number = 0;
-  private title: string = "";
-  private jour: string = "";
-  private heure: string = "";
-  private date: string = "";
-  private etat: Etat = Etat.NonLogue;
-  private associable: boolean = false;
-  private log:string = "";
-  private detailLog : DetailCpdlc[];
-  private isTypeCPC : boolean; // VAUT 1 si CPDLC et 0 si  STPV 
+  private id: number;
+  private title: string;
+  private jour: string;
+  private heure: string;
+  private date: string;
+  private etat: Etat;
+  private associable: boolean;
+  private log: string;
+  private detailLog: DetailCpdlc[];
+  private explication: string;
+  private isTypeCPC: boolean; // VAUT 1 si CPDLC et 0 si  STPV 
 
 
 
   constructor(id: number) {
     this.id = id;
+    this.title = "";
+    this.jour = "";
+    this.heure = "";
+    this.date = "";
+    this.etat = Etat.NonLogue;
+    this.associable = false;
+    this.log = "";
     this.detailLog = [];
+    this.explication = "";
+    this.isTypeCPC = false;
   }
 
   /*getLogCpdlc() {
@@ -26,7 +36,7 @@ export class EtatCpdlc {
   }*/
 
 
- 
+
   getEtatCpdlc(): string {
 
     return "\nINfos EtatCpdlc :\n id = " + this.id + "\n title = " + this.title + "\n info = " + this.getDetaillog();
@@ -34,44 +44,44 @@ export class EtatCpdlc {
 
 
 
-isDetail(key : string):boolean{
+  isDetail(key: string): boolean {
 
 
-    let trouve:boolean =false;
- 
-    this.detailLog.forEach(element => {        
-      if ( key === element.key) {
-        trouve =true;
+    let trouve: boolean = false;
+
+    this.detailLog.forEach(element => {
+      if (key === element.key) {
+        trouve = true;
       }
 
-      
-});
-    
+
+    });
+
     return trouve;
-  } 
+  }
 
 
-  getDetaillog(){
+  getDetaillog() {
     return this.detailLog;
   }
 
 
 
-  setDetailLog(array : DetailCpdlc[]){
+  setDetailLog(array: DetailCpdlc[]) {
     this.detailLog = array;
   }
 
-  addDetail(detail : DetailCpdlc){
-    if (this.isDetail(detail.key) ) {
-  
-      this.detailLog.forEach((element,index) => {
-        if ( detail.key === element.key) {
-          delete  this.detailLog[index];
+  addDetail(detail: DetailCpdlc) {
+    if (this.isDetail(detail.key)) {
+
+      this.detailLog.forEach((element, index) => {
+        if (detail.key === element.key) {
+          delete this.detailLog[index];
         }
       });
     }
-      this.detailLog.push(detail);
-   
+    this.detailLog.push(detail);
+
   }
 
   //GETTERS
@@ -85,7 +95,7 @@ isDetail(key : string):boolean{
     return this.heure
   }
 
-  getDate(): string{
+  getDate(): string {
     return this.date;
   }
 
@@ -93,12 +103,15 @@ isDetail(key : string):boolean{
     return this.etat;
   }
 
-  getLog(): string{
+  getLog(): string {
     return this.log;
   }
 
   getIsTypeCPC(): boolean {
-   return  this.isTypeCPC;
+    return this.isTypeCPC;
+  }
+  getExplication():string{
+    return this.explication;
   }
 
   //SETTERS
@@ -114,7 +127,9 @@ isDetail(key : string):boolean{
   setHeure(heure: string) {
     this.heure = heure;
   }
-
+  setExplication(explication: string) {
+    this.explication = explication;
+  }
   setIsTypeCPC(isTypeCPC: boolean) {
     this.isTypeCPC = isTypeCPC;
   }
@@ -129,23 +144,8 @@ isDetail(key : string):boolean{
     this.log = log;
   }
 
-  
+
 
 
 }
 
-
-
-/*
-
-exemples utilisation map
-map.get(1) // "hello"
-map.get(k2) // "world"
-map.size // 3
-map.keys() // [1, [2], true]
-map.values() // ["hello", "ts", "map"]
-
-
-map.forEach((value, key, map) => {
-  console.log(key, ':', value)
-})*/
