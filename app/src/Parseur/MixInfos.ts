@@ -105,14 +105,17 @@ export class MixInfos {
     volVemgsa.getListeLogs().forEach((elt, key) => {
       let heureTransfert = "";
       let positionTransfert = "";
+      let isLplnParcouru: boolean = false;
       monvolFinal.addElt(elt);
       //console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure()); 
 
       //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées 
-      if ((elt.getTitle() == 'CPCFREQ')  || ((elt.getTitle() == 'CPCCLOSLNK') && (elt.getDetaillog()["FREQ"] !== undefined))){
+      if ((elt.getTitle() == 'CPCFREQ') || ((elt.getTitle() == 'CPCCLOSLNK') && (elt.getDetaillog()["FREQ"] !== undefined))) {
 
+        let isLplnParcouru: boolean = false;
         volLpln.getListeLogs().forEach((eltL, keyL) => {
-          if ((eltL.getTitle() == 'CPCFREQ') || (eltL.getTitle() == 'CPCCLOSLNK')) {
+
+          if (((eltL.getTitle() == 'CPCFREQ') || (eltL.getTitle() == 'CPCCLOSLNK')) && !isLplnParcouru) {
             if (this.dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
               // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ")); 
               heureTransfert = eltL.getHeure();
@@ -122,13 +125,13 @@ export class MixInfos {
             //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes 
             volLpln.getListeLogs().forEach((eltL, keyL) => {
 
-            //  console.log("eltL", eltL.getTitle(),"eltL.getHeure()",eltL.getHeure(),"heureTransfert",heureTransfert );
-
+               // console.log("eltL", eltL.getTitle(),"eltL.getHeure()",eltL.getHeure(),"heureTransfert",heureTransfert,"elt position", eltL.getDetaillog()['POSITION'] ,'positionTransfert', positionTransfert );
+               // console.log("!!! eltL", eltL.getDetaillog());
               if (eltL.getTitle() == 'TRFDL') {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= this.uneMinute) {
-                  console.log("eltL TRFDL", eltL.getTitle()); 
+                //  console.log("eltL TRFDL", eltL.getTitle());
                   positionTransfert = eltL.getDetaillog()['POSITION'];
-                  //console.log("Position", positionTransfert); 
+                 // console.log("Position", positionTransfert);
                   //console.log(" heure de transfert: ", heureTransfert); 
                   monvolFinal.addElt(eltL); //TODO?? Vérifier que ce n'est pas utile : raisonnement : redondant avec le CPCFREQ ??
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
@@ -137,22 +140,32 @@ export class MixInfos {
               }
               if (eltL.getTitle() == 'FIN TRFDL') {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
-                  console.log("eltL FIN TRFDL", eltL.getTitle()); 
+               //   console.log("eltL FIN TRFDL", eltL.getTitle());
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
                   monvolFinal.addElt(eltL);
                 }
               }
               if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
-                console.log("eltL TRARTV", eltL.getTitle()); 
+                 // console.log("eltL TRARTV", eltL.getTitle());
+                  //console.log("eltL", eltL); 
+                  monvolFinal.addElt(eltL);
+                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
+                }
+              }
+
+              if ((eltL.getTitle() == 'ETATDL') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
+                if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
+               //   console.log("eltL ETATDL", eltL.getTitle());
                   //console.log("eltL", eltL); 
                   monvolFinal.addElt(eltL);
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
                 }
               }
             })
-
+            isLplnParcouru = true;
           }
+
 
         })
 
@@ -196,7 +209,7 @@ export class MixInfos {
 
 
 
-   monvolFinal = this.grapheEtat.evaluateGrapheEtat(monvolFinal);
+    monvolFinal = this.grapheEtat.evaluateGrapheEtat(monvolFinal);
 
     // console.log("debut logs collectes et tries");
     monvolFinal.getListeLogs().forEach(etatCpdlc => {
@@ -340,8 +353,8 @@ export class MixInfos {
 
       //pour determiner si le vol a depasse le stade du logon
       //permet de traiter le cas ou : le fichier VEMGSA est incomplet, debut des logs apres le logon 
-      if ((etatCpdlc.getTitle() == 'CPCOPENLNK')||(etatCpdlc.getTitle() == 'CPCCOMSTAT')
-      ||(etatCpdlc.getTitle() == 'CPCCLOSLNK')||(etatCpdlc.getTitle() == 'CPCMSGDOWN')||(etatCpdlc.getTitle() == 'CPCMSGUP')) {
+      if ((etatCpdlc.getTitle() == 'CPCOPENLNK') || (etatCpdlc.getTitle() == 'CPCCOMSTAT')
+        || (etatCpdlc.getTitle() == 'CPCCLOSLNK') || (etatCpdlc.getTitle() == 'CPCMSGDOWN') || (etatCpdlc.getTitle() == 'CPCMSGUP')) {
         isLogue = true;
       }
 
@@ -376,7 +389,7 @@ export class MixInfos {
       monvolVemgsa.setIslogCpdlcComplete(true);
     }
 
-    if(isLogue){
+    if (isLogue) {
       monvolVemgsa.setLogonAccepte("OK");
     }
 

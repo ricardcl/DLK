@@ -136,6 +136,7 @@ export class ParseurLPLN {
 
           monvol.getListeLogs().push(log);
 
+
           //automate a etat sur la variable etat 
           if ((log.getTitle() == "CPCCLOSLNK") || (log.getTitle() == "CPCFREQ")) {
             if (log.getDetaillog()["FREQ"] !== undefined) {
@@ -291,17 +292,16 @@ export class ParseurLPLN {
 
       }
       else {
-        let motif = /(ENVOI MSG )(.*)(POUR POSITION\(S\))(.*)/;
+        let motif = /(ENVOI MSG FPCRD   EVT)(.*)(POUR POSITION\(S\))(.*)/;
+        
         let cpcInfo = infoLog.replace(motif, "$2").trim();
         cpcInfo = cpcInfo.replace(/\s+/g, " ");
-        let etatCpc = this.split.splitString(cpcInfo, " ");
-        let title = etatCpc[0];
-        mymap['TITLE'] = title;
-        mymap['EVT'] = etatCpc[2];
+        mymap['TITLE'] = cpcInfo;
+        mymap['EVT'] = "FPCRD";
         cpcInfo = infoLog.replace(motif, "$4").trim();
         cpcInfo = cpcInfo.replace(/\s+/g, " ");
 
-        mymap['POSITIONS'] = cpcInfo;
+        mymap['POSITION'] = cpcInfo;
 
 
       }

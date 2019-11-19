@@ -125,7 +125,6 @@ export class Formulaire {
 
                         console.log("analysedVol Contexte.LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
                         socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN), null, null);
-
                         //recuperation du vol dans le fichier json
                         //console.log("!!!!JSON this.logBook.readFlightLogFile");
                         //this.logBook.readFlightLogFile();
