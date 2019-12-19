@@ -10,7 +10,7 @@ export class Path {
     }
 
     static get systemPath () : string {
-        return Path.distPath + "/assets/system";
+        return Path.distPath + "/assets";
     }
 
     static get logBookPath () : string {
