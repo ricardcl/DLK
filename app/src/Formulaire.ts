@@ -13,6 +13,7 @@ import { datesFile } from './Parseur/date';
 import { ParseurLPLN } from './Parseur/parseurLPLN';
 import { ParseurVEMGSA } from './Parseur/ParseurVEMGSA';
 import { LogBook } from './logBook';
+import { Database } from './database';
 
 
 
@@ -29,6 +30,7 @@ export class Formulaire {
     private mixInfos: MixInfos;
     private frequences: Frequences;
     private logBook: LogBook;
+    private database: Database;
 
     constructor() {
         this.users = new UsersRepository(Path.userPath);
@@ -40,6 +42,7 @@ export class Formulaire {
         this.mixInfos = new MixInfos();
         this.frequences = new Frequences();
         this.logBook = LogBook.getInstance();
+        this.database = new Database();
     }
 
 
@@ -120,8 +123,8 @@ export class Formulaire {
                 switch (this.contexte) {
                     case Contexte.LPLN:
                         // Stockage du vol dans un fichier json
-                        // console.log("!!!!JSON this.logBook.writeFlightLogFile");
-                        // this.logBook.writeFlightLogFile(this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN));
+                        console.log("!!!! this.database.writeFlightLogFile");
+                        this.database.writeFlightLogFile(this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN));
 
                         console.log("analysedVol Contexte.LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
                         socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN), null, null);
