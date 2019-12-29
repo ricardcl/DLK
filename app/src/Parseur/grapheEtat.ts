@@ -127,7 +127,7 @@ export class GrapheEtat {
                     explication = "transfert du logon " + nextCenter;
                     break;
                 }
-                case 'ETATDL': {
+               /** case 'ETATDL': {
                     let result: string = "";
                     if (monEtat == Etat.TransfertEnCours) result = "éclair blanc encadré";
                     if (monEtat == Etat.Transfere) result = "disparition de l'éclair";
@@ -135,7 +135,7 @@ export class GrapheEtat {
                     if (monEtat == Etat.RetourALaVoixAcquitte) result = "suppression du casque bleu";
                     explication = "Mise à jour ODS: " + result;
                     break;
-                }
+                } 
                 case 'TRANSFERT': {
                     let etatSTPV: string = "";
                     if (etatCpdlc.getDetaillog()["ETAT"] !== undefined) {
@@ -151,7 +151,7 @@ export class GrapheEtat {
                     }
                     explication = "Passage à l'état VTR " + positions;
                     break;
-                }
+                }*/
                 default: {
                     // TODO:
                     break;
