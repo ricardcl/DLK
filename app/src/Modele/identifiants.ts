@@ -1,8 +1,10 @@
+import { datesFile } from "../Parseur/date";
 
 
 export interface Identifiants {
     plnid: number ;
     arcid: string;
+    dates?: datesFile;
     identifie?: boolean;
     tabId?: Identifiants[];
 }

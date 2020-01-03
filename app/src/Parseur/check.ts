@@ -68,6 +68,7 @@ export class Check {
         id.arcid = ""; 
         id.plnid = 0; 
         id.identifie = false; 
+        id.dates=<datesFile>{};
  
         tabId = grepLPLN.grepPlnidAndArcid(fichierSourceLpln); 
         tabId.forEach(element => { 
@@ -82,12 +83,17 @@ export class Check {
                 id.identifie = true; 
             } 
         }); 
- 
-        if (!id.identifie) { 
+        if (id.identifie) { 
+            id.dates = grepLPLN.grepDatesLogLPLN(id.arcid,id.plnid,fichierSourceLpln); 
+        }
+        else { 
             id.tabId = tabId; 
         } 
- 
-        console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie, " id.tabId: ", id.tabId); 
+        console.log("Fonction Check LPLN tests dates");
+        
+        console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
+        console.log( " id.dates.dateMin: ",id.dates.dateMin, " id.dates.dateMax: ",id.dates.dateMax);
+        console.log(" id.tabId: ", id.tabId); 
         return id; 
     } 
  

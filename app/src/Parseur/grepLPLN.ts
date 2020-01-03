@@ -1,6 +1,8 @@
 import { Identifiants } from "../Modele/identifiants";
-import {  Split } from './split';
+import { Split } from './split';
 import { ReadLine } from "../scripts/node-readline/node-readline";
+import { Dates, datesFile } from "./date";
+import moment = require("moment");
 const fs = require('fs');
 const p = require('path');
 
@@ -14,12 +16,14 @@ export class GrepLPLN {
   private userPath: string;
   private split: Split;
   private readLine: ReadLine;
+  private dates: Dates;
+
 
   constructor(userPath: string) {
     console.log("Je rentre dans le constructor GrepLPLN ");
-
+    this.dates = new Dates();
     this.userPath = userPath;
-    this.split = new Split ();
+    this.split = new Split();
     this.readLine = new ReadLine();
   }
 
@@ -29,7 +33,7 @@ export class GrepLPLN {
   }
 
   public grepLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): void {
-    console.log("Classe grepLpln Fonction grepLogLPLN", "plnid",plnid,"arcid",arcid);
+    console.log("Classe grepLpln Fonction grepLogLPLN", "plnid", plnid, "arcid", arcid);
 
     let fichierDestination = p.resolve(this.userPath, "resultLPLN.htm");
 
@@ -116,18 +120,18 @@ export class GrepLPLN {
               mylogCpdlc = this.readLine.fgets(r);
               if (mylogCpdlc === false) { break; }
 
-             // let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|FPCRD   EVT ETATDL|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
-             let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|TRARTV|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
-             if (info3Lpln !== null) {
+              // let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|FPCRD   EVT ETATDL|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
+              let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|TRARTV|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
+              if (info3Lpln !== null) {
                 fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                 //console.log(mylogCpdlc);
               }
             } while ((mylogCpdlc.match("Separateur d'impression") == null) && (mylogCpdlc.match("FIN DES DEPOUILLEMENTS") == null)
-              && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null))&& ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
+            && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)) && ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
           }
 
 
-        } while ((mylogCpdlc.match("Separateur d'impression") == null) && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null))&& ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
+        } while ((mylogCpdlc.match("Separateur d'impression") == null) && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)) && ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
       }
 
     } while (!this.readLine.eof(r));
@@ -135,7 +139,101 @@ export class GrepLPLN {
     fs.closeSync(w);
   }
 
+  /**
+   * Fonction recuperant le créneau horaire du vol passé en paramètre à partir de son fichier de log LPLN
+   * @param arcid : arcid du vol étudié
+   * @param plnid : plnid du vol étudié
+   * @param fichierSourceLpln : nom du ficher LPLN contenant les logs du vol étudié
+   * @returns datesFile: {dateMin:string,dateMax:string} où les dates sont au format('DD-MM HH mm ss'); 
+   */
+  public grepDatesLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): datesFile {
+    console.log("Classe grepLpln Fonction grepDatesLogLPLN", "plnid", plnid, "arcid", arcid);
 
+    let fichierSource = p.resolve(this.userPath, fichierSourceLpln);
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
+
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
+      process.exit(1);
+    }
+
+    let datesFichier = <datesFile>{};
+    datesFichier.dateMin = "";
+    datesFichier.dateMax = "";
+    let dateTemp: string = "";
+    let mois: string = "";
+    let jour: string = "";
+    //Traitement du fichier
+    do {
+      //Test de la fin de fichier
+      let mylogCpdlc = this.readLine.fgets(r);
+      if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match("NUMERO PLN: " + plnid);
+      let info1Lplnbis = mylogCpdlc.match("NUMERO PLN:  " + Math.round(plnid));
+      let info2Lpln = mylogCpdlc.match("NOM SL: AIX");
+      if (((info1Lpln !== null) || (info1Lplnbis !== null)) && (info2Lpln !== null)) {
+        //Lecture des logs concernant le vol dans le SL AIX
+        do {
+          mylogCpdlc = this.readLine.fgets(r);
+          if (mylogCpdlc === false) { break; }
+
+          // Recuperation des infos de date
+          let info4Lpln = mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE");
+          if (info4Lpln !== null) {
+            // Recuperation du jour et du mois
+            let motif = /(\*)(.*)(\*)(.*)(CHAMP)(.*)/;
+            dateTemp = mylogCpdlc.replace(motif, "$2").trim();
+            let motifDate = /(.*)( )(.*)/;
+            if (dateTemp.match(motifDate) !== null) {
+              jour = dateTemp.toString().replace(motifDate, "$1");
+              mois = this.dates.MonthLetterToNumber(dateTemp.toString().replace(motifDate, "$3"));
+            }
+
+            do {
+              mylogCpdlc = this.readLine.fgets(r);
+              if (mylogCpdlc === false) { break; }
+
+              // let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|FPCRD   EVT ETATDL|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
+              let info3Lpln = mylogCpdlc.match(/RECEPTION PLN ACTIVE|RECEPTION M|ENVOI/);
+              if (info3Lpln !== null) {
+                //Recuperation du numero de ligne et de l'heure et du contenu CPDLC de la ligne lue 
+                let mylogCpdlcDecompose = this.split.splitString(mylogCpdlc, '*');
+                //Recuperation du numero de ligne et de l'heure de la ligne lue 
+                let infoGen = mylogCpdlcDecompose[1].trim();
+                infoGen = infoGen.replace(/\s+/g, " ");
+                let motifDateHeure = /(.*)( )(.*)(H)(.*)/;
+                let dateHeure = infoGen.match(motifDateHeure);
+                if (dateHeure !== null) {
+                  const heure = dateHeure.toString().replace(motifDateHeure, "$3");
+                  const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
+                  const dateToStore = jour + "-" + mois + " " + heure + " " + minutes + " OO";
+                  const momentDate = moment(dateToStore, 'DD-MM HH mm ss').format('DD-MM HH mm ss');
+                 // console.log("momentDate: ",momentDate);
+                  
+                  if (datesFichier.dateMin === "") {
+                    datesFichier.dateMin = momentDate;
+                    datesFichier.dateMax = momentDate;
+                  }
+                  if (this.dates.isDateSup(momentDate, datesFichier.dateMax)) {
+                    datesFichier.dateMax = momentDate;
+                  }
+                  //console.log("dateMin: ",datesFichier.dateMin," dateMax: ",datesFichier.dateMax);
+                }
+              }
+            } while ((mylogCpdlc.match("Separateur d'impression") == null) && (mylogCpdlc.match("FIN DES DEPOUILLEMENTS") == null)
+            && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)) && ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
+          }
+
+
+        } while ((mylogCpdlc.match("Separateur d'impression") == null) && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)) && ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
+      }
+
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
+    return datesFichier;
+  }
 
 
   public grepArcidFromPlnid(plnid: number, fichierSourceLpln: string): string {
@@ -172,6 +270,7 @@ export class GrepLPLN {
 
     return arcid;
   }
+
 
 
   public grepPlnidFromArcid(arcid: string, fichierSourceLpln: string): number {
@@ -212,9 +311,9 @@ export class GrepLPLN {
     console.log("Classe grepLpln Fonction grepPlnidAndArcid");
 
 
-    let tabPlnid= [];
-    let tabArcid= [];
-    let tabId=[];
+    let tabPlnid = [];
+    let tabArcid = [];
+    let tabId = [];
 
     let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
@@ -236,23 +335,26 @@ export class GrepLPLN {
         let id = <Identifiants>{};
         id.arcid = "";
         id.plnid = 0;
-        arcidTemp = this.split.splitString( mylogCpdlc.toString().replace(motif, "$5").trim(), " ");       
+        arcidTemp = this.split.splitString(mylogCpdlc.toString().replace(motif, "$5").trim(), " ");
         id.arcid = arcidTemp[0];
         id.plnid = mylogCpdlc.toString().replace(motif, "$3").trim();
-        if (!(tabArcid.includes( id.arcid)) || !(tabPlnid.includes( id.plnid))) {
-          
-          tabArcid.push( id.arcid);
-          tabPlnid.push( id.plnid);
-          tabId.push(id)        
+
+        if (!(tabArcid.includes(id.arcid)) || !(tabPlnid.includes(id.plnid))) {
+
+          tabArcid.push(id.arcid);
+          tabPlnid.push(id.plnid);
+          tabId.push(id)
         }
       }
 
     } while (!this.readLine.eof(r));
     this.readLine.fclose(r);
 
+
     tabId.forEach(element => {
-      console.log("tabId finale : ", element.arcid, " " , element.plnid); 
+      console.log("tabId finale : ", element.arcid, " ", element.plnid);
     });
+
 
 
     return tabId;
