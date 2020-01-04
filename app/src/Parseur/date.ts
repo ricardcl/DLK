@@ -90,11 +90,11 @@ export class Dates {
     //Renvoie true si d1 > d2 
     public isDateSup(d1: string, d2: string): boolean {
         let momentDate1 = moment(d1, 'DD-MM HH mm ss');
-        if (!momentDate1.isValid()){
+        if (!momentDate1.isValid()) {
             momentDate1 = moment(d1, 'DD-MM HH mm');
         }
         let momentDate2 = moment(d2, 'DD-MM HH mm ss');
-        if (!momentDate2.isValid()){
+        if (!momentDate2.isValid()) {
             momentDate2 = moment(d1, 'DD-MM HH mm');
         }
         const diff: number = momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
@@ -105,11 +105,11 @@ export class Dates {
 
     public diffDates(d1: string, d2: string): number {
         let momentDate1 = moment(d1, 'DD-MM HH mm ss');
-        if (!momentDate1.isValid()){
+        if (!momentDate1.isValid()) {
             momentDate1 = moment(d1, 'DD-MM HH mm');
         }
         let momentDate2 = moment(d2, 'DD-MM HH mm ss');
-        if (!momentDate2.isValid()){
+        if (!momentDate2.isValid()) {
             momentDate2 = moment(d1, 'DD-MM HH mm');
         }
         const diff: number = momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
@@ -137,13 +137,14 @@ export class Dates {
             if (index == dates.length - 1) {
                 if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
                     creneau[i].dateMax = elementPrec;
-                    creneau[i+1] = <arrayCreneauHoraire>{};
-                    creneau[i+1].dateMin = element;
-                    creneau[i+1].dateMax = element;
+                    creneau[i + 1] = <arrayCreneauHoraire>{};
+                    creneau[i + 1].dateMin = element;
+                    creneau[i + 1].dateMax = element;
                 }
                 else {
-                    creneau[i].dateMax = element; }
+                    creneau[i].dateMax = element;
                 }
+            }
             else {
                 if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
                     creneau[i].dateMax = elementPrec;
@@ -163,7 +164,7 @@ export class Dates {
 
 
         const momentDate1 = moment(dates.dateMin, 'DD-MM-YYYY HH mm ss');
-        if(dates.dateMax == undefined){
+        if (dates.dateMax == undefined) {
             dates.dateMax = dates.dateMin;
         }
         const momentDate2 = moment(dates.dateMax, 'DD-MM-YYYY HH mm ss');
@@ -192,7 +193,7 @@ export class Dates {
                 if (((diff1 >= 0) || (diff1 >= -diffMax)) && ((diff2 <= 0) || (diff2 <= diffMax))) {
                     isIn = true;
                 }
-               // console.log("momentDate",momentDate,"momentDate1",momentDate1, "momentDate2",momentDate2, "diff1",diff1,"diff2",diff2,"isIn",isIn);
+                // console.log("momentDate",momentDate,"momentDate1",momentDate1, "momentDate2",momentDate2, "diff1",diff1,"diff2",diff2,"isIn",isIn);
 
             }
         }
@@ -226,4 +227,76 @@ export class Dates {
         return isIn;
     }
 
-}
+
+    /**
+     * Fonction qui compare pour un vol les créneaux horaires LPLN et VEMGSA 
+     * @param cL : creneau horaire du vol dans le fichier LPLN
+     * @param cV : creneau horaire du vol dans le fichier VEMGSA
+     * @returns {creneauHoraire} 
+     * Si les deux créneaux sont compatibles ( dans la même plage horaire à plus ou moins trois heures)
+     * la fonction renvoie le créneau global 
+     * sinon elle renvoie null
+     */
+    public isCreneauxCompatibles(cL: creneauHoraire, cV: creneauHoraire): creneauHoraire {
+        //TO DO : gerer le cas ou les dates VEMGSA sont sur deux années différentes
+        const uneMinute = 60000;
+        const uneHeure = 60 * uneMinute;
+        const troisHeures = 3 * uneHeure;
+
+        let result = <creneauHoraire>{};
+
+        let cL1 = moment(cL.dateMin, 'DD-MM HH mm ss');
+        if (!cL1.isValid()) {
+            cL1 = moment(cL.dateMin, 'DD-MM HH mm');
+        }
+        let cL2 = moment(cL.dateMax, 'DD-MM HH mm ss');
+        if (!cL2.isValid()) {
+            cL2 = moment(cL.dateMax, 'DD-MM HH mm');
+        }
+        let cV1 = moment(cV.dateMin, 'DD-MM HH mm ss');
+        if (!cV1.isValid()) {
+            cV1 = moment(cV.dateMin, 'DD-MM HH mm');
+        }
+        let cV2 = moment(cV.dateMax, 'DD-MM HH mm ss');
+        if (!cV2.isValid()) {
+            cV2 = moment(cV.dateMax, 'DD-MM HH mm');
+        }
+
+        const diff1: number = cV1.diff(cL1); //cV1 - cL1  => diff1 > 0 si cV1>cL1
+        const diff2: number = cV2.diff(cL2); //cV2 - cL2  => diff2 >0 si cV2>cL2
+
+        // |cV1 -cL1| < 3heure ET  |cV2 -cL2|< 3heure
+    
+
+        const condition = ((Math.abs(diff1) < troisHeures) && (Math.abs(diff2) < troisHeures));
+
+        if (condition) {
+            if (diff1 >= 0) {
+                result.dateMin = cL.dateMin;
+            }
+            else{
+                result.dateMin = cV.dateMin;
+            }
+            if (diff2 >= 0) {
+                result.dateMax = cV.dateMax;
+            }
+            else{
+                result.dateMax = cL.dateMax;
+            }
+        }
+        else {
+            result = null;
+        }
+            // console.log("cL1", cL1, "cL2", cL2, "cV1", cV1, "cV2", cV2);
+            //console.log("(Math.abs(diff1) < troisHeures)", (Math.abs(diff1) < troisHeures), "(Math.abs(diff1)", Math.abs(diff1), "troisHeures",troisHeures);
+            //console.log("(Math.abs(diff2) < troisHeures)", (Math.abs(diff2) < troisHeures), "(Math.abs(diff2)", Math.abs(diff2), "troisHeures",troisHeures);
+            //console.log("(Math.abs(diff3) < troisHeures)", (Math.abs(diff3) < troisHeures), "(Math.abs(diff3)", Math.abs(diff3), "troisHeures",troisHeures);
+            //console.log("(Math.abs(diff4) < troisHeures)", (Math.abs(diff4) < troisHeures), "(Math.abs(diff4)", Math.abs(diff4), "troisHeures",troisHeures);
+
+            //console.log("diff1", diff1, "diff2", diff2, "diff3", diff3, "diff4", diff4, "condition", condition);
+
+            return result;
+
+
+        }
+    }

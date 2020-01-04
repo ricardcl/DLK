@@ -98,6 +98,7 @@ export class Formulaire {
                     listVemgsa[0] = listVemgsaInput[0];
                 }
 
+                //TODO : gérer l'envoi par l'utilisateur de deux fichiers identiques
 
 
                 this.contexte = this.check.evaluationContexte(lpln, listVemgsa);

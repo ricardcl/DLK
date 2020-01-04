@@ -400,32 +400,20 @@ export class Check {
             case Contexte.LPLN:
                 answer.checkLPLN = <checkAnswerInitial>{};
                 answer.checkLPLN = this.checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
-                let idLocal = <Identifiants>{};
-                idLocal.dates = <creneauHoraire>{};
-                idLocal.arcid = answer.checkLPLN.arcid;
-                idLocal.plnid =  answer.checkLPLN.plnid;
-                idLocal.dates = answer.checkLPLN.creneauHoraire;
-                idLocal.identifie= true;
-                answer.listeIdentifiants.push(idLocal);
-                if(answer.checkLPLN.valeurRetour == 0){
-                  /**  let idLocal = <Identifiants>{};
+
+                if (answer.checkLPLN.valeurRetour == 0) {
+                    let idLocal = <Identifiants>{};
                     idLocal.dates = <creneauHoraire>{};
                     idLocal.arcid = answer.checkLPLN.arcid;
-                    idLocal.plnid =  answer.checkLPLN.plnid;
+                    idLocal.plnid = answer.checkLPLN.plnid;
                     idLocal.dates = answer.checkLPLN.creneauHoraire;
-                    idLocal.identifie= true;
-                    answer.listeIdentifiants.push(idLocal); */
+                    idLocal.identifie = true;
+                    answer.listeIdentifiants.push(idLocal);
                     answer.analysePossible = true;
                 }
                 //answer.arcid = answer.checkLPLN.arcid;
                 //answer.plnid = answer.checkLPLN.plnid;
                 console.log("Contexte LPLN");
-                console.log("resultat du check : " + answer.checkLPLN);
-                console.log("listeIdentifiants : " + answer.listeIdentifiants);
-                answer.listeIdentifiants.forEach(id => {
-                    console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
-                    console.log(" id.dates.dateMin: ", id.dates.dateMin, " id.dates.dateMax: ", id.dates.dateMax);                    
-                });
                 console.log("valeurRetour : " + answer.checkLPLN.valeurRetour);
                 console.log("answer.analysePossible : " + answer.analysePossible);
                 break;
@@ -437,8 +425,6 @@ export class Check {
                 //answer.arcid = answer.checkVEMGSA.arcid;
                 //answer.plnid = answer.checkVEMGSA.plnid;
                 console.log("Contexte VEMGSA");
-                console.log("resultat du check : " + answer.checkVEMGSA);
-                console.log("listeIdentifiants : " + answer.listeIdentifiants);
                 console.log("valeurRetour : " + answer.checkVEMGSA.valeurRetour);
                 console.log("answer.analysePossible : " + answer.analysePossible);
                 break;
@@ -448,17 +434,33 @@ export class Check {
                 answer.checkLPLN = this.checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
                 answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, contexte, grepVEMGSA);
                 console.log("Contexte LPLN et VEMGSA");
-                console.log("resultat du check LPLN: " + answer.checkLPLN);
-                console.log("resultat du check VEMGSA: " + answer.checkVEMGSA);
+
                 if ((answer.checkLPLN.valeurRetour == 0) || (answer.checkVEMGSA.valeurRetour <= 2)) {
                     answer.analysePossible = true;
                 }
                 answer.listeIdentifiants = answer.checkVEMGSA.tabId;
                 if (answer.checkLPLN.valeurRetour == 0) {
                     console.log("cas LPLN et VEMGSA : arcid et plnid du LPLN OK");
-                    answer.listeIdentifiants.push(answer.checkLPLN.tabId[0]);
-
+                    let idLocal = <Identifiants>{};
+                    idLocal.dates = <creneauHoraire>{};
+                    idLocal.arcid = answer.checkLPLN.arcid;
+                    idLocal.plnid = answer.checkLPLN.plnid;
+                    idLocal.dates = answer.checkLPLN.creneauHoraire;
+                    idLocal.identifie = true;
+                    let isCompatible: boolean = false;
+                    answer.checkVEMGSA.tabId.forEach(element => {
+                        let creneauLocal = this.dates.isCreneauxCompatibles(idLocal.dates, element.dates);
+                        if (creneauLocal !== null) {
+                            isCompatible = true;
+                            console.log("compatible");
+                            element.dates = creneauLocal;
+                        }
+                    });
+                    if (!isCompatible) {
+                        answer.listeIdentifiants.push(idLocal);
+                    }
                 }
+
                 console.log("listeIdentifiants : " + answer.listeIdentifiants);
                 console.log("answer.analysePossible : " + answer.analysePossible);
                 break;
@@ -471,7 +473,10 @@ export class Check {
         }
 
         console.log("Analyse Possible ? : ", +answer.analysePossible);
-
+        answer.listeIdentifiants.forEach(id => {
+            console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
+            console.log(" id.dates.dateMin: ", id.dates.dateMin, " id.dates.dateMax: ", id.dates.dateMax);
+        });
         return answer;
     }
 
