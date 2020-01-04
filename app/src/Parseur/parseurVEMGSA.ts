@@ -8,7 +8,7 @@ import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { GrepVEMGSA } from './grepVEMGSA';
 import { Path } from '../Modele/path';
 import { Frequences } from './frequences';
-import { creneauHoraire } from './date';
+import { Dates, creneauHoraire } from './date';
 import { ReadLine } from '../scripts/node-readline/node-readline';
 const p = require('path');
 
@@ -17,10 +17,12 @@ export class ParseurVEMGSA {
   private split: Split;
   private frequences: Frequences;
   private readLine: ReadLine;
+  private dates: Dates;
 
   constructor(grep: GrepVEMGSA) {
     console.log("Je rentre dans le constructor parseurVemgsa ");
     this.grep = grep;
+    this.dates = new Dates();
     this.split = new Split();
     this.frequences = new Frequences();
     this.readLine = new ReadLine();
@@ -28,7 +30,7 @@ export class ParseurVEMGSA {
   }
 
 
-  public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau: creneauHoraire): Vol {
+  public parseur(arcid: string, plnid: number,creneau : creneauHoraire, fichierSourceVemgsa: string[]): Vol {
     console.log("Classe ParseurVemgsa Fonction parseur");
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser
@@ -76,11 +78,7 @@ export class ParseurVEMGSA {
 
       let dateHeure = infoGen.toString().match(motifDateHeure);
       if (dateHeure !== null) {
-        const date = dateHeure.toString().replace(motifDateHeure, "$1");
-        const heure = dateHeure.toString().replace(motifDateHeure, "$3");
-        const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
-        const secondes = dateHeure.toString().replace(motifDateHeure, "$7");
-        const dateToStore = date + " " + heure + " " + minutes + " " + secondes;
+        const dateToStore = this.dates.vlogtoString(dateHeure.toString());
         const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
 
         log.setJour(moment(momentDate).format('DD-MM-YYYY'));

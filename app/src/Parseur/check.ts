@@ -129,7 +129,6 @@ export class Check {
         id.tabId = [];
 
 
-
         for (let index = 0; index < creneau.length; index++) {
             const creneauLocal = creneau[index];
             //console.log("index: ", index, "creneau local: ",creneauLocal);
@@ -309,52 +308,52 @@ export class Check {
                 answer.arcid = arcid;
                 //Recherche de l'ARCID dans le fichier VEMGSA 
                 result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
-                console.log(" result   :", result);
+              //  console.log(" result   :", result);
                 if (result.existe == true) {
                     answer.valeurRetour = 0;
-                    console.log(" check VEMGSA A");
+                  //  console.log(" check VEMGSA A");
                     id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, result);
-                    console.log("id.tabId.length ", id.tabId.length);
+                   // console.log("id.tabId.length ", id.tabId.length);
                     id.tabId.forEach(element => {
                         if (!element.identifie) {
-                            console.log(" couple VEMGSA non complet");
+                     //       console.log(" couple VEMGSA non complet");
                             answer.valeurRetour = 1;
                         }
                     });
                     answer.tabId = id.tabId;
                 }
                 else {
-                    console.log(" check VEMGSA C");
-                    console.log("arcid non trouvé");
+                   // console.log(" check VEMGSA C");
+                   // console.log("arcid non trouvé");
                     answer.valeurRetour = 6;
                     answer.datesFichierVemgsa = grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
-                    console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
+                  //  console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
                 }
             }
             if ((arcid == "") && (plnid !== 0)) {
                 //TODO cas 3 ou 4 à analyse !!! 
                 answer.plnid = plnid;
-                console.log(" check VEMGSA E");
+                //console.log(" check VEMGSA E");
                 result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
-                console.log(" result   :", result);
+                //console.log(" result   :", result);
                 if (result.existe == true) {
                     answer.valeurRetour = 0;
-                    console.log(" check VEMGSA F");
+                  //  console.log(" check VEMGSA F");
                     id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, result);
-                    console.log("id.tabId.length ", id.tabId.length);
+                    //console.log("id.tabId.length ", id.tabId.length);
                     id.tabId.forEach(element => {
                         if (!element.identifie) {
-                            console.log(" couple VEMGSA non complet");
+                      //      console.log(" couple VEMGSA non complet");
                             answer.valeurRetour = 2;
                         }
                     });
                     answer.tabId = id.tabId;
                 }
                 else {
-                    console.log(" check VEMGSA H");
+                    //console.log(" check VEMGSA H");
                     answer.valeurRetour = 6;
                     answer.datesFichierVemgsa = grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
-                    console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
+                    //console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
                 }
             }
         } catch (exception) {
@@ -407,6 +406,7 @@ export class Check {
                     idLocal.arcid = answer.checkLPLN.arcid;
                     idLocal.plnid = answer.checkLPLN.plnid;
                     idLocal.dates = answer.checkLPLN.creneauHoraire;
+                    idLocal.inLpln=true;
                     idLocal.identifie = true;
                     answer.listeIdentifiants.push(idLocal);
                     answer.analysePossible = true;
@@ -448,11 +448,14 @@ export class Check {
                     idLocal.dates = answer.checkLPLN.creneauHoraire;
                     idLocal.identifie = true;
                     let isCompatible: boolean = false;
-                    answer.checkVEMGSA.tabId.forEach(element => {
+                    answer.listeIdentifiants.forEach(element => {
+                        element.inVemgsa=true;
                         let creneauLocal = this.dates.isCreneauxCompatibles(idLocal.dates, element.dates);
                         if (creneauLocal !== null) {
                             isCompatible = true;
+                            element.inLpln = true;
                             console.log("compatible");
+                            //TODO comparer les arcid plnid .....
                             element.dates = creneauLocal;
                         }
                     });
@@ -476,6 +479,7 @@ export class Check {
         answer.listeIdentifiants.forEach(id => {
             console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
             console.log(" id.dates.dateMin: ", id.dates.dateMin, " id.dates.dateMax: ", id.dates.dateMax);
+            
         });
         return answer;
     }

@@ -155,42 +155,42 @@ export class ParseurLPLN {
         if (mylogCpdlc.match("AERODROME  DEP.:") !== null) {
           let motif = /(.*)(AERODROME  DEP.:)(.*)(NIVEAU)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          console.log("info adep:", transaction);
+         // console.log("info adep:", transaction);
           monvol.setAdep(transaction);
         }
 
         if (mylogCpdlc.match("AERODROME DEST.:") !== null) {
           let motif = /(.*)(AERODROME DEST.:)(.*)(RANG)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          console.log("info ades:", transaction);
+          //console.log("info ades:", transaction);
           monvol.setAdes(transaction);
         }
 
         if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {
           let motif = /(.*)(ADRESSE MODE S :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          console.log("info adrModeS:", transaction);
+          //console.log("info adrModeS:", transaction);
           monvol.setAdrModeS(transaction);
         }
 
         if (mylogCpdlc.match("ADR MODE S INF :") !== null) {
           let motif = /(.*)(ADR MODE S INF :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          console.log("info adrModeSInf:", transaction);
+          //console.log("info adrModeSInf:", transaction);
           monvol.setAdrModeSInf(transaction);
         }
 
         if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) {
           let motif = /(.*)(ADR. DEPOSEE   :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          console.log("info adrDeposee:", transaction);
+         // console.log("info adrDeposee:", transaction);
           monvol.setAdrDeposee(transaction);
         }
 
         if (mylogCpdlc.match("EQUIPEMENT CPDLC") !== null) {
           let motif = /(.*)(EQUIPEMENT CPDLC :)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          console.log("info equipement:", transaction);
+         // console.log("info equipement:", transaction);
           monvol.setEquipementCpdlc(transaction);
         }
 
@@ -226,7 +226,7 @@ export class ParseurLPLN {
       if (mylogCpdlc.match("EQUIPEMENT CPDLC") !== null) {
         let motif = /(.*)(EQUIPEMENT CPDLC :)(.*)/;
         let transaction = mylogCpdlc.replace(motif, "$3").trim();
-        console.log("info equipement:", transaction);
+      //  console.log("info equipement:", transaction);
         if (transaction == "EQUIPE") {
           isEquipe = true;
         }
@@ -252,7 +252,7 @@ export class ParseurLPLN {
         mymap['TITLE'] = title;
         switch (title) {
           case 'CPCASRES': {
-            console.log("je rentre dans CPCASRES", etatCpc[1].trim());
+        //    console.log("je rentre dans CPCASRES", etatCpc[1].trim());
             if (etatCpc[1].trim() == "(S)") {
               mymap['ATNASSOC'] = 'S';
             }

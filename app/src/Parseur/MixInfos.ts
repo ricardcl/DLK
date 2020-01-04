@@ -24,8 +24,9 @@ export class MixInfos {
   }
 
   //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!! 
-  public mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number): Vol {
+  public mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number, creneauHoraire:creneauHoraire): Vol {
     console.log("Classe MixInfos Fonction mixInfos");
+
 
     //Initialisation du vol final issu des donnees LPLN et VEMGSA 
     let monvolFinal = new Vol(arcid, plnid);
@@ -176,11 +177,11 @@ export class MixInfos {
 
     //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA 
     let creneau = <creneauHoraire>{};
-
+//creneau = creneauHoraire;
     creneau.dateMin = volVemgsa.getListeLogs()[0].getDate();
     creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getDate();
-    // console.log("creneau.dateMin: ", creneau.dateMin);
-    // console.log("creneau.dateMax: ", creneau.dateMax);
+     console.log("creneau.dateMin: ", creneau.dateMin);
+     console.log("creneau.dateMax: ", creneau.dateMax);
 
     let vemgsaMinVsLpln: boolean;
     let vemgsaMaxVsLpln: boolean;
@@ -317,8 +318,9 @@ export class MixInfos {
 
   }
 
-  public InfosVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA, creneau: creneauHoraire): Vol {
+  public InfosVemgsa(arcid: string, plnid: number,  creneau: creneauHoraire,fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA): Vol {
     console.log("Classe MixInfos Fonction InfosVemgsa");
+
 
     //console.log("Je rentre dans InfosVemgsa de MixInfo creneau", creneau);
     //console.log("fichierSourceVemgsa: ", fichierSourceVemgsa);
@@ -326,7 +328,7 @@ export class MixInfos {
     let monvolVemgsa = new Vol(arcid, plnid);
     //pv.identification(arcid, plnid, fichierSourceVemgsa); 
 
-    monvolVemgsa = ParseurVEMGSA.parseur(arcid, plnid, fichierSourceVemgsa, creneau);
+    monvolVemgsa = ParseurVEMGSA.parseur(arcid, plnid, creneau, fichierSourceVemgsa );
     let nbLogsCpdlc: number = 0;
     let hasCPASREQ: boolean = false;
     let hasCPCEND: boolean = false;
@@ -415,7 +417,8 @@ export class MixInfos {
     monvolVemgsa.initLogonConnexionResults();
     monvolVemgsa = this.grapheEtat.evaluateGrapheEtat(monvolVemgsa);
 
-    return monvolVemgsa;
+    
+       return monvolVemgsa;
   }
 
   public sortLogs(vol: Vol): Vol {
@@ -470,14 +473,14 @@ export class MixInfos {
       let etatTransfertFreq = <etatTransfertFrequence>{};
       if ((etatCpdlc.getTitle() == 'CPCFREQ') || (etatCpdlc.getTitle() == 'TRFDL')) {
 
-        console.log("--------Test transfert Frequence----------");
+       // console.log("--------Test transfert Frequence----------");
         dateFreq = etatCpdlc.getDate();
         etatTransfertFreq.dateTransfert = dateFreq;
-        console.log("date transfert:", etatTransfertFreq.dateTransfert);
+        //console.log("date transfert:", etatTransfertFreq.dateTransfert);
 
         if (etatCpdlc.getTitle() == 'CPCFREQ') {
           etatTransfertFreq.frequence = etatCpdlc.getDetaillog()["FREQ"];
-          console.log("frequence transfert:", etatTransfertFreq.frequence);
+          //console.log("frequence transfert:", etatTransfertFreq.frequence);
         }
 
 
@@ -533,7 +536,7 @@ export class MixInfos {
             etatTransfertFreq.deltaT = this.dates.diffDates(dateFreq, dateTemp);
           }
         });
-        console.log("------------------------------------------");
+      //  console.log("------------------------------------------");
 
 
         if (etatCpdlc.getTitle() == 'TRFDL') {
@@ -573,13 +576,13 @@ export class MixInfos {
       let etatTransfertFreq = <etatTransfertFrequence>{};
       if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
 
-        console.log("--------Test transfert Frequence----------");
+     //   console.log("--------Test transfert Frequence----------");
         dateFreq = etatCpdlc.getDate();
         etatTransfertFreq.dateTransfert = dateFreq;
         etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
 
-        console.log("date transfert:", etatTransfertFreq.dateTransfert);
-        console.log("frequence transfert:", etatTransfertFreq.frequence);
+       // console.log("date transfert:", etatTransfertFreq.dateTransfert);
+       // console.log("frequence transfert:", etatTransfertFreq.frequence);
 
         listeLogs.forEach(etatCpdlcTemp => {
           dateTemp = etatCpdlcTemp.getDate();
@@ -606,7 +609,7 @@ export class MixInfos {
 
 
         });
-        console.log("------------------------------------------");
+       // console.log("------------------------------------------");
 
         //cas possibles
 
@@ -645,7 +648,7 @@ export class MixInfos {
 
 
         etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
-        console.log("frequence transfert:", etatTransfertFreq.frequence);
+        //console.log("frequence transfert:", etatTransfertFreq.frequence);
 
 
 
@@ -710,7 +713,7 @@ export class MixInfos {
 
 
         });
-        console.log("------------------------------------------");
+       // console.log("------------------------------------------");
 
         //cas possibles
 
@@ -735,12 +738,12 @@ export class MixInfos {
 
 
   private removeYear(etatTransfertFreq: etatTransfertFrequence): void {
-    console.log("elt.dateTransfert", etatTransfertFreq.dateTransfert);
+   // console.log("elt.dateTransfert", etatTransfertFreq.dateTransfert);
     const momentDate1 = moment(etatTransfertFreq.dateTransfert, 'DD-MM-yyyy HH mm ss');
     if (momentDate1.isValid()) {
       etatTransfertFreq.dateTransfert = moment(momentDate1).format('DD-MM HH mm ss')
     }
-    console.log("etatTransfertFreq.dateTransfert after", etatTransfertFreq.dateTransfert);
+   // console.log("etatTransfertFreq.dateTransfert after", etatTransfertFreq.dateTransfert);
   }
 
 

@@ -210,7 +210,8 @@ export class GrepLPLN {
                   const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
                   const dateToStore = jour + "-" + mois + " " + heure + " " + minutes + " OO";
                   const momentDate = moment(dateToStore, 'DD-MM HH mm ss').format('DD-MM HH mm ss');
-                 // console.log("momentDate: ",momentDate);
+
+                  // console.log("momentDate: ",momentDate);
                   
                   if (datesFichier.dateMin === "") {
                     datesFichier.dateMin = momentDate;
@@ -232,6 +233,7 @@ export class GrepLPLN {
 
     } while (!this.readLine.eof(r));
     this.readLine.fclose(r);
+
     return datesFichier;
   }
 

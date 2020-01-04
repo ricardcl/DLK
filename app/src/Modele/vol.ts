@@ -226,6 +226,9 @@ export class Vol {
         return this.arcid;
     }
 
+    public getPlnid(): number {
+        return this.plnid;
+    }
     public getAdrModeS(): string {
         return this.adrModeS;
     }
@@ -328,7 +331,7 @@ export class Vol {
         let infoSupp: boolean;
 
         this.listeLogs.forEach(log => {
-           // log.setEtat(Etat.Unknown);
+            // log.setEtat(Etat.Unknown);
             let etatLogonConnexion = <etatLogonConnexion>{};
             etatLogonConnexion.dateChgtEtat = log.getDate();
             etatLogonConnexion.log = log.getTitle();
@@ -424,7 +427,7 @@ export class Vol {
                 tabEtatLogonConnexionTemp.push(etatLogonConnexion);
 
             }
-           // log.setEtat( etatLogonConnexion.etat);
+            // log.setEtat( etatLogonConnexion.etat);
 
         });
         /**console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");
@@ -584,21 +587,21 @@ export class Vol {
         tabEtatLogon.forEach(element => {
             tabEtatLogonConnexionSimplifie.push(element);
         });
-
+        //TO DO verifier le code ci-dessous avec les dates
         tabEtatLogonConnexionSimplifie.forEach(element => {
-            console.log("element.fromDate", element.fromDate);
+            //console.log("element.fromDate", element.fromDate);
             const momentDate1 = moment(element.fromDate, 'DD-MM-yyyy HH mm ss');
             if (momentDate1.isValid()) {
                 element.fromDate = moment(momentDate1).format('DD-MM HH mm ss')
             }
-            console.log("element.fromDate after", element.fromDate);
+            //console.log("element.fromDate after", element.fromDate);
 
-            console.log("element.toDate", element.toDate);
+            //console.log("element.toDate", element.toDate);
             const momentDate2 = moment(element.toDate, 'DD-MM-yyyy HH mm ss');
             if (momentDate2.isValid()) {
                 element.toDate = moment(momentDate2).format('DD-MM HH mm ss')
             }
-            console.log("element.toDate after", element.toDate);
+            //  console.log("element.toDate after", element.toDate);
         });
 
 

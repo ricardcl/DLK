@@ -14,6 +14,7 @@ import { ParseurLPLN } from './Parseur/parseurLPLN';
 import { ParseurVEMGSA } from './Parseur/ParseurVEMGSA';
 import { LogBook } from './logBook';
 import { Database } from './database';
+import { Identifiants } from './Modele/identifiants';
 
 
 
@@ -108,10 +109,21 @@ export class Formulaire {
 
             });
 
-            socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer: checkAnswer) => {
-                this.logBook.writeLogBook(clientId, "analysing " + "arcid: " + arcid + "plnid: " + plnid + "lplnfilename: " + lplnfilename + "vemgsafilename: " + vemgsafilename);
+            socket.on('analysing', (id: Identifiants, lplnfilename, vemgsafilename, checkanswer: checkAnswer) => {
+                this.logBook.writeLogBook(clientId, "analysing " + "arcid: " + id.arcid + "plnid: " + id.plnid + "lplnfilename: " + lplnfilename + "vemgsafilename: " + vemgsafilename);
+                console.log("analysing données recues: "+"arcid "+ id.arcid, "plnid: ", id.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                console.log("analysing données recues: ","creneauHoraire",id.dates);
+                console.log("analysing données recues: ","inLpln",id.inLpln,"inVemgsa",id.inVemgsa);
 
+                console.log("this.contexte av", this.contexte);
 
+                if ((this.contexte == Contexte.LPLNVEMGSA) && (!id.inLpln)) {
+                    this.contexte = Contexte.VEMGSA;
+                }
+                if ((this.contexte == Contexte.LPLNVEMGSA) && (!id.inVemgsa)) {
+                    this.contexte = Contexte.LPLN;
+                }
+                console.log("this.contexte ap", this.contexte);
 
                 console.log("analysedVol");
                 switch (this.contexte) {
@@ -126,46 +138,50 @@ export class Formulaire {
                           }
   
                         */
-                        console.log("analysedVol Contexte.LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
-                        socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN), null, null);
+                        console.log("analysedVol Contexte.LPLN", "arcid: ", id.arcid, "plnid: ", id.plnid, 'creneauHoraire', id.dates, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
                         //recuperation du vol dans le fichier json
                         //console.log("!!!!JSON this.logBook.readFlightLogFile");
                         //this.logBook.readFlightLogFile();
 
                         break;
                     case Contexte.VEMGSA:
-                        console.log("analysedVol Contexte.VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
-                        socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(checkanswer.arcid, checkanswer.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauHoraire), null);
+                        console.log("analysedVol Contexte.VEMGSA", "arcid: ", id.arcid, "plnid: ", id.plnid, 'creneauHoraire', id.dates, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
                         break;
                     case Contexte.LPLNVEMGSA:
-                        console.log("analysedVol Contexte.LPLN et VEMGSA : données LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
-                        console.log("analysedVol Contexte.LPLN et VEMGSA : données VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        console.log("analysedVol Contexte.LPLN et VEMGSA : données LPLN ete VEMGSA", "arcid: ", id.arcid, "plnid: ", id.plnid, 'creneauHoraire', id.dates, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
 
 
-                        if ((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 4)) {
-
+                        if ((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 2)) {
+                            console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 1 ");
                             // let volLpln :Vol;
                             //                 let volVemgsa :Vol;
                             //              volLpln = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN); 
                             //         volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename,this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa); 
 
+
                             socket.emit("analysedVol", "MIX",
                                 //null,    
-                                this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN),
+                                this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN),
                                 //volLpln,
                                 // null,
-                                this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauHoraire),
+                                this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA),
                                 //volVemgsa,
-                                this.mixInfos.mixInfos(this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauHoraire), checkanswer.arcid, checkanswer.plnid)
+                                this.mixInfos.mixInfos(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), id.arcid, id.plnid, id.dates)
                                 //this.mixInfos.mixInfos(volLpln,volVemgsa,checkanswer.arcid, checkanswer.plnid)
                             );
                         }
                         else {
                             if (checkanswer.checkLPLN.valeurRetour <= 1) {
-                                socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN), null, null);
+                                console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 2 ");
+
+                                socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
                             }
                             else {
-                                socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauHoraire), null);
+                                console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 3 ");
+
+                                socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
                             }
                         }
 

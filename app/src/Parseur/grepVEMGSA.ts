@@ -1,5 +1,6 @@
 import { Dates, creneauHoraire, arrayCreneauHoraire } from './date';
 import { ReadLine } from '../scripts/node-readline/node-readline';
+import { Split } from './split';
 const fs = require('fs');
 const p = require('path');
 
@@ -27,6 +28,7 @@ export class GrepVEMGSA {
     this.uneHeure = 60 * this.uneMinute;
     this.troisHeures = 3 * this.uneHeure;
     this.readLine = new ReadLine();
+
   }
 
   public getUserPath(): string {
@@ -47,7 +49,7 @@ export class GrepVEMGSA {
     console.log("Classe grepVemgsa Fonction grepLog");
 
 
-    //console.log(" creneau", creneau);
+    console.log(" creneau", creneau);
 
     let fichierDestination = p.resolve(this.userPath, "result.htm");
     let w = fs.openSync(fichierDestination, "w");
@@ -84,10 +86,10 @@ export class GrepVEMGSA {
           //mylogCpdlc=mylogCpdlc.toString();
           if (mylogCpdlc === false) { break; }
 
-          if (mylogCpdlc.match(motif) !== null) {
+          if ((mylogCpdlc.match(motif) !== null) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true)) {
             mylogCpdlc = mylogCpdlc.match(motif);
 
-            if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true)) {
+            if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0)) {
               fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
             }
             else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
@@ -438,11 +440,8 @@ export class GrepVEMGSA {
             let date = mylogCpdlc.toString().replace(motifDate, "$1");
             //  console.log("date: ",date);
             if (date.match(motifDateHeure) !== null) {
-              const jour = date.toString().replace(motifDateHeure, "$1");
-              const heure = date.toString().replace(motifDateHeure, "$3");
-              const minutes = date.toString().replace(motifDateHeure, "$5");
-              const secondes = date.toString().replace(motifDateHeure, "$7");
-              const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
+              
+              const dateToStore =this.dates.vlogtoString(date);
               if (creneau.dateMin == undefined) {
                 creneau.dateMin = dateToStore;
               }
@@ -528,12 +527,7 @@ export class GrepVEMGSA {
               //  console.log("date a: ",date);
 
               if (date.match(motifDateHeure) !== null) {
-                const jour = date.toString().replace(motifDateHeure, "$1");
-                const heure = date.toString().replace(motifDateHeure, "$3");
-                const minutes = date.toString().replace(motifDateHeure, "$5");
-                const secondes = date.toString().replace(motifDateHeure, "$7");
-                const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
-                result.dates.push(dateToStore);
+               result.dates.push(this.dates.vlogtoString(date));
               }
             }
           }

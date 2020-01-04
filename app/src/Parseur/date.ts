@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import { Split } from './split';
 
 export interface creneauHoraire {
     dateMin: string;
@@ -12,6 +13,12 @@ export interface arrayCreneauHoraire {
 
 
 export class Dates {
+
+    private split: Split;
+
+    constructor() {
+        this.split = new Split();
+    }
 
     public MonthLetterToNumber(month: string): string {
 
@@ -119,51 +126,57 @@ export class Dates {
 
 
 
-
+    /**
+     * Fonction qui détermine des différentes dates VEMGSA passées en paramètre les différents créneaux horaires
+     * @param dates 
+     */
     public getCreneaux(dates: string[]): creneauHoraire[] {
         let arrayHeuresTrouvees: string[] = dates;
-        let creneau = new Array;
+        let creneauHoraire = new Array;
         const uneMinute: number = 60000;
         const uneHeure: number = 60 * uneMinute;
         let troisHeures = 3 * uneHeure;
         let i: number = 0;
 
-        creneau[i] = <arrayCreneauHoraire>{};
-        creneau[i].dateMin = dates[0];
+        creneauHoraire[i] = <arrayCreneauHoraire>{};
+        creneauHoraire[i].dateMin = dates[0];
 
         for (let index = 1; index < dates.length; index++) {
             const element = dates[index];
             const elementPrec = dates[index - 1];
             if (index == dates.length - 1) {
                 if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
-                    creneau[i].dateMax = elementPrec;
-                    creneau[i + 1] = <arrayCreneauHoraire>{};
-                    creneau[i + 1].dateMin = element;
-                    creneau[i + 1].dateMax = element;
+                    creneauHoraire[i].dateMax = elementPrec;
+                    creneauHoraire[i + 1] = <arrayCreneauHoraire>{};
+                    creneauHoraire[i + 1].dateMin = element;
+                    creneauHoraire[i + 1].dateMax = element;
                 }
                 else {
-                    creneau[i].dateMax = element;
+                    creneauHoraire[i].dateMax = element;
                 }
             }
             else {
                 if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
-                    creneau[i].dateMax = elementPrec;
+                    creneauHoraire[i].dateMax = elementPrec;
                     i++;
-                    creneau[i] = <arrayCreneauHoraire>{};
-                    creneau[i].dateMin = element;
+                    creneauHoraire[i] = <arrayCreneauHoraire>{};
+                    creneauHoraire[i].dateMin = element;
                 }
             }
         }
-        console.log("creneaux trouves :", creneau);
-        return creneau;
+        console.log("creneauHorairex trouves :", creneauHoraire);
+        return creneauHoraire;
     }
 
     //log : ligne brut récupérée du fichier VEMGSA
     public isInCreneauxVemgsa(dates: creneauHoraire, log: string, diffMax: number): boolean {
         let isIn: boolean = false;
 
-
+        //console.log("dates.dateMin",dates.dateMin);
+        
         const momentDate1 = moment(dates.dateMin, 'DD-MM-YYYY HH mm ss');
+        //console.log("momentDate1",momentDate1);
+
         if (dates.dateMax == undefined) {
             dates.dateMax = dates.dateMin;
         }
@@ -178,13 +191,11 @@ export class Dates {
             let date = log.toString().replace(motif, "$1");
 
             if (date.match(motifDateHeure) !== null) {
-                const jour = date.toString().replace(motifDateHeure, "$1");
-                const heure = date.toString().replace(motifDateHeure, "$3");
-                const minutes = date.toString().replace(motifDateHeure, "$5");
-                const secondes = date.toString().replace(motifDateHeure, "$7");
-                const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
-                const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
-
+                //console.log("date",date);
+                
+               
+                const momentDate = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss'); 
+ 
 
                 const diff1: number = momentDate.diff(momentDate1);
                 const diff2: number = momentDate.diff(momentDate2);
@@ -203,7 +214,7 @@ export class Dates {
 
 
     // dateToStore au format = jour + " " + heure + " " + minutes + " " + secondes;
-    public isInCreneauxVemgsaHoraire(dates: creneauHoraire, dateToStore: string, diffMax: number): boolean {
+    public isIncreneauHorairexVemgsaHoraire(dates: creneauHoraire, dateToStore: string, diffMax: number): boolean {
 
 
 
@@ -227,11 +238,61 @@ export class Dates {
         return isIn;
     }
 
+   
+    /**
+     * Transforme une date moment.Moment (lpln ou vemgsa avec le champ YYYY)  en string au format 'DD-MM-YYYY HH mm ss'
+     * @param date 
+     */
+    public momenttoString(date: moment.Moment): string {
+        const annee = date.format('YYYY');
+        const jour = date.format('DD');
+        const mois = date.format('MM');
+        const heure = date.format('HH');
+        const minute = date.format('mm');
+        const seconde = date.format('ss');
+        const dateToStore = jour + "-" + mois + "-" + annee + " " + heure + " " + minute + " " + seconde;
+        return dateToStore;
+    }
+
+    /**
+     * Transforme la date brut issue d'un fichier VEMGSA en string au format 'DD-MM-YYYY HH mm ss'
+     * @param date 
+     */
+    public vlogtoString(date: string): string {
+        let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
+        let jma = this.split.splitString(date.toString().replace(motifDateHeure, "$1"), '/');
+        const jour = jma[0];
+        const mois = jma[1];
+        const annee = jma[2];
+        const heure = date.toString().replace(motifDateHeure, "$3");
+        const minutes = date.toString().replace(motifDateHeure, "$5");
+        const secondes = date.toString().replace(motifDateHeure, "$7");
+        const dateToStore = jour + "-" + mois + "-" + annee + " " + heure + " " + minutes + " " + secondes;
+        return dateToStore;
+    }
+
+
+    /**
+     * Fonction qui ajoute l'annee passée en paramètre à une date issue d'un fichier LPLN
+     * @param dateLpln 
+     * @param anneeVemgsa 
+     */
+    public addYearToLpln(dateLpln: moment.Moment, anneeVemgsa: string): moment.Moment {
+
+        const jour = dateLpln.format('DD');
+        const mois = dateLpln.format('MM');
+        const heure = dateLpln.format('HH');
+        const minute = dateLpln.format('mm');
+        const dateToStore = jour + "-" + mois + "-" + anneeVemgsa + " " + heure + " " + minute + " OO";
+        const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
+
+        return momentDate;
+    }
 
     /**
      * Fonction qui compare pour un vol les créneaux horaires LPLN et VEMGSA 
-     * @param cL : creneau horaire du vol dans le fichier LPLN
-     * @param cV : creneau horaire du vol dans le fichier VEMGSA
+     * @param cL : creneauHoraire horaire du vol dans le fichier LPLN
+     * @param cV : creneauHoraire horaire du vol dans le fichier VEMGSA
      * @returns {creneauHoraire} 
      * Si les deux créneaux sont compatibles ( dans la même plage horaire à plus ou moins trois heures)
      * la fonction renvoie le créneau global 
@@ -243,60 +304,74 @@ export class Dates {
         const uneHeure = 60 * uneMinute;
         const troisHeures = 3 * uneHeure;
 
+        // console.log("cL1", cL.dateMin, "cL2", cL.dateMax, "cV1", cV.dateMin, "cV2", cV.dateMax);
+
         let result = <creneauHoraire>{};
 
-        let cL1 = moment(cL.dateMin, 'DD-MM HH mm ss');
-        if (!cL1.isValid()) {
-            cL1 = moment(cL.dateMin, 'DD-MM HH mm');
+
+        let cL1 = moment(cL.dateMin, 'DD-MM HH mm');
+        let cL2 = moment(cL.dateMax, 'DD-MM HH mm');
+        let cV1 = moment(cV.dateMin, 'DD-MM-YYYY HH mm ss');
+        let cV2 = moment(cV.dateMax, 'DD-MM-YYYY HH mm ss');
+
+        const moisL1 = cL1.format('MM');
+        const moisL2 = cL2.format('MM');
+        const moisV1 = cV1.format('MM');
+        const moisV2 = cV2.format('MM');
+
+
+        if (moisL1 == moisV1) {
+            cL1 = this.addYearToLpln(cL1, cV1.format('YYYY'));
         }
-        let cL2 = moment(cL.dateMax, 'DD-MM HH mm ss');
-        if (!cL2.isValid()) {
-            cL2 = moment(cL.dateMax, 'DD-MM HH mm');
+        else if (moisL1 == moisV2) {
+            cL1 = this.addYearToLpln(cL1, cV2.format('YYYY'));
         }
-        let cV1 = moment(cV.dateMin, 'DD-MM HH mm ss');
-        if (!cV1.isValid()) {
-            cV1 = moment(cV.dateMin, 'DD-MM HH mm');
+        if (moisL2 == moisV1) {
+            cL2 = this.addYearToLpln(cL2, cV1.format('YYYY'));
         }
-        let cV2 = moment(cV.dateMax, 'DD-MM HH mm ss');
-        if (!cV2.isValid()) {
-            cV2 = moment(cV.dateMax, 'DD-MM HH mm');
+        else if (moisL2 == moisV2) {
+            cL2 = this.addYearToLpln(cL2, cV2.format('YYYY'));
         }
+
+
+        // }
 
         const diff1: number = cV1.diff(cL1); //cV1 - cL1  => diff1 > 0 si cV1>cL1
         const diff2: number = cV2.diff(cL2); //cV2 - cL2  => diff2 >0 si cV2>cL2
 
         // |cV1 -cL1| < 3heure ET  |cV2 -cL2|< 3heure
-    
+
 
         const condition = ((Math.abs(diff1) < troisHeures) && (Math.abs(diff2) < troisHeures));
 
         if (condition) {
             if (diff1 >= 0) {
-                result.dateMin = cL.dateMin;
+                result.dateMin = this.momenttoString(cL1);
             }
-            else{
-                result.dateMin = cV.dateMin;
+            else {
+                result.dateMin = this.momenttoString(cV1);
             }
             if (diff2 >= 0) {
-                result.dateMax = cV.dateMax;
+                result.dateMax = this.momenttoString(cV2);
             }
-            else{
-                result.dateMax = cL.dateMax;
+            else {
+                result.dateMax = this.momenttoString(cL2);
             }
         }
         else {
             result = null;
         }
-            // console.log("cL1", cL1, "cL2", cL2, "cV1", cV1, "cV2", cV2);
-            //console.log("(Math.abs(diff1) < troisHeures)", (Math.abs(diff1) < troisHeures), "(Math.abs(diff1)", Math.abs(diff1), "troisHeures",troisHeures);
-            //console.log("(Math.abs(diff2) < troisHeures)", (Math.abs(diff2) < troisHeures), "(Math.abs(diff2)", Math.abs(diff2), "troisHeures",troisHeures);
-            //console.log("(Math.abs(diff3) < troisHeures)", (Math.abs(diff3) < troisHeures), "(Math.abs(diff3)", Math.abs(diff3), "troisHeures",troisHeures);
-            //console.log("(Math.abs(diff4) < troisHeures)", (Math.abs(diff4) < troisHeures), "(Math.abs(diff4)", Math.abs(diff4), "troisHeures",troisHeures);
+       // console.log("cL1", cL1, "cL2", cL2, "cV1", cV1, "cV2", cV2);
+        //console.log("(Math.abs(diff1) < troisHeures)", (Math.abs(diff1) < troisHeures), "(Math.abs(diff1)", Math.abs(diff1), "troisHeures",troisHeures);
+        //console.log("(Math.abs(diff2) < troisHeures)", (Math.abs(diff2) < troisHeures), "(Math.abs(diff2)", Math.abs(diff2), "troisHeures",troisHeures);
+        //console.log("(Math.abs(diff3) < troisHeures)", (Math.abs(diff3) < troisHeures), "(Math.abs(diff3)", Math.abs(diff3), "troisHeures",troisHeures);
+        //console.log("(Math.abs(diff4) < troisHeures)", (Math.abs(diff4) < troisHeures), "(Math.abs(diff4)", Math.abs(diff4), "troisHeures",troisHeures);
 
-            //console.log("diff1", diff1, "diff2", diff2, "diff3", diff3, "diff4", diff4, "condition", condition);
-
-            return result;
+        //console.log("diff1", diff1, "diff2", diff2, "diff3", "condition", condition);
 
 
-        }
+        return result;
+
+
     }
+}
