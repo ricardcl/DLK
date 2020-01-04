@@ -1,11 +1,11 @@
 import * as moment from 'moment';
 
-export interface datesFile {
+export interface creneauHoraire {
     dateMin: string;
     dateMax: string;
 }
 
-export interface arrayDatesFile {
+export interface arrayCreneauHoraire {
     existe: boolean;
     dates: string[];
 }
@@ -120,7 +120,7 @@ export class Dates {
 
 
 
-    public getCreneaux(dates: string[]): datesFile[] {
+    public getCreneaux(dates: string[]): creneauHoraire[] {
         let arrayHeuresTrouvees: string[] = dates;
         let creneau = new Array;
         const uneMinute: number = 60000;
@@ -128,7 +128,7 @@ export class Dates {
         let troisHeures = 3 * uneHeure;
         let i: number = 0;
 
-        creneau[i] = <arrayDatesFile>{};
+        creneau[i] = <arrayCreneauHoraire>{};
         creneau[i].dateMin = dates[0];
 
         for (let index = 1; index < dates.length; index++) {
@@ -137,7 +137,7 @@ export class Dates {
             if (index == dates.length - 1) {
                 if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
                     creneau[i].dateMax = elementPrec;
-                    creneau[i+1] = <arrayDatesFile>{};
+                    creneau[i+1] = <arrayCreneauHoraire>{};
                     creneau[i+1].dateMin = element;
                     creneau[i+1].dateMax = element;
                 }
@@ -148,7 +148,7 @@ export class Dates {
                 if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
                     creneau[i].dateMax = elementPrec;
                     i++;
-                    creneau[i] = <arrayDatesFile>{};
+                    creneau[i] = <arrayCreneauHoraire>{};
                     creneau[i].dateMin = element;
                 }
             }
@@ -158,7 +158,7 @@ export class Dates {
     }
 
     //log : ligne brut récupérée du fichier VEMGSA
-    public isInCreneauxVemgsa(dates: datesFile, log: string, diffMax: number): boolean {
+    public isInCreneauxVemgsa(dates: creneauHoraire, log: string, diffMax: number): boolean {
         let isIn: boolean = false;
 
 
@@ -192,6 +192,8 @@ export class Dates {
                 if (((diff1 >= 0) || (diff1 >= -diffMax)) && ((diff2 <= 0) || (diff2 <= diffMax))) {
                     isIn = true;
                 }
+               // console.log("momentDate",momentDate,"momentDate1",momentDate1, "momentDate2",momentDate2, "diff1",diff1,"diff2",diff2,"isIn",isIn);
+
             }
         }
 
@@ -200,7 +202,7 @@ export class Dates {
 
 
     // dateToStore au format = jour + " " + heure + " " + minutes + " " + secondes;
-    public isInCreneauxVemgsaHoraire(dates: datesFile, dateToStore: string, diffMax: number): boolean {
+    public isInCreneauxVemgsaHoraire(dates: creneauHoraire, dateToStore: string, diffMax: number): boolean {
 
 
 

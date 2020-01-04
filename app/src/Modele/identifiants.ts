@@ -1,10 +1,10 @@
-import { datesFile } from "../Parseur/date";
+import { creneauHoraire } from "../Parseur/date";
 
 
 export interface Identifiants {
-    plnid: number ;
-    arcid: string;
-    dates?: datesFile;
+    plnid?: number ;
+    arcid?: string;
+    dates?: creneauHoraire;
     identifie?: boolean;
     tabId?: Identifiants[];
 }

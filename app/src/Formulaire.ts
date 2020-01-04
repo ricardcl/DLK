@@ -9,7 +9,7 @@ import { Path } from './Modele/path';
 import { Check } from './Parseur/check';
 import { MixInfos } from './Parseur/MixInfos';
 import { Frequences } from './Parseur/frequences';
-import { datesFile } from './Parseur/date';
+import { creneauHoraire } from './Parseur/date';
 import { ParseurLPLN } from './Parseur/parseurLPLN';
 import { ParseurVEMGSA } from './Parseur/ParseurVEMGSA';
 import { LogBook } from './logBook';
@@ -77,7 +77,7 @@ export class Formulaire {
                 //mixInfos("",0, event.file.name, null); 
             });
 
-            socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput, horaire) => {
+            socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput) => {
 
                 // Create frequence files : 
                 this.frequences.GbdiToFreq(Path.STPVFilePath);  //A modifier de place !!! 
@@ -90,11 +90,6 @@ export class Formulaire {
                 console.log("typeof listVemgsaInput.length", listVemgsaInput.length);
                 console.log("analyseDataInput", "arcid", arcid);
                 console.log("analyseDataInput", "plnid", plnid);
-                console.log("analyseDataInput", "horaire", horaire);
-                if (horaire == '') {
-                    horaire = undefined;
-                }
-                console.log("analyseDataInput", "horaire", horaire);
                 let listVemgsa = new Array;
                 if (listVemgsaInput.length >= 2) {
                     listVemgsa = this.grepVEMGSA.orderVemgsa(listVemgsaInput);
@@ -107,29 +102,29 @@ export class Formulaire {
 
                 this.contexte = this.check.evaluationContexte(lpln, listVemgsa);
                 let resultCheck = <checkAnswer>{};
-                resultCheck = this.check.check(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA, horaire);
+                resultCheck = this.check.check(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA);
                 socket.emit("check", resultCheck);
 
             });
 
-            socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer: checkAnswer, chosenHoraire) => {
-                this.logBook.writeLogBook(clientId, "analysing " + "arcid: " + arcid + "plnid: " + plnid + "lplnfilename: " + lplnfilename + "vemgsafilename: " + vemgsafilename + "chosenHoraire: " + chosenHoraire);
-                if (chosenHoraire == '') {
-                    chosenHoraire = undefined;
-                }
+            socket.on('analysing', (arcid, plnid, lplnfilename, vemgsafilename, checkanswer: checkAnswer) => {
+                this.logBook.writeLogBook(clientId, "analysing " + "arcid: " + arcid + "plnid: " + plnid + "lplnfilename: " + lplnfilename + "vemgsafilename: " + vemgsafilename);
+
 
 
                 console.log("analysedVol");
                 switch (this.contexte) {
                     case Contexte.LPLN:
                         // Stockage du vol dans un fichier json
-                        console.log("!!!! this.database.writeFlightLogFile");
-                        try {
-                            this.database.writeFlightLogFile(this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN));
-                        } catch (error) {
-                            console.log ("ERRORRRRRR", error);
-                        }
-
+                        /** console.log("!!!! this.database.writeFlightLogFile");
+                        //TODO gerer la database
+                          try {
+                              this.database.writeFlightLogFile(this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN));
+                          } catch (error) {
+                              console.log ("ERRORRRRRR", error);
+                          }
+  
+                        */
                         console.log("analysedVol Contexte.LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
                         socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN), null, null);
                         //recuperation du vol dans le fichier json
@@ -139,7 +134,7 @@ export class Formulaire {
                         break;
                     case Contexte.VEMGSA:
                         console.log("analysedVol Contexte.VEMGSA", "arcid: ", checkanswer.checkVEMGSA.arcid, "plnid: ", checkanswer.checkVEMGSA.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
-                        socket.emit("analysedVol", "VEMGSA",null,  this.mixInfos.InfosVemgsa(checkanswer.arcid, checkanswer.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire), null);
+                        socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(checkanswer.arcid, checkanswer.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauHoraire), null);
                         break;
                     case Contexte.LPLNVEMGSA:
                         console.log("analysedVol Contexte.LPLN et VEMGSA : données LPLN", "arcid: ", checkanswer.checkLPLN.arcid, "plnid: ", checkanswer.checkLPLN.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
@@ -151,16 +146,16 @@ export class Formulaire {
                             // let volLpln :Vol;
                             //                 let volVemgsa :Vol;
                             //              volLpln = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN); 
-                            //         volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename,this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire); 
+                            //         volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename,this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa); 
 
-                            socket.emit("analysedVol","MIX",
-                            //null,    
-                            this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN),
+                            socket.emit("analysedVol", "MIX",
+                                //null,    
+                                this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN),
                                 //volLpln,
-                               // null,
-                                this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire),
+                                // null,
+                                this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauHoraire),
                                 //volVemgsa,
-                                this.mixInfos.mixInfos(this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire), checkanswer.arcid, checkanswer.plnid)
+                                this.mixInfos.mixInfos(this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauHoraire), checkanswer.arcid, checkanswer.plnid)
                                 //this.mixInfos.mixInfos(volLpln,volVemgsa,checkanswer.arcid, checkanswer.plnid)
                             );
                         }
@@ -169,7 +164,7 @@ export class Formulaire {
                                 socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN), null, null);
                             }
                             else {
-                                socket.emit("analysedVol", "VEMGSA",null,  this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa, chosenHoraire), null);
+                                socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename, this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauHoraire), null);
                             }
                         }
 

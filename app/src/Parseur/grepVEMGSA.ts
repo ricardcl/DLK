@@ -1,4 +1,4 @@
-import { Dates, datesFile, arrayDatesFile } from './date';
+import { Dates, creneauHoraire, arrayCreneauHoraire } from './date';
 import { ReadLine } from '../scripts/node-readline/node-readline';
 const fs = require('fs');
 const p = require('path');
@@ -33,13 +33,17 @@ export class GrepVEMGSA {
     return this.userPath;
   }
 
-  /*
-OBJECTIF DE CETTE FONCTION :
-Lire le contenu d un fichier VEMGSA donne en entree
-recuperer uniquement les informations relatives a un PLNID et un ARCID donne
-copier le resultat dans un fichier texte en enlevant les caracteres speciaux et verifiant que le format est correct
-*/
-  public grepLog(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau:datesFile, horaire?: datesFile): void {
+
+  /**
+   * Fonction qui récupère l'ensemble des logs liés aux identifiants arcid, plnid  dans le fichier fichierSourceVemgsa, 
+   * à condition qu'ils rentrent dans la plage horaire du creneau précisé en paramètre (plus ou moins trois heures)
+   * Si le format d'un log est correct, il est copié dans un fichier "result.thm" sans les caracteres speciaux
+   * @param arcid : arcid du vol("" si non trouvé) 
+   * @param plnid : plnid du vol (0 si non trouvé) 
+   * @param fichierSourceVemgsa : fichier(s) VEMGSA rentré par l'utilisateur  
+   * @param creneau : creneau horaire de l'identifiant spécifié par l'utilisateur dans le fichier de log
+   */
+  public grepLog(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau: creneauHoraire): void {
     console.log("Classe grepVemgsa Fonction grepLog");
 
 
@@ -83,69 +87,28 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
           if (mylogCpdlc.match(motif) !== null) {
             mylogCpdlc = mylogCpdlc.match(motif);
 
-
-            if (horaire == undefined) {
-              if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true)) {
+            if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true)) {
+              fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+            }
+            else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
+              if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "")) {
                 fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
               }
-              else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
-                if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "")) {
+
+              if ((plnid == 0) && (reqid !== 0) && (mylogCpdlc.toString().match("-REQID ") !== null) && (mylogCpdlc.toString().match(reqid) !== null)) {
+                let motifREQID = /(.*)(CPCASRES)(.*)(-REQID)(.*)/;
+                let reqidTrouve = mylogCpdlc.toString().replace(motifREQID, "$5").trim();
+                let reqidTest = Number(String(reqidTrouve).substr(1));
+                console.log("-----------------> reqidTest ", reqidTest);
+                if (reqidTest == reqid) {
                   fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                 }
-
-                if ((plnid == 0) && (reqid !== 0) && (mylogCpdlc.toString().match("-REQID ") !== null) && (mylogCpdlc.toString().match(reqid) !== null)) {
-                  let motifREQID = /(.*)(CPCASRES)(.*)(-REQID)(.*)/;
-                  let reqidTrouve = mylogCpdlc.toString().replace(motifREQID, "$5").trim();
-                  let reqidTest = Number(String(reqidTrouve).substr(1));
-                  console.log("-----------------> reqidTest ", reqidTest);
-                  if (reqidTest == reqid) {
-                    fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
-                  }
-                  else {
-                    console.log("pas pareil: reqid", reqid, " reqidtset : ", reqidTest);
-
-                  }
-
+                else {
+                  console.log("pas pareil: reqid", reqid, " reqidtset : ", reqidTest);
                 }
               }
             }
-            else {
-              //TODO cas ou un horaire de recherche est defini
-
-              //coucou
-
-              if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0) && (this.dates.isInCreneauxVemgsa(horaire, mylogCpdlc.toString(), this.troisHeures) == true)  && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true)) {
-
-                fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
-
-
-
-              }
-              else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
-                if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "") && (this.dates.isInCreneauxVemgsa(horaire, mylogCpdlc.toString(), this.troisHeures) == true)  && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true)) {
-                  fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
-                }
-
-                if ((plnid == 0) && (reqid !== 0) && (mylogCpdlc.toString().match("-REQID ") !== null) && (mylogCpdlc.toString().match(reqid) !== null)) {
-                  let motifREQID = /(.*)(CPCASRES)(.*)(-REQID)(.*)/;
-                  let reqidTrouve = mylogCpdlc.toString().replace(motifREQID, "$5").trim();
-                  let reqidTest = Number(String(reqidTrouve).substr(1));
-                  console.log("-----------------> reqidTest ", reqidTest);
-                  if ((reqidTest == reqid) && (this.dates.isInCreneauxVemgsa(horaire, mylogCpdlc.toString(), this.troisHeures) == true)) {
-                    fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
-                  }
-                  else {
-                    console.log("pas pareil: reqid", reqid, " reqidtset : ", reqidTest);
-
-                  }
-
-                }
-              }
-
-            }
-
           }
-
         } while (!this.readLine.eof(r));
 
       }
@@ -154,7 +117,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     fs.closeSync(w);
   }
 
-  public grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, creneau: datesFile, horaire?: datesFile): string {
+  public grepArcidFromPlnid(plnid: number, fichierSourceVemgsa: string, creneau: creneauHoraire): string {
     console.log("Classe grepVemgsa Fonction grepArcidFromPlnid");
 
     let fichierSource = fichierSourceVemgsa;
@@ -168,7 +131,6 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
     let motif1 = /(.*)(CPCASRES)(.*)(-ARCID )(.*)(-ATNASSOC)(.*)(-PLNID)(.*)/;
     let motif2 = /(.*)(CPCASRES)(.*)(-PLNID )(.*)(-REQID)(.*)/;
-    console.log('horaire: ', horaire);
 
 
     if (r === false) {
@@ -181,9 +143,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
         mylogCpdlc = mylogCpdlc.toString();
         if (mylogCpdlc === false) { break; }
 
-        if (((horaire == undefined) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true))
-          || ((horaire != undefined) && (this.dates.isInCreneauxVemgsa(horaire, mylogCpdlc, this.troisHeures) == true) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true))) {
-
+        if (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true) {
           if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(plnid) !== null)) {
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             let plnidTrouve: number;
@@ -203,7 +163,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
               reqid = Number(String(reqid).substr(1));
               console.log("reqid trouve: ", reqid);
 
-              arcid = this.grepArcidFromReqid(reqid, fichierSourceVemgsa, horaire);
+              arcid = this.grepArcidFromReqid(reqid, fichierSourceVemgsa, creneau);
               break;
             }
           }
@@ -216,7 +176,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     return arcid;
   }
 
-  private grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, horaire?: datesFile): string {
+  private grepArcidFromReqid(reqid: number, fichierSourceVemgsa: string, creneau: creneauHoraire): string {
     console.log("Classe grepVemgsa Fonction grepArcidFromReqid");
 
     let fichierSource = fichierSourceVemgsa;
@@ -224,7 +184,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let fichierDestination = p.resolve(this.userPath, "result.htm");
     let arcid = "";
     let reqidTest = 0
- 
+
 
     //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
     let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
@@ -245,7 +205,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
         mylogCpdlc = mylogCpdlc.toString();
         if (mylogCpdlc === false) { break; }
 
-        if ((horaire == undefined) || ((horaire != undefined) && (this.dates.isInCreneauxVemgsa(horaire, mylogCpdlc, this.troisHeures) == true))) {
+        if ((creneau == undefined) || ((creneau != undefined) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true))) {
 
           if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match(motif1) !== null)) {
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
@@ -280,7 +240,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
 
-  public grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, creneau: datesFile, horaire?: datesFile): number {
+  public grepPlnidFromArcid(arcid: string, fichierSourceVemgsa: string, creneau: creneauHoraire): number {
     console.log("Classe grepVemgsa Fonction grepPlnidFromArcid");
 
     let fichierSource = fichierSourceVemgsa;
@@ -289,8 +249,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let reqid = 0;
     let plnid = 0;
 
-    console.log("--------------->grepPlnidFromArcid :  creneau ",creneau );
-
+    console.log("--------------->grepPlnidFromArcid :  creneau ", creneau);
+    console.log("--------------->grepPlnidFromArcid :  arcid ", arcid);
     let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
@@ -309,25 +269,23 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
         let infoLpln1 = mylogCpdlc.match(motifVemgsa);
         let infoLpln2 = mylogCpdlc.match(arcid);
         if ((infoLpln1 !== null) && (infoLpln2 !== null)) {
-          console.log("infolpln 1 :" + infoLpln1);
-          console.log("horaire:", horaire);
-          console.log("test :", horaire == undefined);
-          if (((horaire == undefined) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true))
-            || ((horaire != undefined) && (this.dates.isInCreneauxVemgsa(horaire, mylogCpdlc, this.troisHeures) == true) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true))) {
-            console.log("test1");
-            console.log("--------------->grepPlnidFromArcid :  on rentre dans le coeur ",mylogCpdlc );
+          // console.log("infolpln 1 :" + infoLpln1);
+
+          if (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true) {
+            // console.log("test1");
+            // console.log("--------------->grepPlnidFromArcid :  on rentre dans le coeur ", mylogCpdlc);
 
             //CAS 1 : arcid envoye en meme temps que le reqId dans le CPCASREQ
             // on en deduit le reqid
             if (mylogCpdlc.match("CPCASREQ") !== null) {
               reqid = infoLpln1.toString().replace(motifCPCASREQ, "$5").trim();
-              console.log("cas 1");
-              console.log("reqid : " + reqid);
+              //  console.log("cas 1");
+              // console.log("reqid : " + reqid);
               do {
                 mylogCpdlc = this.readLine.fgets(r);
                 mylogCpdlc = mylogCpdlc.toString();
                 if ((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") !== null)) {
-                  console.log("cas 1A");
+                  // console.log("cas 1A");
                   infoLpln1 = mylogCpdlc.match(motifVemgsa);
                   //CAS 1A :  reqid et plnid en info  ex : GMI39SL PLNID 7893-REQID 01099
                   let motif = /(.*)(-PLNID)(.*)(-REQID)(.*)/;
@@ -338,7 +296,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                   break;
                 }
                 if ((mylogCpdlc.match("REQID") !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match("PLNID") == null)) {
-                  console.log("cas 1B");
+                  //  console.log("cas 1B");
                   infoLpln1 = mylogCpdlc.match(motifVemgsa);
                   //CAS 1B: que le reqid comme information  ex : EZY928J
                   let motif = /(.*)(-REQID)(.*)/;
@@ -354,7 +312,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
             //CAS 2 : arcid envoye en meme temps que le plnid dans le CPCASRES (ex AFR6006)
             // on en deduit le reqid
             else {
-              console.log("cas 2");
+              // console.log("cas 2");
               plnid = infoLpln1.toString().replace(motifCPCASRES, "$5").trim();
               //console.log("plnid : "+plnid);
               break;
@@ -376,7 +334,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
   }
 
-  public grepReqidFromArcid(arcid: string, fichierSourceVemgsa: string, creneau: datesFile, horaire?: datesFile): number {
+  public grepReqidFromArcid(arcid: string, fichierSourceVemgsa: string, creneau: creneauHoraire): number {
     console.log("Classe grepVemgsa Fonction grepReqidFromArcid");
 
     let fichierSource = fichierSourceVemgsa;
@@ -400,9 +358,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
         let infoLpln2 = mylogCpdlc.match(arcid);
         if ((infoLpln1 !== null) && (infoLpln2 !== null)) {
           console.log("infolpln 1 :" + infoLpln1);
-          console.log("horaire:", horaire);
-          console.log("test :", horaire == undefined);
-          if ((horaire == undefined) || ((horaire != undefined) && (this.dates.isInCreneauxVemgsa(horaire, mylogCpdlc, this.troisHeures) == true)  && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true))) {
+          if ((creneau == undefined) || ((creneau != undefined) && (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true))) {
             console.log("test1");
 
             //CAS 1 : arcid envoye en meme temps que le reqId dans le CPCASREQ
@@ -422,14 +378,14 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
   }
 
-  public grepPlagesHorairesFichiers(fichierSourceVemgsa: string[]): datesFile {
+  public grepPlagesHorairesFichiers(fichierSourceVemgsa: string[]): creneauHoraire {
     console.log("Classe grepVemgsa Fonction grepPlagesHorairesFichiers");
 
-    let creneau = <datesFile>{};
+    let creneau = <creneauHoraire>{};
     creneau.dateMin = "";
     creneau.dateMax = "";
 
-    let creneauTemp = <datesFile>{};
+    let creneauTemp = <creneauHoraire>{};
     for (let fichier of fichierSourceVemgsa) {
 
       creneauTemp = this.grepPlageHoraireFichier(fichier);
@@ -450,7 +406,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     return creneau;
   }
 
-  private grepPlageHoraireFichier(fichierSourceVemgsa: string): datesFile {
+  private grepPlageHoraireFichier(fichierSourceVemgsa: string): creneauHoraire {
     console.log("Classe grepVemgsa Fonction grepPlageHoraireFichier");
 
     let fichierSource = fichierSourceVemgsa;
@@ -462,7 +418,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
     let motifDate = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
     let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)/;
 
-    let creneau = <datesFile>{};
+    let creneau = <creneauHoraire>{};
 
 
     if (r === false) {
@@ -508,8 +464,8 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
   public orderVemgsa(list: string[]): string[] {
     console.log("Classe grepVemgsa Fonction orderVemgsa");
 
-    let datesFichier1: datesFile;
-    let datesFichier2: datesFile;
+    let datesFichier1: creneauHoraire;
+    let datesFichier2: creneauHoraire;
     datesFichier1 = this.grepPlageHoraireFichier(list[0]);
     datesFichier2 = this.grepPlageHoraireFichier(list[1]);
     console.log("datesFichier1: ", datesFichier1);
@@ -529,10 +485,10 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
 
-  public isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[], horaire?: datesFile): arrayDatesFile {
+  public isPlnidAndPlageHoraire(plnid: number, fichierSourceVemgsa: string[]): arrayCreneauHoraire {
     console.log("Classe grepVemgsa Fonction isPlnidAndPlageHoraire");
 
-    let result = <arrayDatesFile>{};
+    let result = <arrayCreneauHoraire>{};
     result.dates = new Array;
     result.existe = false;
 
@@ -577,18 +533,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                 const minutes = date.toString().replace(motifDateHeure, "$5");
                 const secondes = date.toString().replace(motifDateHeure, "$7");
                 const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
-
-                if ((horaire !== undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, dateToStore, this.troisHeures) == true)) {
-                  console.log("---------------->dateToStore horaire", horaire);
-                  console.log("---------------->dateToStore horaire.dateMin", horaire.dateMin);
-                  console.log("---------------->dateToStore horaire.dateMax", horaire.dateMax);
-                  result.dates.push(dateToStore);
-                }
-                if (horaire == undefined) {
-                  result.dates.push(dateToStore);
-                }
-
-
+                result.dates.push(dateToStore);
               }
             }
           }
@@ -602,11 +547,11 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
 
 
 
-  public isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: string[], horaire?: datesFile): arrayDatesFile {
+  public isArcidAndPlageHoraire(arcid: string, fichierSourceVemgsa: string[]): arrayCreneauHoraire {
     console.log("Classe grepVemgsa Fonction isArcidAndPlageHoraire");
 
 
-    let result = <arrayDatesFile>{};
+    let result = <arrayCreneauHoraire>{};
     result.dates = new Array;
     result.existe = false;
 
@@ -634,9 +579,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
           if ((mylogCpdlc.match(motifVemgsa) !== null) && ((mylogCpdlc.match(arcid) !== null))) {
 
             let arcidTrouve: string = "";
-
             if (mylogCpdlc.match(motifArcid1) !== null) {
-
               mylogCpdlc = mylogCpdlc.match(motifVemgsa);
               arcidTrouve = mylogCpdlc.toString().replace(motifArcid1, "$3").trim();
             }
@@ -659,19 +602,7 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
                   const secondes = date.toString().replace(motifDateHeure, "$7");
                   const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
                   console.log("---------------->dateToStore ", dateToStore);
-                  //TODO gerer le creneau horaire
-
-
-                  if ((horaire !== undefined) && (this.dates.isInCreneauxVemgsaHoraire(horaire, dateToStore, this.troisHeures) == true)) {
-                    console.log("---------------->dateToStore horaire", horaire);
-                    console.log("---------------->dateToStore horaire.dateMin", horaire.dateMin);
-                    console.log("---------------->dateToStore horaire.dateMax", horaire.dateMax);
-                    result.dates.push(dateToStore);
-                  }
-                  if (horaire == undefined) {
-                    result.dates.push(dateToStore);
-                  }
-
+                  result.dates.push(dateToStore);
                 }
               }
 
@@ -683,8 +614,6 @@ copier le resultat dans un fichier texte en enlevant les caracteres speciaux et 
       }
       this.readLine.fclose(r);
     }
-    result.dates.forEach(element => { console.log(element); });
-
     return result;
   }
 

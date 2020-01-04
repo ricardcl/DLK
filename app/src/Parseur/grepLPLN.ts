@@ -1,7 +1,7 @@
 import { Identifiants } from "../Modele/identifiants";
 import { Split } from './split';
 import { ReadLine } from "../scripts/node-readline/node-readline";
-import { Dates, datesFile } from "./date";
+import { Dates, creneauHoraire } from "./date";
 import moment = require("moment");
 const fs = require('fs');
 const p = require('path');
@@ -144,9 +144,9 @@ export class GrepLPLN {
    * @param arcid : arcid du vol étudié
    * @param plnid : plnid du vol étudié
    * @param fichierSourceLpln : nom du ficher LPLN contenant les logs du vol étudié
-   * @returns datesFile: {dateMin:string,dateMax:string} où les dates sont au format('DD-MM HH mm ss'); 
+   * @returns {dateMin:string,dateMax:string} où les dates sont au format('DD-MM HH mm ss'); 
    */
-  public grepDatesLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): datesFile {
+  public grepDatesLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): creneauHoraire {
     console.log("Classe grepLpln Fonction grepDatesLogLPLN", "plnid", plnid, "arcid", arcid);
 
     let fichierSource = p.resolve(this.userPath, fichierSourceLpln);
@@ -158,7 +158,7 @@ export class GrepLPLN {
       process.exit(1);
     }
 
-    let datesFichier = <datesFile>{};
+    let datesFichier = <creneauHoraire>{};
     datesFichier.dateMin = "";
     datesFichier.dateMax = "";
     let dateTemp: string = "";
@@ -307,6 +307,12 @@ export class GrepLPLN {
     return plnid;
   }
 
+  /**
+   * Fonction qui rechercher dans le fichier LPLN passé en paramètre 
+   * les identifiants (plnid, arcid) des vols loggés dans le fichier 
+   * @param fichierSource nom du fichier le log LPLN rentré par l'utilisateur
+   * @returns {[plnid,arcid]} un tableau des identifiants trouvés
+   */
   public grepPlnidAndArcid(fichierSource: string): Identifiants[] {
     console.log("Classe grepLpln Fonction grepPlnidAndArcid");
 

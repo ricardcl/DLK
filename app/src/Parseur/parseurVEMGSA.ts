@@ -8,7 +8,7 @@ import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { GrepVEMGSA } from './grepVEMGSA';
 import { Path } from '../Modele/path';
 import { Frequences } from './frequences';
-import { datesFile } from './date';
+import { creneauHoraire } from './date';
 import { ReadLine } from '../scripts/node-readline/node-readline';
 const p = require('path');
 
@@ -28,13 +28,13 @@ export class ParseurVEMGSA {
   }
 
 
-  public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau: datesFile, chosenHoraire?: datesFile): Vol {
+  public parseur(arcid: string, plnid: number, fichierSourceVemgsa: string[], creneau: creneauHoraire): Vol {
     console.log("Classe ParseurVemgsa Fonction parseur");
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
     const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser
 
     // TODO : DEPLACE DANS LA FONCTION CHECK  ?? 
-    this.grep.grepLog(arcid, plnid, fichierSourceVemgsa, creneau, chosenHoraire);
+    this.grep.grepLog(arcid, plnid, fichierSourceVemgsa, creneau);
 
     /* Ouverture du fichier à analyser*/
 

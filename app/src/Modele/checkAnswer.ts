@@ -1,15 +1,14 @@
-import { datesFile } from "../Parseur/date"; 
+import { creneauHoraire } from "../Parseur/date"; 
 import { Identifiants } from "./identifiants"; 
 import { Etat } from "./enumEtat";
  
 export interface checkAnswerInitial { 
     valeurRetour: number; 
-    arcid: string; 
-    plnid: number; 
+    arcid?: string; 
+    plnid?: number; 
     tabId?: Identifiants[]; // pour LPLN 
-    tabHoraires?: datesFile[]; //pour VEMGSA 
-    creneauVemgsa?: datesFile; //pour VEMGSA 
-    datesFichierVemgsa?: datesFile; //pour VEMGSA 
+    creneauHoraire?: creneauHoraire; //pour VEMGSA  ou LPLN
+    datesFichierVemgsa?: creneauHoraire; //pour VEMGSA 
 } 
  
 
@@ -18,6 +17,8 @@ export interface checkAnswer {
     analysePossible: boolean; 
     plnid?: number; 
     arcid?: string; 
+    creneauHoraire?: creneauHoraire;
+    listeIdentifiants?: Identifiants[];
     checkLPLN?: checkAnswerInitial; 
     checkVEMGSA?: checkAnswerInitial;    
 }
