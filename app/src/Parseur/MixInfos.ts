@@ -223,9 +223,9 @@ export class MixInfos {
 
 
     monvolFinal.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceMIX(monvolFinal.getListeLogs()));
-    console.log("array tabEtatsTransfertFrequences: ");
+    //console.log("array tabEtatsTransfertFrequences: ");
     monvolFinal.getListeEtatTransfertFrequence().forEach(element => {
-      console.log(element.frequence, element.dateTransfert, element.isTRARTV);
+      //console.log(element.frequence, element.dateTransfert, element.isTRARTV);
     });
 
     //this.evaluationEtatsLogonConnexionSimplifie(this.evaluationEtatsLogonConnexion(monvolFinal.getListeLogs()));
@@ -403,9 +403,9 @@ export class MixInfos {
 
 
     monvolVemgsa.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceVEMGSA(monvolVemgsa.getListeLogs()));
-    console.log("array tabEtatsTransfertFrequences: ");
+    //console.log("array tabEtatsTransfertFrequences: ");
     monvolVemgsa.getListeEtatTransfertFrequence().forEach(element => {
-      console.log(element.frequence, element.dateTransfert, element.isTRARTV);
+      //console.log(element.frequence, element.dateTransfert, element.isTRARTV);
     });
 
 

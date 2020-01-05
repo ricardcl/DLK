@@ -1,6 +1,7 @@
 import { Dates, creneauHoraire, arrayCreneauHoraire } from './date';
 import { ReadLine } from '../scripts/node-readline/node-readline';
 import { Split } from './split';
+import moment = require('moment');
 const fs = require('fs');
 const p = require('path');
 

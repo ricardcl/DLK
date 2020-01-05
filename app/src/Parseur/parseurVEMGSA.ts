@@ -30,26 +30,26 @@ export class ParseurVEMGSA {
   }
 
 
-  public parseur(arcid: string, plnid: number,creneau : creneauHoraire, fichierSourceVemgsa: string[]): Vol {
+  public parseur(arcid: string, plnid: number, creneau: creneauHoraire, fichierSourceVemgsa: string[]): Vol {
     console.log("Classe ParseurVemgsa Fonction parseur");
     const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
-    const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser
+    const source = p.resolve(this.grep.getUserPath(), "result.htm"); //Fichier en entree a analyser 
 
-    // TODO : DEPLACE DANS LA FONCTION CHECK  ?? 
+    // TODO : DEPLACE DANS LA FONCTION CHECK  ??  
     this.grep.grepLog(arcid, plnid, fichierSourceVemgsa, creneau);
 
     /* Ouverture du fichier à analyser*/
 
     let r = this.readLine.fopen(source, "r");
-    if (r === false) {    // Test de l ouverture du fichier
+    if (r === false) {    // Test de l ouverture du fichier 
       console.log("Error, can't open ", source);
       process.exit(1);
     }
 
     /* Initialiation des variables */
-    let numeroLigne = 0; // Numero de la de lignes lue
-    let monEtat = Etat.NonLogue; // Etat CPDLC par defaut
-    let mylisteLogsCpdlc = new Array(); //Liste des lignes lues
+    let numeroLigne = 0; // Numero de la de lignes lue 
+    let monEtat = Etat.NonLogue; // Etat CPDLC par defaut 
+    let mylisteLogsCpdlc = new Array(); //Liste des lignes lues 
 
 
 
@@ -58,39 +58,43 @@ export class ParseurVEMGSA {
     /* CREATION DU GRAPHE D ETAT */
 
     do {
-      //lecture d'une ligne du fichier
+      //lecture d'une ligne du fichier 
       let mylogCpdlc = this.readLine.fgets(r);
-      //Test de fin de fichier
+      //Test de fin de fichier 
       if (mylogCpdlc === false) { break; }
 
 
-      //Recuperation de la date/heure et des infos suivantes
+      //Recuperation de la date/heure et des infos suivantes 
       let mylogCpdlcDecompose = this.split.splitString(mylogCpdlc, 'TITLE');
       let infoGen = mylogCpdlcDecompose[0];
       let infoLog = mylogCpdlcDecompose[1];
 
-      //Creation de l objet logCpdlc et etatCpdlc
+      //Creation de l objet logCpdlc et etatCpdlc 
       let log = new EtatCpdlc(numeroLigne);
       log.setLog(infoLog);
-      //Stockage de la date/heure
-      let motifDateHeure = /(\d\d\/\d\d\/\d\d\d\d)( )(\d\d)(H)(\d\d)(')(\d\d)(.*)/;
+      //Stockage de la date/heure 
+      //  let motifDateHeure = /(\d\d\/\d\d\/\d\d\d\d)( )(\d\d)(H)(\d\d)(')(\d\d)(.*)/; 
+      let motifDateHeure = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
 
 
-      let dateHeure = infoGen.toString().match(motifDateHeure);
-      if (dateHeure !== null) {
-        const dateToStore = this.dates.vlogtoString(dateHeure.toString());
-        const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
 
+      if (infoGen.toString().match(motifDateHeure) !== null) {
+        let dateHeure = infoGen.toString().replace(motifDateHeure, "$1");
+        // console.log("date brute: ",dateHeure);
+        //const dateToStore = this.dates.vlogtoString(dateHeure.toString());
+       // console.log("date brute string: ", dateHeure.toString());
+        const momentDate = moment(dateHeure, 'DD-MM-YYYY HH mm ss');
+       // console.log("date momentDate: ", momentDate);
         log.setJour(moment(momentDate).format('DD-MM-YYYY'));
         log.setHeure(moment(momentDate).format('HH mm ss'));
         log.setDate(moment(momentDate).format('DD-MM-YYYY HH mm ss'));
-
+       // console.log("date set date : ", moment(momentDate).format('DD-MM-YYYY HH mm ss'));
         log.setAssociable(Boolean(infoGen.toString().replace(motifDateHeure, "$8")));
         if (monvol.getDate() == "") {
           monvol.setDate(log.getJour());
         }
       }
-      //Stockage des infos suivantes
+      //Stockage des infos suivantes 
       let myMap: DetailCpdlc[] = this.split.stringToDetailCpdlc(infoLog);
 
       log.setDetailLog(myMap);
@@ -98,7 +102,7 @@ export class ParseurVEMGSA {
       log.setIsTypeCPC(true);
       monvol.getListeLogs().push(log);
 
-      //automate a etat sur la variable etat
+      //automate a etat sur la variable etat 
       if ((log.getTitle() == "CPCCLOSLNK") || (log.getTitle() == "CPCFREQ")) {
         if (log.getDetaillog()["FREQ"] !== undefined) {
           let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
@@ -113,7 +117,7 @@ export class ParseurVEMGSA {
     } while (!this.readLine.eof(r));
 
     this.readLine.fclose(r);
-    //fs.closeSync(w);
+    //fs.closeSync(w); 
 
     return monvol;
   }
