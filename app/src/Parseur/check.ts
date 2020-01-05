@@ -11,10 +11,9 @@ export class Check {
 
     private dates: Dates;
 
-    constructor() {
+    constructor(dates: Dates) {
         console.log("Je rentre dans le constructor Check ");
-
-        this.dates = new Dates();
+        this.dates = dates;
     }
     /** 
      * Fonction permettant de déterminer le contexte d'étude en fonction des fichiers de logs fournis 

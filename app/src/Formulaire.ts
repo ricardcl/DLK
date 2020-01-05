@@ -9,12 +9,13 @@ import { Path } from './Modele/path';
 import { Check } from './Parseur/check';
 import { MixInfos } from './Parseur/MixInfos';
 import { Frequences } from './Parseur/frequences';
-import { creneauHoraire } from './Parseur/date';
+import { creneauHoraire, Dates } from './Parseur/date';
 import { ParseurLPLN } from './Parseur/parseurLPLN';
 import { ParseurVEMGSA } from './Parseur/ParseurVEMGSA';
 import { LogBook } from './logBook';
 import { Database } from './database';
 import { Identifiants } from './Modele/identifiants';
+import { Split } from './Parseur/split';
 
 
 
@@ -32,16 +33,23 @@ export class Formulaire {
     private frequences: Frequences;
     private logBook: LogBook;
     private database: Database;
+    private dates: Dates;
+    private split: Split;
 
     constructor() {
+        console.log("Je rentre dans le constructor Formulaire ");
+
         this.users = new UsersRepository(Path.userPath);
         this.users.deleteAllUsers();
 
         this.app.listen(4000);
         this.initSocket();
-        this.check = new Check();
-        this.mixInfos = new MixInfos();
+        this.split = new Split();
+        this.dates = new Dates(this.split);
         this.frequences = new Frequences();
+        this.check = new Check(this.dates);
+        this.mixInfos = new MixInfos(this.dates, this.frequences);
+
         this.logBook = LogBook.getInstance();
         this.database = new Database();
     }
@@ -55,10 +63,10 @@ export class Formulaire {
 
             let clientId: string = socket.id;
             this.users.createUser(clientId);
-            this.grepVEMGSA = new GrepVEMGSA(Path.userPath + "/" + clientId);
-            this.grepLPLN = new GrepLPLN(Path.userPath + "/" + clientId);
-            this.parseurLPLN = new ParseurLPLN(this.grepLPLN);
-            this.parseurVEMGSA = new ParseurVEMGSA(this.grepVEMGSA);
+            this.grepVEMGSA = new GrepVEMGSA(Path.userPath + "/" + clientId, this.dates);
+            this.grepLPLN = new GrepLPLN(Path.userPath + "/" + clientId, this.dates, this.split);
+            this.parseurLPLN = new ParseurLPLN(this.grepLPLN, this.dates, this.split,this.frequences);
+            this.parseurVEMGSA = new ParseurVEMGSA(this.grepVEMGSA, this.dates, this.split,this.frequences);
             let uploader = new SocketIOFileUpload();
             uploader.dir = Path.userPath + "/" + clientId;
             uploader.listen(socket);
@@ -111,9 +119,9 @@ export class Formulaire {
 
             socket.on('analysing', (id: Identifiants, lplnfilename, vemgsafilename, checkanswer: checkAnswer) => {
                 this.logBook.writeLogBook(clientId, "analysing " + "arcid: " + id.arcid + "plnid: " + id.plnid + "lplnfilename: " + lplnfilename + "vemgsafilename: " + vemgsafilename);
-                console.log("analysing données recues: "+"arcid "+ id.arcid, "plnid: ", id.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
-                console.log("analysing données recues: ","creneauHoraire",id.dates);
-                console.log("analysing données recues: ","inLpln",id.inLpln,"inVemgsa",id.inVemgsa);
+                console.log("analysing données recues: " + "arcid " + id.arcid, "plnid: ", id.plnid, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                console.log("analysing données recues: ", "creneauHoraire", id.dates);
+                console.log("analysing données recues: ", "inLpln", id.inLpln, "inVemgsa", id.inVemgsa);
 
                 console.log("this.contexte av", this.contexte);
 
@@ -138,7 +146,7 @@ export class Formulaire {
                           }
   
                         */
-                        console.log("analysedVol Contexte.LPLN", "arcid: ", id.arcid, "plnid: ", id.plnid, 'creneauHoraire', id.dates, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        console.log("analysedVol Contexte.LPLN");
                         socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
                         //recuperation du vol dans le fichier json
                         //console.log("!!!!JSON this.logBook.readFlightLogFile");
@@ -146,11 +154,11 @@ export class Formulaire {
 
                         break;
                     case Contexte.VEMGSA:
-                        console.log("analysedVol Contexte.VEMGSA", "arcid: ", id.arcid, "plnid: ", id.plnid, 'creneauHoraire', id.dates, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        console.log("analysedVol Contexte.VEMGSA");
                         socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
                         break;
                     case Contexte.LPLNVEMGSA:
-                        console.log("analysedVol Contexte.LPLN et VEMGSA : données LPLN ete VEMGSA", "arcid: ", id.arcid, "plnid: ", id.plnid, 'creneauHoraire', id.dates, 'lplnfilename : ', lplnfilename, 'vemgsafilename : ', vemgsafilename, 'checkanswer : ', checkanswer);
+                        console.log("analysedVol Contexte.LPLN et VEMGSA");
 
 
                         if ((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 2)) {

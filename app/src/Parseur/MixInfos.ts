@@ -16,11 +16,12 @@ export class MixInfos {
   private timeout: number = 2 * this.uneMinute;
   private frequences: Frequences;
 
-  constructor() {
+  constructor(dates : Dates,frequences : Frequences) {
     console.log("Je rentre dans le constructor MixInfos ");
-    this.dates = new Dates();
-    this.grapheEtat = new GrapheEtat();
-    this.frequences = new Frequences();
+    this.dates = dates;
+    this.frequences = frequences;
+    this.grapheEtat = new GrapheEtat( this.frequences);
+
   }
 
   //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!! 

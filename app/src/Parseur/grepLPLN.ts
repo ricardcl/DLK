@@ -19,11 +19,11 @@ export class GrepLPLN {
   private dates: Dates;
 
 
-  constructor(userPath: string) {
+  constructor(userPath: string,dates:Dates,split:Split) {
     console.log("Je rentre dans le constructor GrepLPLN ");
-    this.dates = new Dates();
+    this.dates = dates;
     this.userPath = userPath;
-    this.split = new Split();
+    this.split = split;
     this.readLine = new ReadLine();
   }
 

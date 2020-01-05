@@ -19,12 +19,12 @@ export class ParseurLPLN {
   private frequences: Frequences;
   private readLine: ReadLine;
 
-  constructor(grep: GrepLPLN) {
+  constructor(grep: GrepLPLN, dates:Dates,split:Split,frequences:Frequences) {
     console.log("Je rentre dans le constructor parseurLpln ");
     this.grep = grep;
-    this.split = new Split();
-    this.dates = new Dates();
-    this.frequences = new Frequences();
+    this.split =split;
+    this.dates = dates;
+    this.frequences = frequences;
     this.readLine = new ReadLine();
   }
 

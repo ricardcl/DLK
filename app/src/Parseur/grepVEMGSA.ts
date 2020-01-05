@@ -19,11 +19,11 @@ export class GrepVEMGSA {
   private readLine: ReadLine;
   //private diffMax: number;
 
-  constructor(userPath: string) {
+  constructor(userPath: string,dates:Dates) {
     console.log("Je rentre dans le constructor GrepVEMGSA ");
 
     this.userPath = userPath;
-    this.dates = new Dates();
+    this.dates = dates;
     this.uneMinute = 60000;
     //this.diffMax = 10 * this.uneMinute;
     this.uneHeure = 60 * this.uneMinute;
@@ -252,8 +252,8 @@ export class GrepVEMGSA {
     let reqid = 0;
     let plnid = 0;
 
-    console.log("--------------->grepPlnidFromArcid :  creneau ", creneau);
-    console.log("--------------->grepPlnidFromArcid :  arcid ", arcid);
+    //console.log("--------------->grepPlnidFromArcid :  creneau ", creneau);
+    //console.log("--------------->grepPlnidFromArcid :  arcid ", arcid);
     let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
     let motifVemgsa = /\d\d\/\d\d\/\d\d\d\d\s.*-[A-Z]+\s+[A-Z|\d]+/;
 
@@ -441,8 +441,8 @@ export class GrepVEMGSA {
             let date = mylogCpdlc.toString().replace(motifDate, "$1");
             //  console.log("date: ",date);
             if (date.match(motifDateHeure) !== null) {
-              
-              const dateToStore =this.dates.vlogtoString(date);
+
+              const dateToStore = this.dates.vlogtoString(date);
               if (creneau.dateMin == undefined) {
                 creneau.dateMin = dateToStore;
               }
@@ -504,7 +504,7 @@ export class GrepVEMGSA {
     else {
       motifPlnid = "-PLNID " + plnid;
     }
-    console.log("motifPlnid: ", motifPlnid);
+    //console.log("motifPlnid: ", motifPlnid);
 
     for (let fichier of fichierSourceVemgsa) {
       let fichierSource = fichier;
@@ -528,7 +528,7 @@ export class GrepVEMGSA {
               //  console.log("date a: ",date);
 
               if (date.match(motifDateHeure) !== null) {
-               result.dates.push(this.dates.vlogtoString(date));
+                result.dates.push(this.dates.vlogtoString(date));
               }
             }
           }
@@ -536,7 +536,7 @@ export class GrepVEMGSA {
       }
       this.readLine.fclose(r);
     }
-    result.dates.forEach(element => { console.log(element); });
+    //result.dates.forEach(element => { console.log(element); });
     return result;
   }
 
@@ -591,13 +591,7 @@ export class GrepVEMGSA {
                 //  console.log("date a: ",date);
 
                 if (date.match(motifDateHeure) !== null) {
-                  const jour = date.toString().replace(motifDateHeure, "$1");
-                  const heure = date.toString().replace(motifDateHeure, "$3");
-                  const minutes = date.toString().replace(motifDateHeure, "$5");
-                  const secondes = date.toString().replace(motifDateHeure, "$7");
-                  const dateToStore = jour + " " + heure + " " + minutes + " " + secondes;
-                  console.log("---------------->dateToStore ", dateToStore);
-                  result.dates.push(dateToStore);
+                  result.dates.push(this.dates.vlogtoString(date));
                 }
               }
 

@@ -16,8 +16,9 @@ export class Dates {
 
     private split: Split;
 
-    constructor() {
-        this.split = new Split();
+    constructor(split: Split) {
+        console.log("Je rentre dans le constructor Dates ");
+        this.split =split;
     }
 
     public MonthLetterToNumber(month: string): string {
@@ -164,7 +165,7 @@ export class Dates {
                 }
             }
         }
-        console.log("creneauHorairex trouves :", creneauHoraire);
+       // console.log("creneauHorairex trouves :", creneauHoraire);
         return creneauHoraire;
     }
 

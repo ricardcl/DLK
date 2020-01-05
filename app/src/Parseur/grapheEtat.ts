@@ -6,9 +6,9 @@ export class GrapheEtat {
 
     private frequences: Frequences;
 
-    constructor() {
+    constructor(frequences:Frequences) {
         console.log("Je rentre dans le constructor GrapheEtat ");
-        this.frequences = new Frequences();
+        this.frequences = frequences;
     }
 
     public evaluateGrapheEtat(vol: Vol): Vol {

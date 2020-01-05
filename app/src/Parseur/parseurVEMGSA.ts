@@ -19,12 +19,12 @@ export class ParseurVEMGSA {
   private readLine: ReadLine;
   private dates: Dates;
 
-  constructor(grep: GrepVEMGSA) {
+  constructor(grep: GrepVEMGSA,dates:Dates,split:Split,frequences:Frequences) {
     console.log("Je rentre dans le constructor parseurVemgsa ");
     this.grep = grep;
-    this.dates = new Dates();
-    this.split = new Split();
-    this.frequences = new Frequences();
+    this.dates = dates;
+    this.split = split;
+    this.frequences = frequences;
     this.readLine = new ReadLine();
 
   }
