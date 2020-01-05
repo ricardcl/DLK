@@ -130,37 +130,44 @@ export class Check {
 
         for (let index = 0; index < creneau.length; index++) {
             const creneauLocal = creneau[index];
-            //console.log("index: ", index, "creneau local: ",creneauLocal);
+            console.log("index: ", index, "creneau local: ", creneauLocal);
 
             if ((arcid == "") && (plnid !== 0)) {
+                let idLocal = <Identifiants>{};
+                idLocal.dates = <creneauHoraire>{};
+                idLocal.plnid = plnid;
+                idLocal.dates = creneauLocal;
+                idLocal.arcid = "";
+                idLocal.identifie = false;
                 for (let fichier of fichierSourceVemgsa) {
-                    let idLocal = <Identifiants>{};
-                    idLocal.dates = <creneauHoraire>{};
-                    idLocal.plnid = plnid;
-                    idLocal.dates = creneauLocal;
+                    console.log("fichier ", fichier);
                     idLocal.arcid = grepVEMGSA.grepArcidFromPlnid(plnid, fichier, creneauLocal);
-                    //console.log("arcid trouve : "+idLocal.arcid); 
+                    console.log("arcid trouve : " + idLocal.arcid);
                     if (idLocal.arcid !== "") {
                         idLocal.identifie = true;
-                        id.tabId.push(idLocal);
                         break;
                     }
                 }
+                id.tabId.push(idLocal);
             }
             if ((arcid !== "") && (plnid == 0)) {
+                let idLocal = <Identifiants>{};
+                idLocal.dates = <creneauHoraire>{};
+                idLocal.arcid = arcid;
+                idLocal.dates = creneauLocal;
+                idLocal.plnid = 0;
+                idLocal.identifie = false;
                 for (let fichier of fichierSourceVemgsa) {
-                    let idLocal = <Identifiants>{};
-                    idLocal.dates = <creneauHoraire>{};
-                    idLocal.arcid = arcid;
-                    idLocal.dates = creneauLocal;
+
                     idLocal.plnid = grepVEMGSA.grepPlnidFromArcid(arcid, fichier, creneauLocal);
                     console.log("plnid trouve : " + idLocal.plnid);
                     if (idLocal.plnid !== 0) {
                         idLocal.identifie = true;
-                        id.tabId.push(idLocal);
                         break;
                     }
                 }
+                id.tabId.push(idLocal);
+
             }
         }
 
@@ -436,39 +443,49 @@ export class Check {
                 answer.checkVEMGSA = <checkAnswerInitial>{};
                 answer.checkLPLN = this.checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
                 answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, grepVEMGSA);
-                console.log("Contexte LPLN et VEMGSA");
 
+                console.log("Contexte LPLN et VEMGSA");
+                //si couple trouvé entier dans LPLN ou trouvé au moins en partie dans VEMGSA
                 if ((answer.checkLPLN.valeurRetour == 0) || (answer.checkVEMGSA.valeurRetour <= 2)) {
                     answer.analysePossible = true;
-                    answer.listeIdentifiants = answer.checkVEMGSA.tabId;
                 }
-                
+                //si couple trouvé au moins en partie dans VEMGSA on recupere les identifants trouves
+                if (answer.checkVEMGSA.valeurRetour <= 2) {
+                    answer.listeIdentifiants = answer.checkVEMGSA.tabId;
+                    answer.listeIdentifiants.forEach(element => {
+                        element.inVemgsa = true;
+                    });
+                }
+                //si couple trouvé entier dans LPLN  on recupere les identifants trouves
                 if (answer.checkLPLN.valeurRetour == 0) {
-                    console.log("cas LPLN et VEMGSA : arcid et plnid du LPLN OK");
                     let idLocal = <Identifiants>{};
                     idLocal.dates = <creneauHoraire>{};
                     idLocal.arcid = answer.checkLPLN.arcid;
                     idLocal.plnid = answer.checkLPLN.plnid;
                     idLocal.dates = answer.checkLPLN.creneauHoraire;
                     idLocal.identifie = true;
+                    idLocal.inLpln = true;
                     let isCompatible: boolean = false;
-             
+
+                    //comparaison des identifiants trouvés dans LPLN avec ceux trouvés dans VEMGSA
                     answer.listeIdentifiants.forEach(element => {
-                        element.inVemgsa = true;
                         let creneauLocal = this.dates.isCreneauxCompatibles(idLocal.dates, element.dates);
-                        if (creneauLocal !== null) {
+                        //si les creneaux sont compatibles et les identifiant trouves totalement identique
+                        //ajout du LPLN                        
+                        if ((creneauLocal !== null) && ((idLocal.arcid == element.arcid) && (idLocal.plnid == element.plnid))) {
                             isCompatible = true;
                             element.inLpln = true;
                             console.log("compatible");
-                            //TODO comparer les arcid plnid .....
                             element.dates = creneauLocal;
                         }
                     });
+                    //si les creneaux ne sont pas compatibles ou les identifiant trouves non identiques
+                    // ou si pas de resultat vemgsa
+                    //ajout du LPLN
                     if (!isCompatible) {
                         answer.listeIdentifiants.push(idLocal);
                     }
                 }
-
                 console.log("listeIdentifiants : " + answer.listeIdentifiants);
                 console.log("answer.analysePossible : " + answer.analysePossible);
                 break;
@@ -492,6 +509,7 @@ export class Check {
 
 
     public isFileLPLNComplete(arcid: string, plnid: number, grepLPLN: GrepLPLN): boolean {
+        //TO DO
         return true;
     }
 

@@ -162,7 +162,7 @@ export class GrepVEMGSA {
           break;
         }
         //l'arcid est present au maximum une heure avant le plnid 
-        if (this.dates.diffDateVTest(mylogCpdlc, creneau.dateMin, -5) == true) {
+        if (this.dates.diffDateV(mylogCpdlc, creneau.dateMin, -5) == true) {
           if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(plnid) !== null)) {
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             let plnidTrouve: number;
@@ -548,7 +548,7 @@ export class GrepVEMGSA {
           // console.log((mylogCpdlc.match(motifVemgsa) !== null),(mylogCpdlc.match(motifPlnid) !== null));
 
           if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null)) {
-            console.log("mylogCpdlc", mylogCpdlc);
+           // console.log("mylogCpdlc", mylogCpdlc);
 
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             result.existe = true;
@@ -556,7 +556,7 @@ export class GrepVEMGSA {
 
             if (mylogCpdlc.toString().match(motifDate) !== null) {
               let date = mylogCpdlc.toString().replace(motifDate, "$1");
-              //  console.log("date a: ",date);
+             //   console.log("date a: ",date);
 
               if (date.match(motifDateHeure) !== null) {
                 result.dates.push(this.dates.vlogtoString(date));
@@ -567,7 +567,7 @@ export class GrepVEMGSA {
       }
       this.readLine.fclose(r);
     }
-    result.dates.forEach(element => { console.log("isPlnidAndPlageHoraire", element); });
+    //result.dates.forEach(element => { console.log("isPlnidAndPlageHoraire", element); });
     return result;
   }
 
