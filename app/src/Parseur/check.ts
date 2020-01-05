@@ -289,9 +289,9 @@ export class Check {
      *   2 : VEMGSA incomplet ( plnid trouvé mais arcid non trouve) 
      *   3 : VEMGSA incomplet ( plnid non trouve car connexion refusee ) 
      *   4 : VEMGSA incomplet ( arcid non trouve car ...) 
-     *   6 : VEMGSA NOK ( pas d'info trouvé pour l'id donné) 
-     *   7 : VEMGSA NOK ( erreur format identifiant) 
-     *   8 : VEMGSA NOK ( pbm ouverture du fichier) 
+     *   5 : VEMGSA NOK ( pas d'info trouvé pour l'id donné) 
+     *   6 : VEMGSA NOK ( erreur format identifiant) 
+     *   7 : VEMGSA NOK ( pbm ouverture du fichier) 
      *   et où messageRetour donne une explication en cas d'echec 
      */
     public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA): checkAnswerInitial {
@@ -303,10 +303,10 @@ export class Check {
         let plageHoraire = <arrayCreneauHoraire>{};
         plageHoraire.dates = new Array;
         let answer = <checkAnswerInitial>{};
-        answer.valeurRetour = 7;
+        answer.valeurRetour = 6;
         answer.plnid = 0;
         answer.arcid = "";
-
+       
 
         if (((arcid !== "") && (plnid == 0) && (!arcid.match(regexpArcid))) || ((arcid == "") && (plnid !== 0) && (!plnid.toString().match(regexpPlnid)))) {
             return answer;
@@ -335,8 +335,7 @@ export class Check {
                 else {
                     // console.log(" check VEMGSA C");
                     // console.log("arcid non trouvé");
-                    answer.valeurRetour = 6;
-                    answer.datesFichierVemgsa = null;//TODO / recuperer du formulaire grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
+                    answer.valeurRetour = 5;
                     //  console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
                 }
             }
@@ -361,14 +360,12 @@ export class Check {
                 }
                 else {
                     //console.log(" check VEMGSA H");
-                    answer.valeurRetour = 6;
-                    answer.datesFichierVemgsa = null;//TODO / recuperer du formulaire grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
-                    //console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
+                    answer.valeurRetour = 5;
                 }
             }
         } catch (exception) {
             console.log("erreur lors de l'ouverture du fichier VEMGSA:", exception.code);
-            answer.valeurRetour = 8;
+            answer.valeurRetour = 7;
         }
         console.log("CHECK VEMGSA");
         console.log("answer.arcid", answer.arcid);
@@ -404,6 +401,7 @@ export class Check {
         let answer = <checkAnswer>{};
         answer.analysePossible = false;
         answer.listeIdentifiants = [];
+
 
         switch (contexte) {
             case Contexte.LPLN:
@@ -498,11 +496,13 @@ export class Check {
         }
 
         console.log("Analyse Possible ? : ", +answer.analysePossible);
-        answer.listeIdentifiants.forEach(id => {
-            console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
-            console.log(" id.dates.dateMin: ", id.dates.dateMin, " id.dates.dateMax: ", id.dates.dateMax);
+        if (answer.analysePossible) {
+            answer.listeIdentifiants.forEach(id => {
+                console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
+                console.log(" id.dates.dateMin: ", id.dates.dateMin, " id.dates.dateMax: ", id.dates.dateMax);
 
-        });
+            });
+        }
         return answer;
     }
 

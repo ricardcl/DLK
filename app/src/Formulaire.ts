@@ -14,7 +14,7 @@ import { ParseurLPLN } from './Parseur/parseurLPLN';
 import { ParseurVEMGSA } from './Parseur/ParseurVEMGSA';
 import { LogBook } from './logBook';
 import { Database } from './database';
-import { Identifiants } from './Modele/identifiants';
+import { Identifiants, inputData } from './Modele/identifiants';
 import { Split } from './Parseur/split';
 
 
@@ -99,20 +99,20 @@ export class Formulaire {
                 console.log("typeof listVemgsaInput.length", listVemgsaInput.length);
                 console.log("analyseDataInput", "arcid", arcid);
                 console.log("analyseDataInput", "plnid", plnid);
-                let listVemgsa = new Array;
+                let plageVemgsa = new Array;
                 if (listVemgsaInput.length >= 2) {
-                    listVemgsa = this.grepVEMGSA.orderVemgsa(listVemgsaInput);
+                    plageVemgsa = this.grepVEMGSA.orderVemgsa(listVemgsaInput);
                 }
                 else if (listVemgsaInput.length == 1) {
-                    listVemgsa[0] = listVemgsaInput[0];
+                    plageVemgsa[0] = listVemgsaInput[0];
                 }
 
                 //TODO : gérer l'envoi par l'utilisateur de deux fichiers identiques
 
 
-                this.contexte = this.check.evaluationContexte(lpln, listVemgsa);
+                this.contexte = this.check.evaluationContexte(lpln, plageVemgsa);
                 let resultCheck = <checkAnswer>{};
-                resultCheck = this.check.check(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA, );
+                resultCheck = this.check.check(arcid, plnid, lpln, plageVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA );
                 socket.emit("check", resultCheck);
 
             });
@@ -124,6 +124,11 @@ export class Formulaire {
                 console.log("analysing données recues: ", "inLpln", id.inLpln, "inVemgsa", id.inVemgsa);
 
                 console.log("this.contexte av", this.contexte);
+
+                let inputData:inputData = <inputData>{};
+                inputData.identifiant = id;
+                inputData.lplnfilename = lplnfilename;
+                inputData.vemgsafilename = vemgsafilename;
 
                 if ((this.contexte == Contexte.LPLNVEMGSA) && (!id.inLpln)) {
                     this.contexte = Contexte.VEMGSA;
@@ -147,7 +152,7 @@ export class Formulaire {
   
                         */
                         console.log("analysedVol Contexte.LPLN");
-                        socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
+                        socket.emit("analysedVol", "LPLN",inputData, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
                         //recuperation du vol dans le fichier json
                         //console.log("!!!!JSON this.logBook.readFlightLogFile");
                         //this.logBook.readFlightLogFile();
@@ -155,7 +160,7 @@ export class Formulaire {
                         break;
                     case Contexte.VEMGSA:
                         console.log("analysedVol Contexte.VEMGSA");
-                        socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
+                        socket.emit("analysedVol", "VEMGSA", inputData,null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
                         break;
                     case Contexte.LPLNVEMGSA:
                         console.log("analysedVol Contexte.LPLN et VEMGSA");
@@ -169,7 +174,7 @@ export class Formulaire {
                             //         volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename,this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa); 
 
 
-                            socket.emit("analysedVol", "MIX",
+                            socket.emit("analysedVol", "MIX",inputData,
                                 //null,    
                                 this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN),
                                 //volLpln,
@@ -184,12 +189,12 @@ export class Formulaire {
                             if (checkanswer.checkLPLN.valeurRetour <= 1) {
                                 console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 2 ");
 
-                                socket.emit("analysedVol", "LPLN", this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
+                                socket.emit("analysedVol", "LPLN",inputData, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
                             }
                             else {
                                 console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 3 ");
 
-                                socket.emit("analysedVol", "VEMGSA", null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
+                                socket.emit("analysedVol", "VEMGSA",inputData, null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
                             }
                         }
 

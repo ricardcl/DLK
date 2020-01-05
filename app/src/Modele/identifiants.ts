@@ -20,4 +20,9 @@ export function sameIdent( idL : Identifiants, idV : Identifiants) : boolean{
 
 }
 
+export interface inputData{
+    identifiant:Identifiants;
+    lplnfilename:string;
+    vemgsafilename:string;
+}
 

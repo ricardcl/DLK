@@ -2,13 +2,15 @@ import { creneauHoraire } from "../Parseur/date";
 import { Identifiants } from "./identifiants"; 
 import { Etat } from "./enumEtat";
  
+
+
 export interface checkAnswerInitial { 
     valeurRetour: number; 
     arcid?: string; 
     plnid?: number; 
     tabId?: Identifiants[]; // pour LPLN 
     creneauHoraire?: creneauHoraire; //pour VEMGSA  ou LPLN
-    datesFichierVemgsa?: creneauHoraire; //pour VEMGSA 
+
 } 
  
 
