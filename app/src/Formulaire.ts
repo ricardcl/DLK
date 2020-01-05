@@ -112,7 +112,7 @@ export class Formulaire {
 
                 this.contexte = this.check.evaluationContexte(lpln, listVemgsa);
                 let resultCheck = <checkAnswer>{};
-                resultCheck = this.check.check(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA);
+                resultCheck = this.check.check(arcid, plnid, lpln, listVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA, );
                 socket.emit("check", resultCheck);
 
             });

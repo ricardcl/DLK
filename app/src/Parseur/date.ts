@@ -122,7 +122,7 @@ export class Dates {
      * @param log  : date brut d'un log VEMGSA
      * @param creneauLimite : date VEMGSA  au format DD-MM-YYYY HH mm ss
      * @param diff : la différence en minutes
-     * @returns true si (Date log - creneau limite) > diff
+     * @returns true si (Date log - creneau limite) >= diff
      */
     public diffDateV(log: string, creneauLimite: string, diff: number): boolean {
         let result: boolean = false;
@@ -167,7 +167,7 @@ export class Dates {
                 const diffMoment: number = momentDateLog.diff(momentDateCreneau);
 
                 const diffMS = diff * this.uneMinute;
-                //console.log("diffMS", diffMS, "diffMoment", diffMoment);
+                console.log("diffMS", diffMS, "diffMoment", diffMoment);
 
                 if (diffMoment >= diffMS) {
                     result = true;
@@ -186,7 +186,7 @@ export class Dates {
  * @param log  : date brut d'un log VEMGSA
  * @param creneauLimite : date VEMGSA  au format DD-MM-YYYY HH mm ss
  * @param diff : la différence en minutes
- * @returns true si (Date log - creneau limite) >= diff
+ * @returns true si (Date log - creneau limite) > diff
  */
     public diffDateVstrict(log: string, creneauLimite: string, diff: number): boolean {
         let result: boolean = false;

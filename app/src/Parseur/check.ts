@@ -143,7 +143,7 @@ export class Check {
                     if (idLocal.arcid !== "") {
                         idLocal.identifie = true;
                         id.tabId.push(idLocal);
-                      //  break;
+                        break;
                     }
                 }
             }
@@ -158,7 +158,7 @@ export class Check {
                     if (idLocal.plnid !== 0) {
                         idLocal.identifie = true;
                         id.tabId.push(idLocal);
-                      //  break;
+                        break;
                     }
                 }
             }
@@ -329,7 +329,7 @@ export class Check {
                     // console.log(" check VEMGSA C");
                     // console.log("arcid non trouvé");
                     answer.valeurRetour = 6;
-                    answer.datesFichierVemgsa = grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
+                    answer.datesFichierVemgsa = null;//TODO / recuperer du formulaire grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
                     //  console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
                 }
             }
@@ -355,7 +355,7 @@ export class Check {
                 else {
                     //console.log(" check VEMGSA H");
                     answer.valeurRetour = 6;
-                    answer.datesFichierVemgsa = grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
+                    answer.datesFichierVemgsa = null;//TODO / recuperer du formulaire grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
                     //console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
                 }
             }
@@ -440,8 +440,9 @@ export class Check {
 
                 if ((answer.checkLPLN.valeurRetour == 0) || (answer.checkVEMGSA.valeurRetour <= 2)) {
                     answer.analysePossible = true;
+                    answer.listeIdentifiants = answer.checkVEMGSA.tabId;
                 }
-                answer.listeIdentifiants = answer.checkVEMGSA.tabId;
+                
                 if (answer.checkLPLN.valeurRetour == 0) {
                     console.log("cas LPLN et VEMGSA : arcid et plnid du LPLN OK");
                     let idLocal = <Identifiants>{};
@@ -451,6 +452,7 @@ export class Check {
                     idLocal.dates = answer.checkLPLN.creneauHoraire;
                     idLocal.identifie = true;
                     let isCompatible: boolean = false;
+             
                     answer.listeIdentifiants.forEach(element => {
                         element.inVemgsa = true;
                         let creneauLocal = this.dates.isCreneauxCompatibles(idLocal.dates, element.dates);

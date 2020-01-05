@@ -158,38 +158,37 @@ export class GrepVEMGSA {
 
         //l'arcid est toujours present dans les logs vemgsa avant le plnid 
         //=> on ne cherche que dans la plage horaire avant le creneau des plnids donné en pramètre
-        if (this.dates.diffDateV(mylogCpdlc, creneau.dateMin, 0) == true) {
+        if (this.dates.diffDateVstrict(mylogCpdlc, creneau.dateMin, 0) == true) {
           break;
         }
-        else {
-          //l'arcid est present au maximum une heure avant le plnid 
-          if (this.dates.diffDateV(mylogCpdlc, creneau.dateMin, -5) == true) {
-            if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(plnid) !== null)) {
-              mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-              let plnidTrouve: number;
-              plnidTrouve = mylogCpdlc.toString().replace(motif1, "$9").trim();
-              if (Number(plnid) == Number(plnidTrouve)) {
-                arcid = mylogCpdlc.toString().replace(motif1, "$5").trim();
-                break;
-              }
+        //l'arcid est present au maximum une heure avant le plnid 
+        if (this.dates.diffDateVTest(mylogCpdlc, creneau.dateMin, -5) == true) {
+          if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif1) !== null) && (mylogCpdlc.match(plnid) !== null)) {
+            mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+            let plnidTrouve: number;
+            plnidTrouve = mylogCpdlc.toString().replace(motif1, "$9").trim();
+            if (Number(plnid) == Number(plnidTrouve)) {
+              arcid = mylogCpdlc.toString().replace(motif1, "$5").trim();
+              break;
             }
+          }
 
 
-            else if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif2) !== null) && (mylogCpdlc.match(plnid) !== null)) {
-              mylogCpdlc = mylogCpdlc.match(motifVemgsa);
-              let plnidTrouve: number;
-              plnidTrouve = mylogCpdlc.toString().replace(motif2, "$5").trim();
-              if (Number(plnid) == Number(plnidTrouve)) {
-                reqid = mylogCpdlc.toString().replace(motif2, "$7").trim();
-                reqid = Number(String(reqid).substr(1));
-                console.log("reqid trouve: ", reqid);
+          else if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motif2) !== null) && (mylogCpdlc.match(plnid) !== null)) {
+            mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+            let plnidTrouve: number;
+            plnidTrouve = mylogCpdlc.toString().replace(motif2, "$5").trim();
+            if (Number(plnid) == Number(plnidTrouve)) {
+              reqid = mylogCpdlc.toString().replace(motif2, "$7").trim();
+              reqid = Number(String(reqid).substr(1));
+              console.log("reqid trouve: ", reqid);
 
-                arcid = this.grepArcidFromReqid(reqid, fichierSourceVemgsa, creneau);
-                break;
-              }
+              arcid = this.grepArcidFromReqid(reqid, fichierSourceVemgsa, creneau);
+              break;
             }
           }
         }
+
 
 
       } while (!this.readLine.eof(r));
@@ -229,33 +228,31 @@ export class GrepVEMGSA {
 
         //l'arcid est toujours present dans les logs vemgsa avant le plnid 
         //=> on ne cherche que dans la plage horaire avant le creneau des plnids donné en pramètre
-        if (this.dates.diffDateV(mylogCpdlc, creneau.dateMin, 0) == true) {
+        if (this.dates.diffDateVstrict(mylogCpdlc, creneau.dateMin, 0) == true) {
           break;
         }
-        else {
-          //l'arcid est present au maximum une heure avant le plnid 
-          if (this.dates.diffDateV(mylogCpdlc, creneau.dateMin, -1) == true) {
-            // if (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true) {
+        //l'arcid est present au maximum une heure avant le plnid 
+        if (this.dates.diffDateV(mylogCpdlc, creneau.dateMin, -1) == true) {
+          // if (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc, this.troisHeures) == true) {
 
-            if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match(motif1) !== null)) {
-              mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+          if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match(motif1) !== null)) {
+            mylogCpdlc = mylogCpdlc.match(motifVemgsa);
 
-              reqidTest = mylogCpdlc.toString().replace(motif1, "$9").trim();
-              if (reqidTest == reqid) {
-                arcid = mylogCpdlc.toString().replace(motif1, "$3").trim();
-                break;
-              }
-
+            reqidTest = mylogCpdlc.toString().replace(motif1, "$9").trim();
+            if (reqidTest == reqid) {
+              arcid = mylogCpdlc.toString().replace(motif1, "$3").trim();
+              break;
             }
-            else if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match(motif2) !== null)) {
 
-              mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+          }
+          else if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(reqid) !== null) && (mylogCpdlc.match(motif2) !== null)) {
 
-              reqidTest = mylogCpdlc.toString().replace(motif2, "$7").trim();
-              if (reqidTest == reqid) {
-                arcid = mylogCpdlc.toString().replace(motif2, "$3").trim();
-                break;
-              }
+            mylogCpdlc = mylogCpdlc.match(motifVemgsa);
+
+            reqidTest = mylogCpdlc.toString().replace(motif2, "$7").trim();
+            if (reqidTest == reqid) {
+              arcid = mylogCpdlc.toString().replace(motif2, "$3").trim();
+              break;
             }
           }
         }
@@ -531,10 +528,13 @@ export class GrepVEMGSA {
     else {
       motifPlnid = "-PLNID " + plnid;
     }
-    //console.log("motifPlnid: ", motifPlnid);
+    console.log("motifPlnid: ", motifPlnid);
 
     for (let fichier of fichierSourceVemgsa) {
+
       let fichierSource = fichier;
+      console.log("test", "fic", fichierSource, "plnid", plnid);
+
       let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
 
       if (r === false) {
@@ -545,10 +545,14 @@ export class GrepVEMGSA {
         do {
           let mylogCpdlc = this.readLine.fgets(r);
           if (mylogCpdlc === false) { break; }
+          // console.log((mylogCpdlc.match(motifVemgsa) !== null),(mylogCpdlc.match(motifPlnid) !== null));
 
           if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null)) {
+            console.log("mylogCpdlc", mylogCpdlc);
+
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             result.existe = true;
+
 
             if (mylogCpdlc.toString().match(motifDate) !== null) {
               let date = mylogCpdlc.toString().replace(motifDate, "$1");
@@ -563,7 +567,7 @@ export class GrepVEMGSA {
       }
       this.readLine.fclose(r);
     }
-    //result.dates.forEach(element => { console.log(element); });
+    result.dates.forEach(element => { console.log("isPlnidAndPlageHoraire", element); });
     return result;
   }
 
