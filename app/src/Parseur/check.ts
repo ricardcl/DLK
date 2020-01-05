@@ -140,9 +140,11 @@ export class Check {
                     idLocal.dates = creneauLocal;
                     idLocal.arcid = grepVEMGSA.grepArcidFromPlnid(plnid, fichier, creneauLocal);
                     //console.log("arcid trouve : "+idLocal.arcid); 
-                    idLocal.identifie = (idLocal.arcid !== "");
-                    id.tabId.push(idLocal);
-                    break;
+                    if (idLocal.arcid !== "") {
+                        idLocal.identifie = true;
+                        id.tabId.push(idLocal);
+                      //  break;
+                    }
                 }
             }
             if ((arcid !== "") && (plnid == 0)) {
@@ -153,9 +155,11 @@ export class Check {
                     idLocal.dates = creneauLocal;
                     idLocal.plnid = grepVEMGSA.grepPlnidFromArcid(arcid, fichier, creneauLocal);
                     console.log("plnid trouve : " + idLocal.plnid);
-                    idLocal.identifie = (idLocal.plnid !== 0);
-                    id.tabId.push(idLocal);
-                    break;
+                    if (idLocal.plnid !== 0) {
+                        idLocal.identifie = true;
+                        id.tabId.push(idLocal);
+                      //  break;
+                    }
                 }
             }
         }
@@ -283,14 +287,14 @@ export class Check {
      *   8 : VEMGSA NOK ( pbm ouverture du fichier) 
      *   et où messageRetour donne une explication en cas d'echec 
      */
-    public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], contexte: Contexte, grepVEMGSA: GrepVEMGSA): checkAnswerInitial {
+    public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA): checkAnswerInitial {
         console.log("Classe check Fonction checkVEMGSA");
         //TODO gérer le contexte passé en entrée
         let regexpPlnid: RegExp = /^\d{1,4}$/;
         let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
         let id = <Identifiants>{};
-        let result = <arrayCreneauHoraire>{};
-        result.dates = new Array;
+        let plageHoraire = <arrayCreneauHoraire>{};
+        plageHoraire.dates = new Array;
         let answer = <checkAnswerInitial>{};
         answer.valeurRetour = 7;
         answer.plnid = 0;
@@ -306,43 +310,43 @@ export class Check {
                 //TODO cas 3 ou 4 à analyse !!! 
                 answer.arcid = arcid;
                 //Recherche de l'ARCID dans le fichier VEMGSA 
-                result = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
-              //  console.log(" result   :", result);
-                if (result.existe == true) {
+                plageHoraire = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
+                //  console.log(" result   :", result);
+                if (plageHoraire.existe == true) {
                     answer.valeurRetour = 0;
-                  //  console.log(" check VEMGSA A");
-                    id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, result);
-                   // console.log("id.tabId.length ", id.tabId.length);
+                    //  console.log(" check VEMGSA A");
+                    id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, plageHoraire);
+                    // console.log("id.tabId.length ", id.tabId.length);
                     id.tabId.forEach(element => {
                         if (!element.identifie) {
-                     //       console.log(" couple VEMGSA non complet");
+                            //       console.log(" couple VEMGSA non complet");
                             answer.valeurRetour = 1;
                         }
                     });
                     answer.tabId = id.tabId;
                 }
                 else {
-                   // console.log(" check VEMGSA C");
-                   // console.log("arcid non trouvé");
+                    // console.log(" check VEMGSA C");
+                    // console.log("arcid non trouvé");
                     answer.valeurRetour = 6;
                     answer.datesFichierVemgsa = grepVEMGSA.grepPlagesHorairesFichiers(fichierSourceVemgsa);
-                  //  console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
+                    //  console.log("answer.datesFichierVemgsa", answer.datesFichierVemgsa);
                 }
             }
             if ((arcid == "") && (plnid !== 0)) {
                 //TODO cas 3 ou 4 à analyse !!! 
                 answer.plnid = plnid;
                 //console.log(" check VEMGSA E");
-                result = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+                plageHoraire = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
                 //console.log(" result   :", result);
-                if (result.existe == true) {
+                if (plageHoraire.existe == true) {
                     answer.valeurRetour = 0;
-                  //  console.log(" check VEMGSA F");
-                    id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, result);
+                    //  console.log(" check VEMGSA F");
+                    id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, plageHoraire);
                     //console.log("id.tabId.length ", id.tabId.length);
                     id.tabId.forEach(element => {
                         if (!element.identifie) {
-                      //      console.log(" couple VEMGSA non complet");
+                            //      console.log(" couple VEMGSA non complet");
                             answer.valeurRetour = 2;
                         }
                     });
@@ -405,7 +409,7 @@ export class Check {
                     idLocal.arcid = answer.checkLPLN.arcid;
                     idLocal.plnid = answer.checkLPLN.plnid;
                     idLocal.dates = answer.checkLPLN.creneauHoraire;
-                    idLocal.inLpln=true;
+                    idLocal.inLpln = true;
                     idLocal.identifie = true;
                     answer.listeIdentifiants.push(idLocal);
                     answer.analysePossible = true;
@@ -418,7 +422,7 @@ export class Check {
                 break;
             case Contexte.VEMGSA:
                 answer.checkVEMGSA = <checkAnswerInitial>{};
-                answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, contexte, grepVEMGSA);
+                answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, grepVEMGSA);
                 answer.listeIdentifiants = answer.checkVEMGSA.tabId;
                 answer.analysePossible = (answer.checkVEMGSA.valeurRetour <= 2);
                 //answer.arcid = answer.checkVEMGSA.arcid;
@@ -431,7 +435,7 @@ export class Check {
                 answer.checkLPLN = <checkAnswerInitial>{};
                 answer.checkVEMGSA = <checkAnswerInitial>{};
                 answer.checkLPLN = this.checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
-                answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, contexte, grepVEMGSA);
+                answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, grepVEMGSA);
                 console.log("Contexte LPLN et VEMGSA");
 
                 if ((answer.checkLPLN.valeurRetour == 0) || (answer.checkVEMGSA.valeurRetour <= 2)) {
@@ -448,7 +452,7 @@ export class Check {
                     idLocal.identifie = true;
                     let isCompatible: boolean = false;
                     answer.listeIdentifiants.forEach(element => {
-                        element.inVemgsa=true;
+                        element.inVemgsa = true;
                         let creneauLocal = this.dates.isCreneauxCompatibles(idLocal.dates, element.dates);
                         if (creneauLocal !== null) {
                             isCompatible = true;
@@ -478,7 +482,7 @@ export class Check {
         answer.listeIdentifiants.forEach(id => {
             console.log(" id.arcid: ", id.arcid, " id.plnid: ", id.plnid, " id.identifie: ", id.identifie);
             console.log(" id.dates.dateMin: ", id.dates.dateMin, " id.dates.dateMax: ", id.dates.dateMax);
-            
+
         });
         return answer;
     }

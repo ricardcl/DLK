@@ -15,10 +15,16 @@ export interface arrayCreneauHoraire {
 export class Dates {
 
     private split: Split;
+    private uneMinute: number;
+    private uneHeure: number;
+    private troisHeures: number;
 
     constructor(split: Split) {
         console.log("Je rentre dans le constructor Dates ");
-        this.split =split;
+        this.split = split;
+        this.uneMinute = 60000;
+        this.uneHeure = 60 * this.uneMinute;
+        this.troisHeures = 3 * this.uneHeure;
     }
 
     public MonthLetterToNumber(month: string): string {
@@ -46,7 +52,7 @@ export class Dates {
     //Pas pour comparer des heures LPLN entre elles ou des heures VEMGSA entre elles
     public isHeuresLplnVemgsaEgales(hV: string, hL: string): boolean {
 
-        const uneMinute: number = 60000;
+
         const momentDateV = moment(hV, 'HH mm');
         const momentDateL = moment(hL, 'HH mm');
         /**
@@ -57,7 +63,7 @@ export class Dates {
         */
 
         const diff: number = Math.abs(momentDateV.diff(momentDateL)); //Rmq : diff renvoie un resultat en ms
-        if (diff <= uneMinute) { return true; }
+        if (diff <= this.uneMinute) { return true; }
         else { return false; }
     }
 
@@ -111,6 +117,101 @@ export class Dates {
         else { return false; }
     }
 
+    /**
+     * Fonction qui compare la date d'un  log VEMGSA et d'un date VEMGSA  au format DD-MM-YYYY HH mm ss
+     * @param log  : date brut d'un log VEMGSA
+     * @param creneauLimite : date VEMGSA  au format DD-MM-YYYY HH mm ss
+     * @param diff : la différence en minutes
+     * @returns true si (Date log - creneau limite) > diff
+     */
+    public diffDateV(log: string, creneauLimite: string, diff: number): boolean {
+        let result: boolean = false;
+        const momentDateCreneau = moment(creneauLimite, 'DD-MM-YYYY HH mm ss');
+
+        let motif = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d")(\s.*-[A-Z]+\s+[A-Z|\d]+)/;
+        let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
+//console.log("log:",log);
+
+        if (log.toString().match(motif) !== null) {
+            let date = log.toString().replace(motif, "$1");
+         //   console.log("date", date);
+            if (date.match(motifDateHeure) !== null) {
+                const momentDateLog = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss');
+                const diffMoment: number = momentDateLog.diff(momentDateCreneau);
+               // console.log("momentDateLog", momentDateLog, "momentDateCreneau", momentDateCreneau);
+
+                const diffMS = diff * this.uneMinute;
+               // console.log("diffMS", diffMS, "diffMoment", diffMoment);
+
+                if (diffMoment >= diffMS) {
+                    result = true;
+                }
+            }
+        }
+        return result;
+    }
+
+    public diffDateVTest(log: string, creneauLimite: string, diff: number): boolean {
+        let result: boolean = false;
+        const momentDateCreneau = moment(creneauLimite, 'DD-MM-YYYY HH mm ss');
+
+        let motif = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d")(\s.*-[A-Z]+\s+[A-Z|\d]+)/;
+        let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
+        //console.log("log:",log);
+
+        if (log.toString().match(motif) !== null) {
+            let date = log.toString().replace(motif, "$1");
+           // console.log("date", date);
+            if (date.match(motifDateHeure) !== null) {
+                const momentDateLog = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss');
+                const diffMoment: number = momentDateLog.diff(momentDateCreneau);
+
+                const diffMS = diff * this.uneMinute;
+                //console.log("diffMS", diffMS, "diffMoment", diffMoment);
+
+                if (diffMoment >= diffMS) {
+                    result = true;
+                    console.log("log", momentDateLog, "c", momentDateCreneau,"diffMoment", diffMoment,"result",result);
+
+                }
+
+            }
+        }
+
+        return result;
+    }
+
+    /**
+ * Fonction qui compare la date d'un  log VEMGSA et d'un date VEMGSA  au format DD-MM-YYYY HH mm ss
+ * @param log  : date brut d'un log VEMGSA
+ * @param creneauLimite : date VEMGSA  au format DD-MM-YYYY HH mm ss
+ * @param diff : la différence en minutes
+ * @returns true si (Date log - creneau limite) >= diff
+ */
+    public diffDateVstrict(log: string, creneauLimite: string, diff: number): boolean {
+        let result: boolean = false;
+        const momentDateCreneau = moment(creneauLimite, 'DD-MM-YYYY HH mm ss');
+
+        let motif = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d")(\s.*-[A-Z]+\s+[A-Z|\d]+)/;
+        let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
+        if (log.toString().match(motif) !== null) {
+            let date = log.toString().replace(motif, "$1");
+
+
+            if (date.match(motifDateHeure) !== null) {
+
+                const momentDateLog = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss');
+                const diffMoment: number = momentDateLog.diff(momentDateCreneau);
+
+                const diffMS = diff * this.uneMinute;
+                if (diffMoment > diffMS) {
+                    result = true;
+                }
+            }
+        }
+        return result;
+    }
+
     public diffDates(d1: string, d2: string): number {
         let momentDate1 = moment(d1, 'DD-MM HH mm ss');
         if (!momentDate1.isValid()) {
@@ -134,9 +235,7 @@ export class Dates {
     public getCreneaux(dates: string[]): creneauHoraire[] {
         let arrayHeuresTrouvees: string[] = dates;
         let creneauHoraire = new Array;
-        const uneMinute: number = 60000;
-        const uneHeure: number = 60 * uneMinute;
-        let troisHeures = 3 * uneHeure;
+
         let i: number = 0;
 
         creneauHoraire[i] = <arrayCreneauHoraire>{};
@@ -146,7 +245,7 @@ export class Dates {
             const element = dates[index];
             const elementPrec = dates[index - 1];
             if (index == dates.length - 1) {
-                if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
+                if (this.diffHeuresVemgsaEgales(element, elementPrec) > this.troisHeures) {
                     creneauHoraire[i].dateMax = elementPrec;
                     creneauHoraire[i + 1] = <arrayCreneauHoraire>{};
                     creneauHoraire[i + 1].dateMin = element;
@@ -157,7 +256,7 @@ export class Dates {
                 }
             }
             else {
-                if (this.diffHeuresVemgsaEgales(element, elementPrec) > troisHeures) {
+                if (this.diffHeuresVemgsaEgales(element, elementPrec) > this.troisHeures) {
                     creneauHoraire[i].dateMax = elementPrec;
                     i++;
                     creneauHoraire[i] = <arrayCreneauHoraire>{};
@@ -165,7 +264,7 @@ export class Dates {
                 }
             }
         }
-       // console.log("creneauHorairex trouves :", creneauHoraire);
+        // console.log("creneauHorairex trouves :", creneauHoraire);
         return creneauHoraire;
     }
 
@@ -174,7 +273,7 @@ export class Dates {
         let isIn: boolean = false;
 
         //console.log("dates.dateMin",dates.dateMin);
-        
+
         const momentDate1 = moment(dates.dateMin, 'DD-MM-YYYY HH mm ss');
         //console.log("momentDate1",momentDate1);
 
@@ -193,10 +292,10 @@ export class Dates {
 
             if (date.match(motifDateHeure) !== null) {
                 //console.log("date",date);
-                
-               
-                const momentDate = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss'); 
- 
+
+
+                const momentDate = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss');
+
 
                 const diff1: number = momentDate.diff(momentDate1);
                 const diff2: number = momentDate.diff(momentDate2);
@@ -214,32 +313,7 @@ export class Dates {
     }
 
 
-    // dateToStore au format = jour + " " + heure + " " + minutes + " " + secondes;
-    public isIncreneauHorairexVemgsaHoraire(dates: creneauHoraire, dateToStore: string, diffMax: number): boolean {
 
-
-
-
-        let isIn: boolean = false;
-
-        const momentDate1 = moment(dates.dateMin, 'DD-MM-YYYY HH mm ss');
-        const momentDate2 = moment(dates.dateMax, 'DD-MM-YYYY HH mm ss');
-
-        const momentDate = moment(dateToStore, 'DD-MM-YYYY HH mm ss');
-
-
-        const diff1: number = momentDate.diff(momentDate1);
-        const diff2: number = momentDate.diff(momentDate2);
-
-
-        if (((diff1 >= 0) || (diff1 >= -diffMax)) && ((diff2 <= 0) || (diff2 <= diffMax))) {
-            isIn = true;
-        }
-
-        return isIn;
-    }
-
-   
     /**
      * Transforme une date moment.Moment (lpln ou vemgsa avec le champ YYYY)  en string au format 'DD-MM-YYYY HH mm ss'
      * @param date 
@@ -301,9 +375,6 @@ export class Dates {
      */
     public isCreneauxCompatibles(cL: creneauHoraire, cV: creneauHoraire): creneauHoraire {
         //TO DO : gerer le cas ou les dates VEMGSA sont sur deux années différentes
-        const uneMinute = 60000;
-        const uneHeure = 60 * uneMinute;
-        const troisHeures = 3 * uneHeure;
 
         // console.log("cL1", cL.dateMin, "cL2", cL.dateMax, "cV1", cV.dateMin, "cV2", cV.dateMax);
 
@@ -343,7 +414,7 @@ export class Dates {
         // |cV1 -cL1| < 3heure ET  |cV2 -cL2|< 3heure
 
 
-        const condition = ((Math.abs(diff1) < troisHeures) && (Math.abs(diff2) < troisHeures));
+        const condition = ((Math.abs(diff1) < this.troisHeures) && (Math.abs(diff2) < this.troisHeures));
 
         if (condition) {
             if (diff1 >= 0) {
@@ -362,7 +433,7 @@ export class Dates {
         else {
             result = null;
         }
-       // console.log("cL1", cL1, "cL2", cL2, "cV1", cV1, "cV2", cV2);
+        // console.log("cL1", cL1, "cL2", cL2, "cV1", cV1, "cV2", cV2);
         //console.log("(Math.abs(diff1) < troisHeures)", (Math.abs(diff1) < troisHeures), "(Math.abs(diff1)", Math.abs(diff1), "troisHeures",troisHeures);
         //console.log("(Math.abs(diff2) < troisHeures)", (Math.abs(diff2) < troisHeures), "(Math.abs(diff2)", Math.abs(diff2), "troisHeures",troisHeures);
         //console.log("(Math.abs(diff3) < troisHeures)", (Math.abs(diff3) < troisHeures), "(Math.abs(diff3)", Math.abs(diff3), "troisHeures",troisHeures);
