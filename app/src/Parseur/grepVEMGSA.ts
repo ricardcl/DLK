@@ -88,21 +88,22 @@ export class GrepVEMGSA {
             break;
           }
           if (mylogCpdlc.match(motif) !== null) {
-            //si les logs VEMGSA ont plus de trois heures que l'arcid,  on sort du fichier
+            //si les logs VEMGSA ont plus de trois heures que le creneau,  on sort du fichier
             if (this.dates.diffDateV(mylogCpdlc, creneau.dateMax, 180) == true) {
               break;
             }
             else {
-              //on ne regarde que les logs datés après la date de l'arcid précisée dane le creneau
-              if (this.dates.diffDateV(mylogCpdlc, creneau.dateMax, 0) == true) {
-
+              //on ne regarde que les logs à plus ou moins trois heures du creneau
+              if (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true) {
                 mylogCpdlc = mylogCpdlc.match(motif);
 
                 if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0)) {
+                  console.log("grepLog : ", mylogCpdlc);
                   fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                 }
                 else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
                   if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "")) {
+                    console.log("grepLog : ", mylogCpdlc);
                     fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                   }
 
@@ -112,6 +113,7 @@ export class GrepVEMGSA {
                     let reqidTest = Number(String(reqidTrouve).substr(1));
                     console.log("-----------------> reqidTest ", reqidTest);
                     if (reqidTest == reqid) {
+                      console.log("grepLog : ", mylogCpdlc);
                       fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                     }
                     else {
@@ -548,7 +550,7 @@ export class GrepVEMGSA {
           // console.log((mylogCpdlc.match(motifVemgsa) !== null),(mylogCpdlc.match(motifPlnid) !== null));
 
           if ((mylogCpdlc.match(motifVemgsa) !== null) && (mylogCpdlc.match(motifPlnid) !== null)) {
-           // console.log("mylogCpdlc", mylogCpdlc);
+            // console.log("mylogCpdlc", mylogCpdlc);
 
             mylogCpdlc = mylogCpdlc.match(motifVemgsa);
             result.existe = true;
@@ -556,7 +558,7 @@ export class GrepVEMGSA {
 
             if (mylogCpdlc.toString().match(motifDate) !== null) {
               let date = mylogCpdlc.toString().replace(motifDate, "$1");
-             //   console.log("date a: ",date);
+              //   console.log("date a: ",date);
 
               if (date.match(motifDateHeure) !== null) {
                 result.dates.push(this.dates.vlogtoString(date));

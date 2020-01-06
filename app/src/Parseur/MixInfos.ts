@@ -16,16 +16,16 @@ export class MixInfos {
   private timeout: number = 2 * this.uneMinute;
   private frequences: Frequences;
 
-  constructor(dates : Dates,frequences : Frequences) {
+  constructor(dates: Dates, frequences: Frequences) {
     console.log("Je rentre dans le constructor MixInfos ");
     this.dates = dates;
     this.frequences = frequences;
-    this.grapheEtat = new GrapheEtat( this.frequences);
+    this.grapheEtat = new GrapheEtat(this.frequences);
 
   }
 
   //Fonction a utiliser si fichiers LPLN ET VEMGSA definis  !!!!!!!!!!!!!!!!!!!! 
-  public mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number, creneauHoraire:creneauHoraire): Vol {
+  public mixInfos(volLpln: Vol, volVemgsa: Vol, arcid: string, plnid: number, creneauHoraire: creneauHoraire): Vol {
     console.log("Classe MixInfos Fonction mixInfos");
 
 
@@ -109,7 +109,7 @@ export class MixInfos {
       let positionTransfert = "";
       let isLplnParcouru: boolean = false;
       monvolFinal.addElt(elt);
-      //console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure()); 
+      console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure());
 
       //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées 
       if ((elt.getTitle() == 'CPCFREQ') || ((elt.getTitle() == 'CPCCLOSLNK') && (elt.getDetaillog()["FREQ"] !== undefined))) {
@@ -127,13 +127,13 @@ export class MixInfos {
             //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes 
             volLpln.getListeLogs().forEach((eltL, keyL) => {
 
-               // console.log("eltL", eltL.getTitle(),"eltL.getHeure()",eltL.getHeure(),"heureTransfert",heureTransfert,"elt position", eltL.getDetaillog()['POSITION'] ,'positionTransfert', positionTransfert );
-               // console.log("!!! eltL", eltL.getDetaillog());
+              // console.log("eltL", eltL.getTitle(),"eltL.getHeure()",eltL.getHeure(),"heureTransfert",heureTransfert,"elt position", eltL.getDetaillog()['POSITION'] ,'positionTransfert', positionTransfert );
+              // console.log("!!! eltL", eltL.getDetaillog());
               if (eltL.getTitle() == 'TRFDL') {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= this.uneMinute) {
-                //  console.log("eltL TRFDL", eltL.getTitle());
+                  //  console.log("eltL TRFDL", eltL.getTitle());
                   positionTransfert = eltL.getDetaillog()['POSITION'];
-                 // console.log("Position", positionTransfert);
+                  // console.log("Position", positionTransfert);
                   //console.log(" heure de transfert: ", heureTransfert); 
                   monvolFinal.addElt(eltL); //TODO?? Vérifier que ce n'est pas utile : raisonnement : redondant avec le CPCFREQ ??
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
@@ -142,14 +142,14 @@ export class MixInfos {
               }
               if (eltL.getTitle() == 'FIN TRFDL') {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
-               //   console.log("eltL FIN TRFDL", eltL.getTitle());
+                  //   console.log("eltL FIN TRFDL", eltL.getTitle());
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
                   monvolFinal.addElt(eltL);
                 }
               }
               if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
-                 // console.log("eltL TRARTV", eltL.getTitle());
+                  // console.log("eltL TRARTV", eltL.getTitle());
                   //console.log("eltL", eltL); 
                   monvolFinal.addElt(eltL);
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
@@ -158,7 +158,7 @@ export class MixInfos {
 
               if ((eltL.getTitle() == 'ETATDL') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
-               //   console.log("eltL ETATDL", eltL.getTitle());
+                  //   console.log("eltL ETATDL", eltL.getTitle());
                   //console.log("eltL", eltL); 
                   monvolFinal.addElt(eltL);
                   //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
@@ -176,35 +176,39 @@ export class MixInfos {
 
     })
 
-    //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA 
-    let creneau = <creneauHoraire>{};
-//creneau = creneauHoraire;
-    creneau.dateMin = volVemgsa.getListeLogs()[0].getDate();
-    creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getDate();
-     console.log("creneau.dateMin: ", creneau.dateMin);
-     console.log("creneau.dateMax: ", creneau.dateMax);
+    //si des logs vemgsa ont été trouvé 
+    if (volVemgsa.getListeLogs().length !== 0) {
+      //RECUPERATION DES INFOS LPLN QUI SONT DATEES AVANT OU APRES LES LOGS VEMGSA 
+      let creneau = <creneauHoraire>{};
+      //creneau = creneauHoraire;
+      creneau.dateMin = volVemgsa.getListeLogs()[0].getDate();
+      creneau.dateMax = volVemgsa.getListeLogs()[volVemgsa.getListeLogs().length - 1].getDate();
+      console.log("creneau.dateMin: ", creneau.dateMin);
+      console.log("creneau.dateMax: ", creneau.dateMax);
 
-    let vemgsaMinVsLpln: boolean;
-    let vemgsaMaxVsLpln: boolean;
-    let diffVemgsaMinLpln: number;
-    let diffVemgsaMaxLpln: number;
+      let vemgsaMinVsLpln: boolean;
+      let vemgsaMaxVsLpln: boolean;
+      let diffVemgsaMinLpln: number;
+      let diffVemgsaMaxLpln: number;
 
-    volLpln.getListeLogs().forEach((eltL, key) => {
-      // console.log("ajout supp LPLN: ", eltL.getTitle(), eltL.getDate());
+      volLpln.getListeLogs().forEach((eltL, key) => {
+        // console.log("ajout supp LPLN: ", eltL.getTitle(), eltL.getDate());
 
-      diffVemgsaMinLpln = this.dates.diffDates(creneau.dateMin, eltL.getDate());
-      diffVemgsaMaxLpln = this.dates.diffDates(eltL.getDate(), creneau.dateMax);
-      vemgsaMinVsLpln = this.dates.isDateSup(creneau.dateMin, eltL.getDate());
-      vemgsaMaxVsLpln = this.dates.isDateSup(eltL.getDate(), creneau.dateMax);
+        diffVemgsaMinLpln = this.dates.diffDates(creneau.dateMin, eltL.getDate());
+        diffVemgsaMaxLpln = this.dates.diffDates(eltL.getDate(), creneau.dateMax);
+        vemgsaMinVsLpln = this.dates.isDateSup(creneau.dateMin, eltL.getDate());
+        vemgsaMaxVsLpln = this.dates.isDateSup(eltL.getDate(), creneau.dateMax);
 
-      // console.log("diffVemgsaMinLpln",diffVemgsaMinLpln,"diffVemgsaMaxLpln", diffVemgsaMaxLpln,"vemgsaMinVsLpln",vemgsaMinVsLpln,"vemgsaMaxVsLpln",vemgsaMaxVsLpln );
+        // console.log("diffVemgsaMinLpln",diffVemgsaMinLpln,"diffVemgsaMaxLpln", diffVemgsaMaxLpln,"vemgsaMinVsLpln",vemgsaMinVsLpln,"vemgsaMaxVsLpln",vemgsaMaxVsLpln );
 
-      if (((diffVemgsaMinLpln > this.uneMinute) && vemgsaMinVsLpln) || ((diffVemgsaMaxLpln > 2 * this.uneMinute) && vemgsaMaxVsLpln)) {
-        monvolFinal.addElt(eltL);
-        // console.log("ajout supp LPLN: ", eltL.getDate());
+        if (((diffVemgsaMinLpln > this.uneMinute) && vemgsaMinVsLpln) || ((diffVemgsaMaxLpln > 2 * this.uneMinute) && vemgsaMaxVsLpln)) {
+          monvolFinal.addElt(eltL);
+          // console.log("ajout supp LPLN: ", eltL.getDate());
 
-      }
-    });
+        }
+      });
+    }
+
 
     //console.log("resultat vol final : ");
     monvolFinal = this.sortLogs(monvolFinal);
@@ -319,7 +323,7 @@ export class MixInfos {
 
   }
 
-  public InfosVemgsa(arcid: string, plnid: number,  creneau: creneauHoraire,fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA): Vol {
+  public InfosVemgsa(arcid: string, plnid: number, creneau: creneauHoraire, fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA): Vol {
     console.log("Classe MixInfos Fonction InfosVemgsa");
 
 
@@ -329,7 +333,7 @@ export class MixInfos {
     let monvolVemgsa = new Vol(arcid, plnid);
     //pv.identification(arcid, plnid, fichierSourceVemgsa); 
 
-    monvolVemgsa = ParseurVEMGSA.parseur(arcid, plnid, creneau, fichierSourceVemgsa );
+    monvolVemgsa = ParseurVEMGSA.parseur(arcid, plnid, creneau, fichierSourceVemgsa);
     let nbLogsCpdlc: number = 0;
     let hasCPASREQ: boolean = false;
     let hasCPCEND: boolean = false;
@@ -418,8 +422,8 @@ export class MixInfos {
     monvolVemgsa.initLogonConnexionResults();
     monvolVemgsa = this.grapheEtat.evaluateGrapheEtat(monvolVemgsa);
 
-    
-       return monvolVemgsa;
+
+    return monvolVemgsa;
   }
 
   public sortLogs(vol: Vol): Vol {
@@ -474,7 +478,7 @@ export class MixInfos {
       let etatTransfertFreq = <etatTransfertFrequence>{};
       if ((etatCpdlc.getTitle() == 'CPCFREQ') || (etatCpdlc.getTitle() == 'TRFDL')) {
 
-       // console.log("--------Test transfert Frequence----------");
+        // console.log("--------Test transfert Frequence----------");
         dateFreq = etatCpdlc.getDate();
         etatTransfertFreq.dateTransfert = dateFreq;
         //console.log("date transfert:", etatTransfertFreq.dateTransfert);
@@ -537,7 +541,7 @@ export class MixInfos {
             etatTransfertFreq.deltaT = this.dates.diffDates(dateFreq, dateTemp);
           }
         });
-      //  console.log("------------------------------------------");
+        //  console.log("------------------------------------------");
 
 
         if (etatCpdlc.getTitle() == 'TRFDL') {
@@ -577,13 +581,13 @@ export class MixInfos {
       let etatTransfertFreq = <etatTransfertFrequence>{};
       if ((etatCpdlc.getTitle() == 'CPCFREQ') || ((etatCpdlc.getTitle() == 'CPCCLOSLNK') && (etatCpdlc.getDetaillog()["FREQ"] !== undefined))) {
 
-     //   console.log("--------Test transfert Frequence----------");
+        //   console.log("--------Test transfert Frequence----------");
         dateFreq = etatCpdlc.getDate();
         etatTransfertFreq.dateTransfert = dateFreq;
         etatTransfertFreq.frequence = this.frequences.conversionFreq(etatCpdlc.getDetaillog()["FREQ"]);
 
-       // console.log("date transfert:", etatTransfertFreq.dateTransfert);
-       // console.log("frequence transfert:", etatTransfertFreq.frequence);
+        // console.log("date transfert:", etatTransfertFreq.dateTransfert);
+        // console.log("frequence transfert:", etatTransfertFreq.frequence);
 
         listeLogs.forEach(etatCpdlcTemp => {
           dateTemp = etatCpdlcTemp.getDate();
@@ -610,7 +614,7 @@ export class MixInfos {
 
 
         });
-       // console.log("------------------------------------------");
+        // console.log("------------------------------------------");
 
         //cas possibles
 
@@ -714,7 +718,7 @@ export class MixInfos {
 
 
         });
-       // console.log("------------------------------------------");
+        // console.log("------------------------------------------");
 
         //cas possibles
 
@@ -739,12 +743,12 @@ export class MixInfos {
 
 
   private removeYear(etatTransfertFreq: etatTransfertFrequence): void {
-   // console.log("elt.dateTransfert", etatTransfertFreq.dateTransfert);
+    // console.log("elt.dateTransfert", etatTransfertFreq.dateTransfert);
     const momentDate1 = moment(etatTransfertFreq.dateTransfert, 'DD-MM-yyyy HH mm ss');
     if (momentDate1.isValid()) {
       etatTransfertFreq.dateTransfert = moment(momentDate1).format('DD-MM HH mm ss')
     }
-   // console.log("etatTransfertFreq.dateTransfert after", etatTransfertFreq.dateTransfert);
+    // console.log("etatTransfertFreq.dateTransfert after", etatTransfertFreq.dateTransfert);
   }
 
 
