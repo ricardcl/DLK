@@ -42,20 +42,20 @@ export class MixInfos {
 
     if (volLpln.getAdep() == volVemgsa.getAdep()) {
       monvolFinal.setAdep(volLpln.getAdep());
-      monvolFinal.setCmpAdep("OK");
+      monvolFinal.setCmpAdep(true);
     }
-    else { monvolFinal.setCmpAdep("KO"); }
+    else { monvolFinal.setCmpAdep(false); }
 
     if (volLpln.getAdes() == volVemgsa.getAdes()) {
       monvolFinal.setAdes(volLpln.getAdes());
-      monvolFinal.setCmpAdes("OK");
+      monvolFinal.setCmpAdes(true);
     }
-    else { monvolFinal.setCmpAdes("KO"); }
+    else { monvolFinal.setCmpAdes(false); }
 
     if (volLpln.getArcid() == volVemgsa.getArcid()) {
-      monvolFinal.setCmpArcid("OK");
+      monvolFinal.setCmpArcid(true);
     }
-    else { monvolFinal.setCmpArcid("KO"); }
+    else { monvolFinal.setCmpArcid(false); }
 
     if (volLpln.getEquipementCpdlc() == "EQUIPE") {
       monvolFinal.setEquipementCpdlc("EQUIPE");
@@ -67,32 +67,32 @@ export class MixInfos {
     if (volLpln.getAdrDeposee() == volLpln.getAdrModeSInf()) {
       monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
       monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
-      monvolFinal.setCmpAdrModeS("OK");
+      monvolFinal.setCmpAdrModeS(true);
     }
     else {
       monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
       monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
-      monvolFinal.setCmpAdrModeS("KO");
+      monvolFinal.setCmpAdrModeS(false);
     }
 
-    if ((volLpln.getLogonInitie() == "OK") || (volVemgsa.getLogonInitie() == "OK")) {
-      monvolFinal.setLogonInitie("OK");
+    if ((volLpln.getLogonInitie() == true) || (volVemgsa.getLogonInitie() == true)) {
+      monvolFinal.setLogonInitie(true);
     }
-    else { monvolFinal.setLogonInitie("KO"); }
+    else { monvolFinal.setLogonInitie(false); }
 
-    if ((volLpln.getLogonAccepte() == "OK") || (volVemgsa.getLogonAccepte() == "OK")) {
-      monvolFinal.setLogonAccepte("OK");
+    if ((volLpln.getLogonAccepte() == true) || (volVemgsa.getLogonAccepte() == true)) {
+      monvolFinal.setLogonAccepte(true);
     }
     else {
-      monvolFinal.setLogonAccepte("KO");
+      monvolFinal.setLogonAccepte(false);
     }
 
-    if ((monvolFinal.getLogonAccepte() == "OK") || (monvolFinal.getCmpAdep() && monvolFinal.getCmpAdes()
+    if ((monvolFinal.getLogonAccepte() == true) || (monvolFinal.getCmpAdep() && monvolFinal.getCmpAdes()
       && monvolFinal.getCmpAdrModeS() && monvolFinal.getCmpArcid() && monvolFinal.getEquipementCpdlc())) {
-      monvolFinal.setConditionsLogon("OK");
+      monvolFinal.setConditionsLogon(true);
     }
     else {
-      monvolFinal.setConditionsLogon("KO");
+      monvolFinal.setConditionsLogon(false);
     }
 
     if (volVemgsa.getHaslogCpdlc() || volLpln.getHaslogCpdlc()) {
@@ -259,12 +259,12 @@ export class MixInfos {
     //RECUPERATION DES ATTRIBUTS 
 
     if (monvolLpln.getAdrDeposee() == monvolLpln.getAdrModeSInf()) {
-      monvolLpln.setCmpAdrModeS("OK");
-    } else { monvolLpln.setCmpAdrModeS("KO"); }
+      monvolLpln.setCmpAdrModeS(true);
+    } else { monvolLpln.setCmpAdrModeS(false); }
 
 
-    if (monvolLpln.getLogonAccepte() == "OK") {
-      monvolLpln.setConditionsLogon("OK");
+    if (monvolLpln.getLogonAccepte() == true) {
+      monvolLpln.setConditionsLogon(true);
     }
 
 
@@ -274,16 +274,16 @@ export class MixInfos {
 
     monvolLpln.getListeLogs().forEach(etatCpdlc => {
       if (etatCpdlc.getTitle() == 'CPCASREQ') {
-        monvolLpln.setLogonInitie("OK");
+        monvolLpln.setLogonInitie(true);
         hasCPASREQ = true;
       }
 
       if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
-        monvolLpln.setLogonAccepte("OK");
+        monvolLpln.setLogonAccepte(true);
 
       }
       if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F')) {
-        monvolLpln.setLogonAccepte("KO");
+        monvolLpln.setLogonAccepte(false);
       }
       if (etatCpdlc.getTitle() == 'CPCEND') {
         hasCPCEND = true;
@@ -350,7 +350,7 @@ export class MixInfos {
         monvolVemgsa.setAdes(etatCpdlc.getDetaillog()['ADES']);
         monvolVemgsa.setAdrDeposee(etatCpdlc.getDetaillog()['ARCADDR']);
         monvolVemgsa.setArcid(etatCpdlc.getDetaillog()['ARCID']);
-        monvolVemgsa.setLogonInitie("OK");
+        monvolVemgsa.setLogonInitie(true);
         hasCPASREQ = true;
       }
 
@@ -367,10 +367,10 @@ export class MixInfos {
 
       if (etatCpdlc.getTitle() == 'CPCASRES') {
         if ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L')) {
-          monvolVemgsa.setLogonAccepte("OK");
+          monvolVemgsa.setLogonAccepte(true);
         }
         else {
-          monvolVemgsa.setLogonAccepte("KO");
+          monvolVemgsa.setLogonAccepte(false);
         }
       }
 
@@ -383,10 +383,10 @@ export class MixInfos {
 
     });
 
-    if (monvolVemgsa.getLogonAccepte() == "OK") {
-      monvolVemgsa.setConditionsLogon("OK")
+    if (monvolVemgsa.getLogonAccepte() == true) {
+      monvolVemgsa.setConditionsLogon(true)
     }
-    else { monvolVemgsa.setConditionsLogon("KO"); }
+    else { monvolVemgsa.setConditionsLogon(false); }
 
 
     if (nbLogsCpdlc != 0) {
@@ -397,7 +397,7 @@ export class MixInfos {
     }
 
     if (isLogue) {
-      monvolVemgsa.setLogonAccepte("OK");
+      monvolVemgsa.setLogonAccepte(true);
     }
 
     //console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),"\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte()); 

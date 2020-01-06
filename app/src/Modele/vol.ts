@@ -43,19 +43,19 @@ export class Vol {
     /**Indique si le vol est declare equipe cpdlc */
     private equipementCpdlc: string;
     /**Reception d'une demande de logon */
-    private logonInitie: string;   //0: NA, 1:true , 2:false 
+    private logonInitie: boolean;   //0: NA, 1:true , 2:false 
     /**Acceptation du logon par le STPV*/
-    private logonAccepte: string;
+    private logonAccepte: boolean;
     /**adrDeposee et cmpAdrModeSInf identique (entre Lpln et Vemgsa)  */
-    private cmpAdrModeS: string;
+    private cmpAdrModeS: boolean;
     /**adep identique entre Lpln et Vemgsa  */
-    private cmpAdep: string;
+    private cmpAdep: boolean;
     /**ades identique entre Lpln et Vemgsa  */
-    private cmpAdes: string;
+    private cmpAdes: boolean;
     /**arcid identique entre Lpln et Vemgsa  */
-    private cmpArcid: string;
+    private cmpArcid: boolean;
     /**conditions du logon remplies/ logon effectue  */
-    private conditionsLogon: string;
+    private conditionsLogon: boolean;
     /* */
 
 
@@ -81,16 +81,16 @@ export class Vol {
         this.plnid = plnid;
         this.date = "";
         this.listeLogs = [];
-        this.logonInitie = "NA";
-        this.logonAccepte = "NA";
+        this.logonInitie = false;
+        this.logonAccepte = false;
         this.isConnexionInitiee = false;
         this.isConnexionEtablie = false;
         this.isConnexionPerdue = false;
-        this.cmpAdrModeS = "NA";
-        this.cmpAdep = "NA";
-        this.cmpAdes = "NA";
-        this.cmpArcid = "NA";
-        this.conditionsLogon = "NA";
+        this.cmpAdrModeS =false;
+        this.cmpAdep = false,
+        this.cmpAdes = false,
+        this.cmpArcid = false,
+        this.conditionsLogon = false,
         this.haslogCpdlc = false;
         this.islogCpdlcComplete = false;
         this.listeEtatTransfertFrequence = [];
@@ -130,11 +130,11 @@ export class Vol {
         this.date = date;
     }
 
-    public setLogonInitie(logonInitie: string): void {
+    public setLogonInitie(logonInitie: boolean): void {
         this.logonInitie = logonInitie;
     }
 
-    public setLogonAccepte(logonAccepte: string): void {
+    public setLogonAccepte(logonAccepte: boolean): void {
         this.logonAccepte = logonAccepte;
     }
 
@@ -166,23 +166,23 @@ export class Vol {
         this.sl = sl;
     }
 
-    public setCmpAdrModeS(cmpAdrModeS: string): void {
+    public setCmpAdrModeS(cmpAdrModeS: boolean): void {
         this.cmpAdrModeS = cmpAdrModeS;
     }
 
-    public setCmpAdep(cmpAdep: string): void {
+    public setCmpAdep(cmpAdep: boolean): void {
         this.cmpAdep = cmpAdep;
     }
 
-    public setCmpAdes(cmpAdes: string): void {
+    public setCmpAdes(cmpAdes: boolean): void {
         this.cmpAdes = cmpAdes;
     }
 
-    public setCmpArcid(cmpArcid: string): void {
+    public setCmpArcid(cmpArcid: boolean): void {
         this.cmpArcid = cmpArcid;
     }
 
-    public setConditionsLogon(conditionsLogon: string): void {
+    public setConditionsLogon(conditionsLogon: boolean): void {
         this.conditionsLogon = conditionsLogon;
     }
 
@@ -257,11 +257,11 @@ export class Vol {
         return this.date;
     }
 
-    public getLogonInitie(): string {
+    public getLogonInitie(): boolean {
         return this.logonInitie;
     }
 
-    public getLogonAccepte(): string {
+    public getLogonAccepte(): boolean {
         return this.logonAccepte;
     }
 
@@ -277,23 +277,23 @@ export class Vol {
         return this.isConnexionPerdue;
     }
 
-    public getCmpAdrModeS(): string {
+    public getCmpAdrModeS(): boolean {
         return this.cmpAdrModeS;
     }
 
-    public getCmpAdep(): string {
+    public getCmpAdep(): boolean {
         return this.cmpAdep;
     }
 
-    public getCmpAdes(): string {
+    public getCmpAdes(): boolean {
         return this.cmpAdes;
     }
 
-    public getCmpArcid(): string {
+    public getCmpArcid(): boolean {
         return this.cmpArcid;
     }
 
-    public getConditionsLogon(): string {
+    public getConditionsLogon(): boolean {
         return this.conditionsLogon;
     }
 
@@ -614,14 +614,14 @@ export class Vol {
     private setListeErreurs() {
 
         //ERREURS DE LOGON
-        if (this.getLogonAccepte() !== "OK") {
+        if (this.getLogonAccepte() !== true) {
             this.listeErreurs.push({ date: this.getDate(), type: "logon NOK", infos: this.evaluateEtatLogon() });
         }
 
         //ERREURS DE CONNEXION
-        let resultConnexion: { connexion: string, explication: string } = this.evaluateEtatConnexion();
+        let resultConnexion: { connexion: boolean, explication: string } = this.evaluateEtatConnexion();
 
-        if (resultConnexion.connexion == "KO") {
+        if (resultConnexion.connexion == false) {
             this.listeErreurs.push({ date: this.getDate(), type: "connexion NOK", infos: resultConnexion.explication });
         }
 
@@ -653,11 +653,11 @@ export class Vol {
         let explication: string;
 
 
-        if (this.getLogonInitie() === "OK") {
+        if (this.getLogonInitie() === true) {
             explication = "Logon Rejeté par le STPV";
         }
         else {
-            if (this.getConditionsLogon() === "OK") {
+            if (this.getConditionsLogon() === true) {
                 explication = "Pas de logon Initié par le bord";
             }
             else {
@@ -678,27 +678,27 @@ export class Vol {
     /**
      * Evalue a partir des information de connexion si un message d'erreur doit être affiche  l utilisateur
      */
-    private evaluateEtatConnexion(): { connexion: string, explication: string } {
-        let connexion: string;
+    private evaluateEtatConnexion(): { connexion: boolean, explication: string } {
+        let connexion: boolean;
         let explication: string;
-        if (this.getLogonAccepte() !== "OK") {
+        if (this.getLogonAccepte() !== true) {
             if (!this.getIsConnexionInitiee() && !this.getIsConnexionEtablie()) {
-                connexion = "KO";
+                connexion = false;
                 explication = "Pas de connexion possible car vol non logue ";
             }
         }
         else {
 
             if (!this.getIsConnexionInitiee()) {
-                connexion = "KO";
+                connexion = false;
                 explication = "Pas de connexion initiée par le STPV ";
             }
             else if (!this.getIsConnexionEtablie()) {
-                connexion = "KO";
+                connexion = false;
                 explication = "Echec de connexion avec l'aeronef ";
             }
             else if (this.getIsConnexionPerdue()) {
-                connexion = "KO";
+                connexion = false;
                 explication = "Perte de connexion avec l'aeronef ";
             }
 
