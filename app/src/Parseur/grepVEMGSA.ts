@@ -2,6 +2,7 @@ import { Dates, creneauHoraire, arrayCreneauHoraire } from './date';
 import { ReadLine } from '../scripts/node-readline/node-readline';
 import { Split } from './split';
 import moment = require('moment');
+import { log } from 'util';
 const fs = require('fs');
 const p = require('path');
 
@@ -92,37 +93,36 @@ export class GrepVEMGSA {
             if (this.dates.diffDateV(mylogCpdlc, creneau.dateMax, 180) == true) {
               break;
             }
-            else {
-              //on ne regarde que les logs à plus ou moins trois heures du creneau
-              if (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true) {
-                mylogCpdlc = mylogCpdlc.match(motif);
+            //on ne regarde que les logs à plus ou moins trois heures du creneau
+            if (this.dates.isInCreneauxVemgsa(creneau, mylogCpdlc.toString(), this.troisHeures) == true) {
+              mylogCpdlc = mylogCpdlc.match(motif);
 
-                if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0)) {
-                  console.log("grepLog : ", mylogCpdlc);
+              if ((mylogCpdlc.toString().match(motifPlnid) !== null) && (plnid !== 0)) {
+                // console.log("grepLog : ", mylogCpdlc);
+                fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+              }
+              else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
+                if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "")) {
+                  // console.log("grepLog : ", mylogCpdlc);
                   fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                 }
-                else { //Cas ou la meme ligne contient l'arcid et le plnid, on copie la ligne une seule fois
-                  if ((mylogCpdlc.toString().match(motifArcid) !== null) && (arcid !== "")) {
+
+                if ((plnid == 0) && (reqid !== 0) && (mylogCpdlc.toString().match("-REQID ") !== null) && (mylogCpdlc.toString().match(reqid) !== null)) {
+                  let motifREQID = /(.*)(CPCASRES)(.*)(-REQID)(.*)/;
+                  let reqidTrouve = mylogCpdlc.toString().replace(motifREQID, "$5").trim();
+                  let reqidTest = Number(String(reqidTrouve).substr(1));
+                  // console.log("-----------------> reqidTest ", reqidTest);
+                  if (reqidTest == reqid) {
                     console.log("grepLog : ", mylogCpdlc);
                     fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
                   }
-
-                  if ((plnid == 0) && (reqid !== 0) && (mylogCpdlc.toString().match("-REQID ") !== null) && (mylogCpdlc.toString().match(reqid) !== null)) {
-                    let motifREQID = /(.*)(CPCASRES)(.*)(-REQID)(.*)/;
-                    let reqidTrouve = mylogCpdlc.toString().replace(motifREQID, "$5").trim();
-                    let reqidTest = Number(String(reqidTrouve).substr(1));
-                    console.log("-----------------> reqidTest ", reqidTest);
-                    if (reqidTest == reqid) {
-                      console.log("grepLog : ", mylogCpdlc);
-                      fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
-                    }
-                    else {
-                      console.log("pas pareil: reqid", reqid, " reqidtset : ", reqidTest);
-                    }
+                  else {
+                    console.log("pas pareil: reqid", reqid, " reqidtset : ", reqidTest);
                   }
                 }
               }
             }
+
           }
         } while (!this.readLine.eof(r));
 
@@ -301,7 +301,8 @@ export class GrepVEMGSA {
         }
         //on ne regarde que les logs datés après la date de l'arcid précisée dane le creneau    
         if (this.dates.diffDateV(mylogCpdlc, creneau.dateMax, 0) == true) {
-
+          //console.log("grepPlnidFromArcid test", mylogCpdlc);
+          
           let infoLpln1 = mylogCpdlc.match(motifVemgsa);
           let infoLpln2 = mylogCpdlc.match(arcid);
           if ((infoLpln1 !== null) && (infoLpln2 !== null)) {

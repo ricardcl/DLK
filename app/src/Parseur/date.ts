@@ -238,8 +238,9 @@ export class Dates {
 
         let i: number = 0;
 
-        creneauHoraire[i] = <arrayCreneauHoraire>{};
-        creneauHoraire[i].dateMin = dates[0];
+        creneauHoraire[0] = <arrayCreneauHoraire>{};
+        creneauHoraire[0].dateMin = dates[0];
+        creneauHoraire[0].dateMax = dates[0];
 
         for (let index = 1; index < dates.length; index++) {
             const element = dates[index];
@@ -264,6 +265,7 @@ export class Dates {
                 }
             }
         }
+
         // console.log("creneauHorairex trouves :", creneauHoraire);
         return creneauHoraire;
     }
