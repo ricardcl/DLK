@@ -130,18 +130,18 @@ export class Dates {
 
         let motif = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d")(\s.*-[A-Z]+\s+[A-Z|\d]+)/;
         let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
-//console.log("log:",log);
+        //console.log("log:",log);
 
         if (log.toString().match(motif) !== null) {
             let date = log.toString().replace(motif, "$1");
-         //   console.log("date", date);
+            //   console.log("date", date);
             if (date.match(motifDateHeure) !== null) {
                 const momentDateLog = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss');
                 const diffMoment: number = momentDateLog.diff(momentDateCreneau);
-               // console.log("momentDateLog", momentDateLog, "momentDateCreneau", momentDateCreneau);
+                // console.log("momentDateLog", momentDateLog, "momentDateCreneau", momentDateCreneau);
 
                 const diffMS = diff * this.uneMinute;
-               // console.log("diffMS", diffMS, "diffMoment", diffMoment);
+                // console.log("diffMS", diffMS, "diffMoment", diffMoment);
 
                 if (diffMoment >= diffMS) {
                     result = true;
@@ -161,7 +161,7 @@ export class Dates {
 
         if (log.toString().match(motif) !== null) {
             let date = log.toString().replace(motif, "$1");
-           // console.log("date", date);
+            // console.log("date", date);
             if (date.match(motifDateHeure) !== null) {
                 const momentDateLog = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss');
                 const diffMoment: number = momentDateLog.diff(momentDateCreneau);
@@ -171,7 +171,7 @@ export class Dates {
 
                 if (diffMoment >= diffMS) {
                     result = true;
-                    console.log("log", momentDateLog, "c", momentDateCreneau,"diffMoment", diffMoment,"result",result);
+                    console.log("log", momentDateLog, "c", momentDateCreneau, "diffMoment", diffMoment, "result", result);
 
                 }
 
@@ -211,7 +211,20 @@ export class Dates {
         }
         return result;
     }
+    /**
+     * Fonction qui renvoie la valeur absolue de la difference de temps en ms entre deux dates passées en paramètre
+     * @param d1 
+     * @param d2 
+     */
+    public diffDatesAbs(d1: string, d2: string): number {
+        return Math.abs(this.diffDates(d1, d2));
+    }
 
+    /**
+ * Fonction qui renvoie la difference de temps en ms entre deux dates passées en paramètre
+ * @param d1 
+ * @param d2 
+ */
     public diffDates(d1: string, d2: string): number {
         let momentDate1 = moment(d1, 'DD-MM HH mm ss');
         if (!momentDate1.isValid()) {
@@ -223,9 +236,25 @@ export class Dates {
         }
         const diff: number = momentDate1.diff(momentDate2); //Rmq : diff renvoie un resultat en ms
         //console.log("momentDate1",momentDate1, "momentDate2",momentDate2, "diff",diff, "Math.abs(diff)",Math.abs(diff));
-        return Math.abs(diff);
+        return diff;
     }
 
+        /**
+ * Fonction qui indique si la difference en ms entre deux dates est bien dans les limites passees en paramètre
+ * renvoie true si diffMin <= d1-d2 <= diffMax
+ * @param d1 
+ * @param d2 
+ * @param diffMin 
+ * @param diffMax 
+ * 
+ */
+public diffDatesInBornes(d1: string, d2: string, diffMin:number, diffMax:number ): boolean {
+    let result:boolean=false;
+   if ( (this.diffDates(d1,d2) <= diffMax) && (this.diffDates(d1,d2) >= diffMin)){
+    result= true;   
+   }
+   return result;
+}
 
 
     /**
