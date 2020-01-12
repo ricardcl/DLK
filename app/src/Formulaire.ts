@@ -52,6 +52,7 @@ export class Formulaire {
 
         this.logBook = LogBook.getInstance();
         this.database = new Database();
+        this.database.connectionDatabase();
     }
 
 
@@ -71,7 +72,12 @@ export class Formulaire {
             uploader.dir = Path.userPath + "/" + clientId;
             uploader.listen(socket);
             this.logBook.writeLogBook(clientId, "connexion client");
-
+            this.database.readFlightDatabase().then(result => {
+                console.log("result",result);
+                
+                socket.emit("database", result.rows);
+            }).catch(e => console.error(e.stack));
+            
             socket.on("disconnect", (socket) => {
                 console.log('disconnect', clientId);
                 this.logBook.writeLogBook(clientId, "deconnexion client");
@@ -142,20 +148,20 @@ export class Formulaire {
                 switch (this.contexte) {
                     case Contexte.LPLN:
                         // Stockage du vol dans un fichier json
-                        /** console.log("!!!! this.database.writeFlightLogFile");
+                        /** console.log("!!!! this.database.writeFlightDatabase");
                         //TODO gerer la database
                           try {
-                              this.database.writeFlightLogFile(this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN));
+                              this.database.writeFlightDatabase(this.mixInfos.InfosLpln(checkanswer.arcid, checkanswer.plnid, lplnfilename, this.parseurLPLN));
                           } catch (error) {
                               console.log ("ERRORRRRRR", error);
                           }
-  
-                        */
+  */ 
+                        
                         console.log("analysedVol Contexte.LPLN");
                         socket.emit("analysedVol", "LPLN",inputData, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
                         //recuperation du vol dans le fichier json
-                        //console.log("!!!!JSON this.logBook.readFlightLogFile");
-                        //this.logBook.readFlightLogFile();
+                        //console.log("!!!!JSON this.logBook.readFlightDatabase");
+                        //this.database.readFlightDatabase();
 
                         break;
                     case Contexte.VEMGSA:

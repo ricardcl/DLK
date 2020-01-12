@@ -430,6 +430,9 @@ export class Check {
                 answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, grepVEMGSA);
                 answer.listeIdentifiants = answer.checkVEMGSA.tabId;
                 answer.analysePossible = (answer.checkVEMGSA.valeurRetour <= 2);
+                answer.listeIdentifiants.forEach(element => {
+                    element.inVemgsa = true;
+                });
                 //answer.arcid = answer.checkVEMGSA.arcid;
                 //answer.plnid = answer.checkVEMGSA.plnid;
                 console.log("Contexte VEMGSA");

@@ -18,6 +18,20 @@ export class Database {
     }
 
 
+    public connectionDatabase(): void {
+        //throw new Error();
+        console.log("!!! Fonction connectionDatabase ");
+        this.client
+            .connect().then(() => {
+                console.log('client has connected')
+            })
+            .catch((error) => {
+                console.log("erreur connection", error);
+            });
+
+    }
+
+
     private write(vol: Vol): void | never {
         this.client
             .query('INSERT INTO public.vol( entree_date, vol_date, plnid, arcid) VALUES ( $1, $2, $3, $4) RETURNING *',
@@ -51,7 +65,7 @@ export class Database {
             })
     }
 
-    public writeFlightLogFile(vol: Vol): void | never {
+    public writeFlightDatabase(vol: Vol): void | never {
         //throw new Error();
         console.log("!!! Fonction writeFlightLogFile ajout vol");
         this.client
@@ -63,9 +77,13 @@ export class Database {
                 console.log("erreur: ");
                 throw error;
             });
-            
-        }
 
+    }
+
+    public readFlightDatabase() : Promise<any> {
+        console.log("!!! Fonction readFlightLogFile lecture vol");       
+        return this.client.query('SELECT id, entree_date, vol_date, plnid, arcid FROM public.vol WHERE arcid=\'AFR22VR\'');
+    }
 
 
 
