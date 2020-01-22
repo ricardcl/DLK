@@ -306,7 +306,7 @@ export class Check {
         answer.valeurRetour = 6;
         answer.plnid = 0;
         answer.arcid = "";
-       
+
 
         if (((arcid !== "") && (plnid == 0) && (!arcid.match(regexpArcid))) || ((arcid == "") && (plnid !== 0) && (!plnid.toString().match(regexpPlnid)))) {
             return answer;
@@ -429,10 +429,15 @@ export class Check {
                 answer.checkVEMGSA = <checkAnswerInitial>{};
                 answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, grepVEMGSA);
                 answer.listeIdentifiants = answer.checkVEMGSA.tabId;
-                answer.analysePossible = (answer.checkVEMGSA.valeurRetour <= 2);
-                answer.listeIdentifiants.forEach(element => {
-                    element.inVemgsa = true;
-                });
+                if (answer.checkVEMGSA.valeurRetour <= 2) {
+                    answer.analysePossible = true;
+                    answer.listeIdentifiants.forEach(element => {
+                        element.inVemgsa = true;
+                    });
+                }
+                else {
+                    answer.analysePossible = false;
+                }
                 //answer.arcid = answer.checkVEMGSA.arcid;
                 //answer.plnid = answer.checkVEMGSA.plnid;
                 console.log("Contexte VEMGSA");
@@ -469,17 +474,19 @@ export class Check {
                     let isCompatible: boolean = false;
 
                     //comparaison des identifiants trouvés dans LPLN avec ceux trouvés dans VEMGSA
-                    answer.listeIdentifiants.forEach(element => {
-                        let creneauLocal = this.dates.isCreneauxCompatibles(idLocal.dates, element.dates);
-                        //si les creneaux sont compatibles et les identifiant trouves totalement identique
-                        //ajout du LPLN                        
-                        if ((creneauLocal !== null) && ((idLocal.arcid == element.arcid) && (idLocal.plnid == element.plnid))) {
-                            isCompatible = true;
-                            element.inLpln = true;
-                            console.log("compatible");
-                            element.dates = creneauLocal;
-                        }
-                    });
+                    if (answer.listeIdentifiants!== undefined){
+                        answer.listeIdentifiants.forEach(element => {
+                            let creneauLocal = this.dates.isCreneauxCompatibles(idLocal.dates, element.dates);
+                            //si les creneaux sont compatibles et les identifiant trouves totalement identique
+                            //ajout du LPLN                        
+                            if ((creneauLocal !== null) && ((idLocal.arcid == element.arcid) && (idLocal.plnid == element.plnid))) {
+                                isCompatible = true;
+                                element.inLpln = true;
+                                console.log("compatible");
+                                element.dates = creneauLocal;
+                            }
+                        });
+                    }
                     //si les creneaux ne sont pas compatibles ou les identifiant trouves non identiques
                     // ou si pas de resultat vemgsa
                     //ajout du LPLN
