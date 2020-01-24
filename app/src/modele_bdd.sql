@@ -26,8 +26,11 @@ SET time_zone = "+00:00";
 --
 -- Base de données :  `bdd_vols_datalink`
 --
+CREATE DATABASE IF NOT EXISTS `bdd_vols_datalink` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `bdd_vols_datalink`;
 
 -- --------------------------------------------------------
+
 
 --
 -- Structure de la table `vol`
