@@ -17,34 +17,29 @@ export class Database {
         });
     }
 
-    public connectionDatabase(): void {
-        this.pool.connect(function (err) {
-            // in case of error
-            if (err) {
-                console.log(err.code);
-                console.log(err.fatal);
-            }
-            else {
-                console.log("connexion ok");
-
-            }
+    public query(sql) {
+        return new Promise((resolve, reject) => {
+            this.pool.getConnection(function (err, connection) {
+                if (err) return reject(err);
+                connection.query(sql, function (err, rows, fields) {
+                    connection.release();
+                    // Handle error after the release.
+                    console.log("Query read succesfully executed: ", rows);
+                    resolve(rows);
+                });
+            });
         });
     }
 
+    public close() {
+        return new Promise((resolve, reject) => {
+            this.pool.end(function () {
+                // The connection has been closed
+                resolve();
+            });
+        });
+    }
 
-    /**  public connectionDatabase(): void {
-           //throw new Error();
-           console.log("!!! Fonction connectionDatabase ");
-           this.client
-               .connect().then(() => {
-                   console.log('client has connected')
-               })
-               .catch((error) => {
-                   console.log("erreur connection", error);
-               });
-   
-       }
-    */
 
     public read(): void | never {
         // Perform a query : LECTURE 
@@ -58,11 +53,16 @@ export class Database {
                     console.log("An error ocurred performing the query read.");
                     return;
                 }
-              //  console.log("Query read succesfully executed: ", rows);
+                console.log("Query read succesfully executed: ", rows);
+                return rows;
             });
         });
     }
 
+
+
+    //regarder la version mysql, > 5.7.8 ??
+    //https://dev.mysql.com/doc/refman/5.7/en/json.html
     public write(vol: Vol): void | never {
 
         // Perform a query : ECRITURE
@@ -81,18 +81,18 @@ export class Database {
                     console.log("An error ocurred performing the query query2.", query2);
                     return;
                 }
-                console.log("Query write succesfully executed: ", rows, rows.insertId);           
+                console.log("Query write succesfully executed: ", rows, rows.insertId);
                 const query3 = 'INSERT INTO vol_data (vol_id, data) VALUES (' + rows.insertId + ',' + VOL + ')';
                 connection.query(query3, function (err, rows, fields) {
-                  
-                        if (err) {
+
+                    if (err) {
                         console.log("An error ocurred performing the query write.", query3);
                         return;
                     }
                     console.log("Query write succesfully executed: ", rows);
                 });
             });
-                  });
+        });
 
     }
 

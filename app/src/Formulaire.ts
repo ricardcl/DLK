@@ -53,51 +53,21 @@ export class Formulaire {
         this.logBook = LogBook.getInstance();
 
         this.database = new Database();
-       // this.database.connectionDatabase();
-        this.database.read();
+        // this.database.connectionDatabase();
+        // this.database.read();
 
-       
-
-      
-
-        /**
-        var pool  = mysql.createPool({
-            host: 'localhost',
-                    user: 'serveur_dlk',
-                    database: 'bdd_vols_datalink',
-        });
-        
-        pool.getConnection(function(err, connection) {
-            // Use the connection
-            connection.query( 'SELECT * from vol', function(err, rows) {
-                console.log("Query succesfully executed dans pool: ", rows);
-                // And done with the connection.
-                connection.release();
+        let someRows, otherRows;
+        this.database.query('SELECT * from vol')
+            .then(rows => {
+                someRows = rows;
+                console.log("je rentre database 1", rows);
+            })
+            .catch(err => {
+                // handle the error
+                console.log("bdd non connectee");
                 
-                // Don't use the connection here, it has been returned to the pool.
             });
-        });
-        
-        // The pool will emit a connection event when a new connection is made within the pool.
-        // If you need to set session variables on the connection before it gets used, you can listen to the connection event.
-        pool.on('connection', function (connection) {
-            console.log("Connected");
-            // Set a session variable
-            //connection.query('SET SESSION auto_increment_increment=1')
-        });
-        
-        // <<< CLOSE THE CONNECTION USING pool.end >>>
-        // When you are done using the pool, you have to end all the connections or the Node.js 
-        // event loop will stay active until the connections are closed by the MySQL server. 
-        // This is typically done if the pool is used in a script or when trying to gracefully shutdown a server.
-        // To end all the connections in the pool, use the end method on the pool:
-        
-        pool.end(function (err) {
-            // all connections in the pool have ended
-        });
-        
-         */
-
+//https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
 
     }
 
@@ -118,19 +88,23 @@ export class Formulaire {
             uploader.dir = Path.userPath + "/" + clientId;
             uploader.listen(socket);
             this.logBook.writeLogBook(clientId, "connexion client");
-            /**this.database.readFlightDatabase().then(result => {
-                console.log("result",result);
-                
-                socket.emit("database", result.rows);
-            }).catch(e => console.error(e.stack));
-            */
+
+
+            this.database.query('SELECT * from vol')
+                .then(rows => {
+                    console.log("je rentre database 3", rows);
+                    socket.emit('database', rows);
+                })
+                .catch(err => {
+                    // handle the error
+                });
 
 
             socket.on("disconnect", (socket) => {
                 console.log('disconnect', clientId);
                 this.logBook.writeLogBook(clientId, "deconnexion client");
                 this.users.deleteUser(clientId);
-              //  this.database.disconnectionDatabase();
+                //  this.database.disconnectionDatabase();
             });
 
             uploader.on("complete", (event) => {
@@ -199,7 +173,8 @@ export class Formulaire {
 
                         //TODO gerer la database
                         this.database.write(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN));
-                        this.database.read();
+
+                        // socket.emit("database", this.database.read());
 
                         console.log("analysedVol Contexte.LPLN");
                         socket.emit("analysedVol", "LPLN", inputData, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
