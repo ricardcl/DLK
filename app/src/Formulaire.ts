@@ -16,6 +16,7 @@ import { LogBook } from './logBook';
 import { Database } from './database';
 import { Identifiants, inputData } from './Modele/identifiants';
 import { Split } from './Parseur/split';
+import { Ftp } from './ftp';
 
 
 
@@ -35,6 +36,9 @@ export class Formulaire {
     private database: Database;
     private dates: Dates;
     private split: Split;
+    private clientFtp: Ftp;
+
+
 
     constructor() {
         console.log("Je rentre dans le constructor Formulaire ");
@@ -52,22 +56,26 @@ export class Formulaire {
 
         this.logBook = LogBook.getInstance();
 
-        this.database = new Database();
-        // this.database.connectionDatabase();
-        // this.database.read();
 
-        let someRows, otherRows;
+        //Traitement bdd
+        this.database = new Database();
         this.database.query('SELECT * from vol')
             .then(rows => {
-                someRows = rows;
                 console.log("je rentre database 1", rows);
             })
             .catch(err => {
                 // handle the error
-                console.log("bdd non connectee");
-                
+                console.log("bdd non connectee", err);
+
             });
-//https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
+        //https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
+
+
+        // Connexion FTP
+        //  this.clientFtp = new Ftp();
+        //  this.clientFtp.connect();
+
+
 
     }
 
@@ -89,16 +97,16 @@ export class Formulaire {
             uploader.listen(socket);
             this.logBook.writeLogBook(clientId, "connexion client");
 
-
-            this.database.query('SELECT * from vol')
-                .then(rows => {
-                    console.log("je rentre database 3", rows);
-                    socket.emit('database', rows);
-                })
-                .catch(err => {
-                    // handle the error
-                });
-
+            /**  Traitement bdd
+                        this.database.query('SELECT * from vol')
+                            .then(rows => {
+                                console.log("je rentre database 3", rows);
+                                socket.emit('database', rows);
+                            })
+                            .catch(err => {
+                                // handle the error
+                            });
+            */
 
             socket.on("disconnect", (socket) => {
                 console.log('disconnect', clientId);
@@ -172,8 +180,9 @@ export class Formulaire {
                     case Contexte.LPLN:
 
                         //TODO gerer la database
+                        /**  Traitement bdd
                         this.database.write(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN));
-
+                        */
                         // socket.emit("database", this.database.read());
 
                         console.log("analysedVol Contexte.LPLN");

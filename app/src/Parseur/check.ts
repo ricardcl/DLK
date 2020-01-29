@@ -479,11 +479,17 @@ export class Check {
                             let creneauLocal = this.dates.isCreneauxCompatibles(idLocal.dates, element.dates);
                             //si les creneaux sont compatibles et les identifiant trouves totalement identique
                             //ajout du LPLN                        
-                            if ((creneauLocal !== null) && ((idLocal.arcid == element.arcid) && (idLocal.plnid == element.plnid))) {
+                            if ((creneauLocal !== null) && (((idLocal.arcid == element.arcid) || (idLocal.plnid == element.plnid)))) {
                                 isCompatible = true;
                                 element.inLpln = true;
                                 console.log("compatible");
                                 element.dates = creneauLocal;
+                                if(element.arcid == ''){
+                                    element.arcid =idLocal.arcid;
+                                }
+                                if(element.plnid == 0){
+                                    element.plnid =idLocal.plnid;
+                                }
                             }
                         });
                     }
