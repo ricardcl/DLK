@@ -11,7 +11,7 @@ import { MixInfos } from './Parseur/MixInfos';
 import { Frequences } from './Parseur/frequences';
 import { creneauHoraire, Dates } from './Parseur/date';
 import { ParseurLPLN } from './Parseur/parseurLPLN';
-import { ParseurVEMGSA } from './Parseur/ParseurVEMGSA';
+import { ParseurVEMGSA } from './Parseur/parseurVEMGSA';
 import { LogBook } from './logBook';
 import { Database } from './database';
 import { Identifiants, inputData } from './Modele/identifiants';
@@ -59,15 +59,16 @@ export class Formulaire {
 
         //Traitement bdd
         this.database = new Database();
+        /**
         this.database.query('SELECT * from vol')
             .then(rows => {
-                console.log("je rentre database 1", rows);
+                console.log(" database connectee", rows);
             })
             .catch(err => {
                 // handle the error
                 console.log("bdd non connectee", err);
 
-            });
+            });*/
         //https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
 
 
@@ -97,16 +98,13 @@ export class Formulaire {
             uploader.listen(socket);
             this.logBook.writeLogBook(clientId, "connexion client");
 
-            /**  Traitement bdd
-                        this.database.query('SELECT * from vol')
-                            .then(rows => {
-                                console.log("je rentre database 3", rows);
-                                socket.emit('database', rows);
-                            })
-                            .catch(err => {
-                                // handle the error
-                            });
-            */
+            // Connexion FTP
+            //   this.clientFtp = new Ftp();
+            //   this.clientFtp.connect2( socket, this.logBook,clientId );
+
+            /**  Traitement bdd    */
+            this.database.readAllVol(socket);
+           // this.database.readVol(socket);
 
             socket.on("disconnect", (socket) => {
                 console.log('disconnect', clientId);
@@ -180,11 +178,9 @@ export class Formulaire {
                     case Contexte.LPLN:
 
                         //TODO gerer la database
-                        /**  Traitement bdd
-                        this.database.write(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN));
-                        */
-                        // socket.emit("database", this.database.read());
-
+                        /**  Traitement bdd   */
+                        this.database.writeVol(id, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN));
+                        this.database.readAllVol(socket);
                         console.log("analysedVol Contexte.LPLN");
                         socket.emit("analysedVol", "LPLN", inputData, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
                         //recuperation du vol dans le fichier json
@@ -237,6 +233,12 @@ export class Formulaire {
                 }
 
             });
+
+            socket.on("getVolFromDatabase", (id: string) => {
+                console.log("getVolFromDatabase", id);
+                this.database.readVol(socket, id)
+            });
+
         });
     }
 

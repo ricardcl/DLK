@@ -86,12 +86,12 @@ export class Vol {
         this.isConnexionInitiee = false;
         this.isConnexionEtablie = false;
         this.isConnexionPerdue = false;
-        this.cmpAdrModeS =false;
+        this.cmpAdrModeS = false;
         this.cmpAdep = false,
-        this.cmpAdes = false,
-        this.cmpArcid = false,
-        this.conditionsLogon = false,
-        this.haslogCpdlc = false;
+            this.cmpAdes = false,
+            this.cmpArcid = false,
+            this.conditionsLogon = false,
+            this.haslogCpdlc = false;
         this.islogCpdlcComplete = false;
         this.listeEtatTransfertFrequence = [];
         this.listeEtatLogonConnexion = [];
@@ -551,7 +551,8 @@ export class Vol {
             let newElement = <etatLogonConnexionSimplifiee>{};
             newElement.fromDate = element.dateChgtEtat;
             newElement.name = "logs";
-            newElement.logs = element.infoEtat;
+            newElement.logs = [];
+            newElement.logs.push(element.infoEtat);
             // newElement.fromDate= String(moment(newElement.fromDate).format('DD-MM HH mm'));
             // newElement.toDate= String(moment(newElement.toDate).format('DD-MM HH mm'));
 
@@ -562,7 +563,7 @@ export class Vol {
             else {
                 const elementPrevious = tabLog[tabLog.length - 1];
                 if (elementPrevious.fromDate == element.dateChgtEtat) {
-                    tabLog[tabLog.length - 1].logs += "\n" + element.infoEtat;
+                    tabLog[tabLog.length - 1].logs.push(element.infoEtat);                
                 }
                 else {
                     tabLog.push(newElement);

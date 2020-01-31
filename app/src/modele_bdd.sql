@@ -37,11 +37,13 @@ USE `bdd_vols_datalink`;
 --
 
 CREATE TABLE `vol` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `entree_date` varchar(255) DEFAULT NULL,
   `vol_date` varchar(255) DEFAULT NULL,
   `plnid` varchar(255) DEFAULT NULL,
-  `arcid` varchar(255) DEFAULT NULL
+  `arcid` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -60,55 +62,15 @@ INSERT INTO `vol` (`id`, `entree_date`, `vol_date`, `plnid`, `arcid`) VALUES
 --
 
 CREATE TABLE `vol_data` (
-  `vol_id` bigint(20) UNSIGNED NOT NULL,
-  `data` text
+  `vol_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `data` JSON,
+    PRIMARY KEY (`vol_id`),
+    UNIQUE KEY `vol_id` (`vol_id`),
+    CONSTRAINT `vol_FK` FOREIGN KEY (`vol_id`) REFERENCES `vol` (`id`)
+    
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 --
--- Index pour les tables déchargées
---
-
---
--- Index pour la table `vol`
---
-ALTER TABLE `vol`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id` (`id`);
-
---
--- Index pour la table `vol_data`
---
-ALTER TABLE `vol_data`
-  ADD PRIMARY KEY (`vol_id`),
-  ADD UNIQUE KEY `vol_id` (`vol_id`);
-
---
--- AUTO_INCREMENT pour les tables déchargées
+-- ajout element
 --
 
---
--- AUTO_INCREMENT pour la table `vol`
---
-ALTER TABLE `vol`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT pour la table `vol_data`
---
-ALTER TABLE `vol_data`
-  MODIFY `vol_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- Contraintes pour les tables déchargées
---
-
---
--- Contraintes pour la table `vol_data`
---
-ALTER TABLE `vol_data`
-  ADD CONSTRAINT `vol_FK` FOREIGN KEY (`vol_id`) REFERENCES `vol` (`id`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+INSERT INTO `vol_data`(`vol_id`, `data`) VALUES (1,'{"key1": "value1", "key2": "value2"}')

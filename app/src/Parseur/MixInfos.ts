@@ -1,6 +1,6 @@
 import { Vol } from '../Modele/vol';
-import { ParseurLPLN } from './ParseurLPLN';
-import { ParseurVEMGSA } from './ParseurVEMGSA';
+import { ParseurLPLN } from './parseurLPLN';
+import { ParseurVEMGSA } from './parseurVEMGSA';
 import { GrapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Dates, creneauHoraire } from './date';

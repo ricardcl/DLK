@@ -50,7 +50,7 @@ export interface etatLogonConnexionSimplifiee {
     toDate: string;
     name: string; //connexion/logon/frequence
     infoEtat?: string; //logue, non logue , connecte, non connecte
-    logs?:string;
+    logs?:string[];
 }
 
 export interface erreurVol {

@@ -1,5 +1,6 @@
 
 import { Vol } from './Modele/vol';
+import { Identifiants } from './Modele/identifiants';
 const { Client } = require('pg')
 const mysql = require('mysql');
 
@@ -10,9 +11,10 @@ export class Database {
         // Add the credentials to access your database
         this.pool = mysql.createPool({
             connectionLimit: 10,
-            host: 'localhost',
-            user: 'serveur_dlk',
-            database: 'bdd_vols_datalink',
+            host: 'crna-se-07-1', //'crna-se-07-1',
+            user: 'vdlink',
+            database: 'vdlink',// 'vdlink',//'bdd_vols_datalink',
+            password: 'vdlink-sql',
 
         });
     }
@@ -24,7 +26,7 @@ export class Database {
                 connection.query(sql, function (err, rows, fields) {
                     connection.release();
                     // Handle error after the release.
-                    console.log("Query read succesfully executed: ", rows);
+                  //  console.log("Query read succesfully executed: ", rows);
                     resolve(rows);
                 });
             });
@@ -42,6 +44,8 @@ export class Database {
 
 
     public read(): void | never {
+        console.log("Fonction read database");
+
         // Perform a query : LECTURE 
         let query = 'SELECT * from vol';
         this.pool.getConnection(function (err, connection) {
@@ -53,44 +57,85 @@ export class Database {
                     console.log("An error ocurred performing the query read.");
                     return;
                 }
-                console.log("Query read succesfully executed: ", rows);
+              //  console.log("Query read succesfully executed: ", rows);
                 return rows;
             });
         });
     }
 
+    public readAllVol(socket): void | never {
+        console.log("Fonction read2 database");
 
+        this.query('SELECT * from vol')
+            .then(rows => {
+                console.log("je rentre database 1", rows);
+                socket.emit('database', rows);
+            })
+            .catch(err => {
+                // handle the error
+            });
+    }
+
+    public readVol(socket, id?:string): void | never {
+        console.log("Fonction readVol database idcomplet ",id);
+        //let DATE_DEBUT = JSON.stringify(id.entree_date);
+        //let DATE_FIN = JSON.stringify(id.vol_date);
+        //let PLNID = JSON.stringify(id.plnid);
+        //let ARCID = JSON.stringify(id.arcid);
+        let ID = JSON.stringify(id);
+        let queryReadVol = 'SELECT * FROM `vol_data` WHERE (vol_id =' + ID +')';
+        console.log("lecture vol database global", queryReadVol);
+        this.query(queryReadVol)
+            .then(rows => {
+                const volJson = rows[0].data;
+                const vol = JSON.parse(volJson);
+                console.log("lecture vol database global", rows);
+
+                //console.log("lecture vol database ", vol);
+                socket.emit("analysedVol", "LPLN", "", vol, null, null);
+
+            })
+            .catch(err => {
+                console.log("error: ", err);
+            });
+    }
 
     //regarder la version mysql, > 5.7.8 ??
     //https://dev.mysql.com/doc/refman/5.7/en/json.html
-    public write(vol: Vol): void | never {
+    public writeVol(id: Identifiants, vol: Vol): void | never {
 
         // Perform a query : ECRITURE
-        let DATE = JSON.stringify(vol.getDate());
+        let DATE_DEBUT = JSON.stringify(id.dates.dateMin);
+        let DATE_FIN = JSON.stringify(id.dates.dateMax);
+        let PLNID = JSON.stringify(vol.getPlnid());
         let ARCID = JSON.stringify(vol.getArcid());
-        // let VOL = JSON.stringify(vol);
-        let VOL = JSON.stringify(vol.getArcid());
-        let query2 = 'INSERT INTO vol (entree_date, vol_date, plnid, arcid) VALUES (' + DATE + ',' + DATE + ',' + ARCID + ',' + ARCID + ')';
+        let VOL = "'" + JSON.stringify(vol) + "'";
+
+        //let VOL = JSON.stringify(vol.getArcid());
+        let queryWriteVol = 'INSERT INTO vol (entree_date, vol_date, plnid, arcid) VALUES (' + DATE_DEBUT + ',' + DATE_FIN + ',' + PLNID + ',' + ARCID + ')';
 
         this.pool.getConnection(function (err, connection) {
             if (err) throw err; // not connected!
-            connection.query(query2, function (err, rows, fields) {
 
-                // Handle error after the release.
-                if (err) {
-                    console.log("An error ocurred performing the query query2.", query2);
-                    return;
+            connection.query(queryWriteVol, function (errQueryWriteVol, rowsQueryWriteVol) {
+                if (errQueryWriteVol) {
+                    console.log("An error ocurred performing the query queryWriteVol.", queryWriteVol, errQueryWriteVol);
+                    //  return;
                 }
-                console.log("Query write succesfully executed: ", rows, rows.insertId);
-                const query3 = 'INSERT INTO vol_data (vol_id, data) VALUES (' + rows.insertId + ',' + VOL + ')';
-                connection.query(query3, function (err, rows, fields) {
 
-                    if (err) {
-                        console.log("An error ocurred performing the query write.", query3);
-                        return;
+                console.log("Query queryWriteVol succesfully executed: ", rowsQueryWriteVol, rowsQueryWriteVol.insertId);
+
+                const queryWriteVol_Data = 'INSERT INTO vol_data (vol_id, data) VALUES (' + rowsQueryWriteVol.insertId + ',' + VOL + ')';
+                connection.query(queryWriteVol_Data, function (errQueryWriteVolData, QueryWriteVolData) {
+                    if (errQueryWriteVolData) {
+                        console.log("An error ocurred performing the query queryWriteVol_Data.", queryWriteVol_Data), errQueryWriteVolData;
+                        // return;
                     }
-                    console.log("Query write succesfully executed: ", rows);
+                    console.log("queryWriteVol_Data write succesfully executed: ", QueryWriteVolData);
                 });
+
+
+                connection.release();
             });
         });
 
@@ -102,66 +147,6 @@ export class Database {
             // The connection has been closed
         });
     }
-    /** 
-       private write(vol: Vol): void | never {
-           this.client
-               .query('INSERT INTO public.vol( entree_date, vol_date, plnid, arcid) VALUES ( $1, $2, $3, $4) RETURNING *',
-                   [vol.getDate(), vol.getDate(), vol.getArcid(), vol.getArcid()])
-               .then(res => {
-                   console.log("arcid 2: " + vol.getArcid());
-                   let idRequete;
-                   idRequete = res.rows[0].id;
-                   console.log("arcid bdd: " + res.rows[0].arcid) // Hello World!
-                   const json = JSON.stringify(vol);
-   
-                   this.client.query('INSERT INTO public.vol_data( vol_id, data) VALUES ($1, $2) RETURNING *',
-                       [String(idRequete), json])
-                       .then(() => {
-                           console.log(idRequete);
-                           this.client.end()
-                               .then(() => console.log('client has disconnected'))
-                               .catch(err => console.error('error during disconnection', err.stack))
-                       })
-                       .catch(error => {
-                           this.client.end()
-                               .then(() => console.log('client has disconnected'))
-                               .catch(err => console.error('error during disconnection', err.stack))
-                           throw error;
-                       })
-   
-               })
-               .catch(error => {
-                   this.client.end()
-                   throw error;
-               })
-       }
-   */
-    /** 
-       public writeFlightDatabase(vol: Vol): void | never {
-           //throw new Error();
-           console.log("!!! Fonction writeFlightLogFile ajout vol");
-           this.client
-               .connect().then(() => {
-                   console.log('client has connected')
-                   this.write(vol);
-               })
-               .catch((error) => {
-                   console.log("erreur: ");
-                   throw error;
-               });
-   
-       }
-   */
-    /** 
-        public readFlightDatabase() : Promise<any> {
-            console.log("!!! Fonction readFlightLogFile lecture vol");       
-            return this.client.query('SELECT id, entree_date, vol_date, plnid, arcid FROM public.vol WHERE arcid=\'AFR22VR\'');
-        }
-    */
-
-
-
-
 
 }
 
