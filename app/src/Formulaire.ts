@@ -16,7 +16,7 @@ import { LogBook } from './logBook';
 import { Database } from './database';
 import { Identifiants, inputData } from './Modele/identifiants';
 import { Split } from './Parseur/split';
-import { Ftp } from './ftp';
+//import { Ftp } from './ftp';
 
 
 
@@ -36,7 +36,7 @@ export class Formulaire {
     private database: Database;
     private dates: Dates;
     private split: Split;
-    private clientFtp: Ftp;
+    // private clientFtp: Ftp;
 
 
 
@@ -80,9 +80,6 @@ export class Formulaire {
 
     }
 
-
-
-
     private initSocket() {
         this.io.on("connection", (socket) => {
             console.log('connexion d un client, ouverture d une socket pour la recuperation de fichier', socket.id);
@@ -102,27 +99,22 @@ export class Formulaire {
             //   this.clientFtp = new Ftp();
             //   this.clientFtp.connect2( socket, this.logBook,clientId );
 
-            /**  Traitement bdd    */
+            /**  Traitement bdd : Récupération de la liste de tous les vols   */
             this.database.readAllVol(socket);
-           // this.database.readVol(socket);
 
             socket.on("disconnect", (socket) => {
                 console.log('disconnect', clientId);
                 this.logBook.writeLogBook(clientId, "deconnexion client");
                 this.users.deleteUser(clientId);
-                //  this.database.disconnectionDatabase();
             });
 
             uploader.on("complete", (event) => {
                 console.log("upload complete", event.file.name);
                 let log: string = "telechargement fichier " + event.file.name;
                 this.logBook.writeLogBook(clientId, log);
-
-                //mixInfos("",0, event.file.name, null); 
             });
 
             socket.on('analyseDataInput', (arcid, plnid, lpln, listVemgsaInput) => {
-
                 // Create frequence files : 
                 this.frequences.GbdiToFreq(Path.STPVFilePath);  //A modifier de place !!! 
 
@@ -141,9 +133,6 @@ export class Formulaire {
                 else if (listVemgsaInput.length == 1) {
                     plageVemgsa[0] = listVemgsaInput[0];
                 }
-
-                //TODO : gérer l'envoi par l'utilisateur de deux fichiers identiques
-
 
                 this.contexte = this.check.evaluationContexte(lpln, plageVemgsa);
                 let resultCheck = <checkAnswer>{};
@@ -174,57 +163,63 @@ export class Formulaire {
                 console.log("this.contexte ap", this.contexte);
 
                 console.log("analysedVol");
+                let volLpln, volVemgsa, volMix;
                 switch (this.contexte) {
                     case Contexte.LPLN:
 
-                        //TODO gerer la database
-                        /**  Traitement bdd   */
-                        this.database.writeVol(id, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN));
-                        this.database.readAllVol(socket);
                         console.log("analysedVol Contexte.LPLN");
-                        socket.emit("analysedVol", "LPLN", inputData, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
-                        //recuperation du vol dans le fichier json
-                        //console.log("!!!!JSON this.logBook.readFlightDatabase");
-                        //this.database.readFlightDatabase();
+                        volLpln = this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN);
+                        socket.emit("analysedVol", "LPLN", inputData, volLpln, null, null);
+
+                        /**  Traitement bdd */
+                        // Mise à jour de la  bdd avec le vol analysé
+                        this.database.writeVol(id, "LPLN", volLpln, null, null);
+                        //  Traitement bdd : Envoi au client de la liste des vols actualisée 
+                        this.database.readAllVol(socket);
 
                         break;
                     case Contexte.VEMGSA:
+                        volVemgsa = this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA);
+
                         console.log("analysedVol Contexte.VEMGSA");
-                        socket.emit("analysedVol", "VEMGSA", inputData, null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
+                        socket.emit("analysedVol", "VEMGSA", inputData, null, volVemgsa, null);
+                        /**  Traitement bdd */
+                        this.database.writeVol(id, "VEMGSA", null, volVemgsa, null);
+                        this.database.readAllVol(socket);;
                         break;
                     case Contexte.LPLNVEMGSA:
                         console.log("analysedVol Contexte.LPLN et VEMGSA");
+                        volLpln = this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN);
+                        volVemgsa = this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA);
+                        volMix = this.mixInfos.mixInfos(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), id.arcid, id.plnid, id.dates);
 
 
                         if ((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 2)) {
                             console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 1 ");
-                            // let volLpln :Vol;
-                            //                 let volVemgsa :Vol;
-                            //              volLpln = this.mixInfos.InfosLpln(checkanswer.checkLPLN.arcid, checkanswer.checkLPLN.plnid, lplnfilename, this.parseurLPLN); 
-                            //         volVemgsa = this.mixInfos.InfosVemgsa(checkanswer.checkVEMGSA.arcid, checkanswer.checkVEMGSA.plnid, vemgsafilename,this.parseurVEMGSA, checkanswer.checkVEMGSA.creneauVemgsa); 
-
 
                             socket.emit("analysedVol", "MIX", inputData,
-                                //null,    
-                                this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN),
-                                //volLpln,
-                                // null,
-                                this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA),
-                                //volVemgsa,
-                                this.mixInfos.mixInfos(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), id.arcid, id.plnid, id.dates)
-                                //this.mixInfos.mixInfos(volLpln,volVemgsa,checkanswer.arcid, checkanswer.plnid)
+                                // this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN),
+                                volLpln,
+                                // this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA),
+                                volVemgsa,
+                                //  this.mixInfos.mixInfos(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), id.arcid, id.plnid, id.dates)
+                                volMix
                             );
+                            /**  Traitement bdd */
+                            this.database.writeVol(id, "MIX", volLpln, volVemgsa, volMix);
+                            this.database.readAllVol(socket);;
                         }
                         else {
                             if (checkanswer.checkLPLN.valeurRetour <= 1) {
                                 console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 2 ");
 
-                                socket.emit("analysedVol", "LPLN", inputData, this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), null, null);
+                                socket.emit("analysedVol", "LPLN", inputData,volLpln, null, null);
+                                this.database.writeVol(id, "LPLN", volLpln, null, null);
                             }
                             else {
                                 console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 3 ");
-
-                                socket.emit("analysedVol", "VEMGSA", inputData, null, this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), null);
+                                socket.emit("analysedVol", "VEMGSA", inputData, null,volVemgsa, null);
+                                this.database.writeVol(id, "LPLN", null, volVemgsa, null);
                             }
                         }
 

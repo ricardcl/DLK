@@ -42,6 +42,7 @@ CREATE TABLE `vol` (
   `vol_date` varchar(255) DEFAULT NULL,
   `plnid` varchar(255) DEFAULT NULL,
   `arcid` varchar(255) DEFAULT NULL,
+  `contexte` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
    UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -63,7 +64,9 @@ INSERT INTO `vol` (`id`, `entree_date`, `vol_date`, `plnid`, `arcid`) VALUES
 
 CREATE TABLE `vol_data` (
   `vol_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `data` JSON,
+  `data_LPLN` JSON,
+  `data_VEMGSA` JSON,
+  `data_MIX` JSON,
     PRIMARY KEY (`vol_id`),
     UNIQUE KEY `vol_id` (`vol_id`),
     CONSTRAINT `vol_FK` FOREIGN KEY (`vol_id`) REFERENCES `vol` (`id`)
@@ -72,5 +75,6 @@ CREATE TABLE `vol_data` (
 --
 -- ajout element
 --
+ALTER TABLE `vol_data` ADD `contexte` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `vol_id`;
 
 INSERT INTO `vol_data`(`vol_id`, `data`) VALUES (1,'{"key1": "value1", "key2": "value2"}')
