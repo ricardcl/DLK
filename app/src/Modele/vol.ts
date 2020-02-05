@@ -627,10 +627,7 @@ export class Vol {
                 this.listeErreurs.push({ date: this.getDate(), type: "Connexion impossible", infos: resultConnexion.explication });
             }
             else {
-                if (this.getIsConnexionInitiee()){
-                    this.listeErreurs.push({ date: this.getDate(), type: "Vol non connecté", infos: resultConnexion.explication });
-                }
-                this.listeErreurs.push({ date: this.getDate(), type: "Connexion Rompue", infos: resultConnexion.explication });
+                this.listeErreurs.push({ date: this.getDate(), type: "Vol non connecté", infos: resultConnexion.explication });
             }
         }
 
