@@ -563,7 +563,7 @@ export class Vol {
             else {
                 const elementPrevious = tabLog[tabLog.length - 1];
                 if (elementPrevious.fromDate == element.dateChgtEtat) {
-                    tabLog[tabLog.length - 1].logs.push(element.infoEtat);                
+                    tabLog[tabLog.length - 1].logs.push(element.infoEtat);
                 }
                 else {
                     tabLog.push(newElement);
@@ -616,14 +616,22 @@ export class Vol {
 
         //ERREURS DE LOGON
         if (this.getLogonAccepte() !== true) {
-            this.listeErreurs.push({ date: this.getDate(), type: "logon NOK", infos: this.evaluateEtatLogon() });
+            this.listeErreurs.push({ date: this.getDate(), type: "Logon impossible", infos: this.evaluateEtatLogon() });
         }
 
         //ERREURS DE CONNEXION
         let resultConnexion: { connexion: boolean, explication: string } = this.evaluateEtatConnexion();
 
         if (resultConnexion.connexion == false) {
-            this.listeErreurs.push({ date: this.getDate(), type: "connexion NOK", infos: resultConnexion.explication });
+            if (this.getLogonAccepte() !== true) {
+                this.listeErreurs.push({ date: this.getDate(), type: "Connexion impossible", infos: resultConnexion.explication });
+            }
+            else {
+                if (this.getIsConnexionInitiee()){
+                    this.listeErreurs.push({ date: this.getDate(), type: "Vol non connecté", infos: resultConnexion.explication });
+                }
+                this.listeErreurs.push({ date: this.getDate(), type: "Connexion Rompue", infos: resultConnexion.explication });
+            }
         }
 
         //ERREURS DE TRANSFERT DE FREQUENCE

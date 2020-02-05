@@ -120,52 +120,57 @@ export class Database {
             });
     }
 
+
+
     //regarder la version mysql, > 5.7.8 ??
     //https://dev.mysql.com/doc/refman/5.7/en/json.html
-    public writeVol(id: Identifiants, contexte: string, volLPLN: Vol, volVEMGSA: Vol, volMIX: Vol): void | never {
+    public writeVol(id: Identifiants, contexte: string, volLPLN: Vol, volVEMGSA: Vol, volMIX: Vol) {
+        return new Promise((resolve, reject) => {
+            console.log("Fonction writeVol");
+            // Perform a query : ECRITURE 
+            let DATE_DEBUT = JSON.stringify(id.dates.dateMin);
+            let DATE_FIN = JSON.stringify(id.dates.dateMax);
+            let PLNID = JSON.stringify(id.plnid);
+            let ARCID = JSON.stringify(id.arcid);
+            let CONTEXTE = JSON.stringify(contexte);
+            //let VOL_LPLN = "'" + JSON.stringify(volLPLN) + "'"; 
+            //let VOL_VEMGSA = "'" + JSON.stringify(volVEMGSA) + "'"; 
+            //let VOL_MIX = "'" + JSON.stringify(volMIX) + "'"; 
+            let VOL_LPLN = null;
+            let VOL_VEMGSA = null;
+            let VOL_MIX = null;
+            if (volLPLN != null) { VOL_LPLN = "'" + JSON.stringify(volLPLN.getArcid()) + "'"; }
+            if (volVEMGSA != null) { VOL_VEMGSA = "'" + JSON.stringify(volVEMGSA.getArcid()) + "'"; }
+            if (volMIX != null) { VOL_MIX = "'" + JSON.stringify(volMIX.getArcid()) + "'"; }
+            let queryWriteVol = 'INSERT INTO vol (entree_date, vol_date, plnid, arcid, contexte) VALUES (' + DATE_DEBUT + ',' + DATE_FIN + ',' + PLNID + ',' + ARCID + ',' + CONTEXTE + ')';
 
-        // Perform a query : ECRITURE
-        let DATE_DEBUT = JSON.stringify(id.dates.dateMin);
-        let DATE_FIN = JSON.stringify(id.dates.dateMax);
-        let PLNID = JSON.stringify(id.plnid);
-        let ARCID = JSON.stringify(id.arcid);
-        let CONTEXTE = JSON.stringify(contexte);
-        //let VOL_LPLN = "'" + JSON.stringify(volLPLN) + "'";
-        //let VOL_VEMGSA = "'" + JSON.stringify(volVEMGSA) + "'";
-        //let VOL_MIX = "'" + JSON.stringify(volMIX) + "'";
-        let VOL_LPLN = null;
-        let VOL_VEMGSA = null;
-        let VOL_MIX = null;
-        if  (volLPLN != null ) {VOL_LPLN= "'" + JSON.stringify(volLPLN.getArcid()) + "'";}
-        if  (volVEMGSA != null ) { VOL_VEMGSA = "'" + JSON.stringify(volVEMGSA.getArcid()) + "'";}
-        if  (volMIX != null ) {VOL_MIX = "'" + JSON.stringify(volMIX.getArcid()) + "'";}
-        let queryWriteVol = 'INSERT INTO vol (entree_date, vol_date, plnid, arcid, contexte) VALUES (' + DATE_DEBUT + ',' + DATE_FIN + ',' + PLNID + ',' + ARCID + ',' + CONTEXTE + ')';
 
-        this.pool.getConnection(function (err, connection) {
-            if (err) throw err; // not connected!
+            this.pool.getConnection(function (err, connection) {
+                if (err) return reject(err);
 
-            connection.query(queryWriteVol, function (errQueryWriteVol, rowsQueryWriteVol) {
-                if (errQueryWriteVol) {
-                    console.log("An error ocurred performing the query queryWriteVol.", queryWriteVol, errQueryWriteVol);
-                    //  return;
-                }
 
-                console.log("Query queryWriteVol succesfully executed: ", rowsQueryWriteVol, rowsQueryWriteVol.insertId);
-
-                const queryWriteVol_Data = 'INSERT INTO vol_data (vol_id,contexte, data_LPLN, data_VEMGSA, data_MIX) VALUES (' + rowsQueryWriteVol.insertId + ',' + CONTEXTE + ',' + VOL_LPLN + ',' + VOL_VEMGSA + ',' + VOL_MIX + ')';
-                connection.query(queryWriteVol_Data, function (errQueryWriteVolData, QueryWriteVolData) {
-                    if (errQueryWriteVolData) {
-                        console.log("An error ocurred performing the query queryWriteVol_Data.", queryWriteVol_Data), errQueryWriteVolData;
-                        // return;
+                connection.query(queryWriteVol, function (errQueryWriteVol, rowsQueryWriteVol) {
+                    if (errQueryWriteVol) {
+                        console.log("An error ocurred performing the query queryWriteVol.", queryWriteVol, errQueryWriteVol);
+                        //  return; 
                     }
-                    console.log("queryWriteVol_Data write succesfully executed: ", QueryWriteVolData);
+
+                    console.log("Query queryWriteVol succesfully executed: ", rowsQueryWriteVol, rowsQueryWriteVol.insertId);
+
+                    const queryWriteVol_Data = 'INSERT INTO vol_data (vol_id,contexte, data_LPLN, data_VEMGSA, data_MIX) VALUES (' + rowsQueryWriteVol.insertId + ',' + CONTEXTE + ',' + VOL_LPLN + ',' + VOL_VEMGSA + ',' + VOL_MIX + ')';
+                    connection.query(queryWriteVol_Data, function (errQueryWriteVolData, QueryWriteVolData) {
+                        if (errQueryWriteVolData) {
+                            console.log("An error ocurred performing the query queryWriteVol_Data.", queryWriteVol_Data), errQueryWriteVolData;
+                            // return; 
+                        }
+                        console.log("queryWriteVol_Data write succesfully executed: ", QueryWriteVolData);
+                    });
+
+
+                    connection.release();
                 });
-
-
-                connection.release();
             });
         });
-
     }
 
     public disconnectionDatabase(): void | never {

@@ -207,18 +207,20 @@ export class Formulaire {
                             );
                             /**  Traitement bdd */
                             this.database.writeVol(id, "MIX", volLpln, volVemgsa, volMix);
-                            this.database.readAllVol(socket);;
+                            this.database.readAllVol(socket);
+
+
                         }
                         else {
                             if (checkanswer.checkLPLN.valeurRetour <= 1) {
                                 console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 2 ");
 
-                                socket.emit("analysedVol", "LPLN", inputData,volLpln, null, null);
+                                socket.emit("analysedVol", "LPLN", inputData, volLpln, null, null);
                                 this.database.writeVol(id, "LPLN", volLpln, null, null);
                             }
                             else {
                                 console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 3 ");
-                                socket.emit("analysedVol", "VEMGSA", inputData, null,volVemgsa, null);
+                                socket.emit("analysedVol", "VEMGSA", inputData, null, volVemgsa, null);
                                 this.database.writeVol(id, "LPLN", null, volVemgsa, null);
                             }
                         }
