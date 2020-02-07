@@ -1,419 +1,457 @@
-import { Vol } from '../Modele/vol';
-import { EtatCpdlc } from '../Modele/etatCpdlc';
-import { Etat } from '../Modele/enumEtat';
+import { Identifiants } from "../Modele/identifiants";
 import { Split } from './split';
-import * as moment from 'moment';
-import { DetailCpdlc } from '../Modele/detailCpdlc';
-import { GrepLPLN } from './grepLPLN';
-import { Path } from '../Modele/path';
-import { Dates } from './date';
-import { ReadLine } from '../scripts/node-readline/node-readline';
-import { Frequences } from './frequences';
+import { ReadLine } from "../scripts/node-readline/node-readline";
+import { Dates, creneauHoraire } from "./date";
+import moment = require("moment");
+const fs = require('fs');
 const p = require('path');
 
+
+/**
+ * Classe regroupant les fonctions qui accedent directement au fichier LPLN en lecture
+ * Soit pour récuperer des infos ponctuelles ( lors du check ini comme l'arcid ou le plnid)
+ * soit pour recuperer l'ensemble des logs a stocker dans un fichier destination
+ */
 export class ParseurLPLN {
-
-  private grep: GrepLPLN;
+  private userPath: string;
   private split: Split;
-  private dates: Dates;
-  private frequences: Frequences;
   private readLine: ReadLine;
+  private dates: Dates;
 
-  constructor(grep: GrepLPLN, dates:Dates,split:Split,frequences:Frequences) {
-    console.log("Je rentre dans le constructor parseurLpln ");
-    this.grep = grep;
-    this.split =split;
+
+  constructor(userPath: string,dates:Dates,split:Split) {
+    console.log("Je rentre dans le constructor ParseurLPLN ");
     this.dates = dates;
-    this.frequences = frequences;
+    this.userPath = userPath;
+    this.split = split;
     this.readLine = new ReadLine();
   }
 
-  public parseur(arcid: string, plnid: number): Vol {
-    console.log("Classe ParseurLpln Fonction parseur");
-    const fichierGbdi = p.resolve(Path.systemPath, "STPV_G2910_CA20180816_13082018__1156");
-    const source = p.resolve(this.grep.getUserPath(), "resultLPLN.htm"); //Fichier en entree a analyser 
 
-    // DEPLACé DNAS LA FONCTION CHECK ! this.grep.grepLogLPLN(arcid, plnid, fichierSourceLpln); 
+  public getUserPath(): string {
+    return this.userPath;
+  }
 
-    //TODO : partie a mettre en commun avec l'autre parseur 
+  public parseLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): void {
+    
+    console.log("Classe ParseurLPLN Fonction parseLogLPLN", "plnid", plnid, "arcid", arcid);
+
+    let fichierDestination = p.resolve(this.userPath, "resultLPLN.htm");
+
+    let fichierSource = p.resolve(this.userPath, fichierSourceLpln);
 
 
-    //let fichierDest = "../Output/freq.htm"; 
-    this.frequences.GbdiToFreq(fichierGbdi);
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let w = fs.openSync(fichierDestination, "w");
+
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
+      process.exit(1);
+    }
+    //Traitement du fichier
+    do {
+      //Test de la fin de fichier
+      let mylogCpdlc = this.readLine.fgets(r);
+      if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match("NUMERO PLN: " + plnid);
+      let info1Lplnbis = mylogCpdlc.match("NUMERO PLN:  " + Math.round(plnid));
+      let info2Lpln = mylogCpdlc.match("NOM SL: AIX");
+      if (((info1Lpln !== null) || (info1Lplnbis !== null)) && (info2Lpln !== null)) {
+        fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+        //console.log(mylogCpdlc);
+        //Lecture des logs concernant le vol dans le SL AIX
+        do {
+          mylogCpdlc = this.readLine.fgets(r);
+          if (mylogCpdlc === false) { break; }
+
+          //Recuperation des infos DLK generales
+          let info6Lpln = mylogCpdlc.match(/EQUIPEMENT CPDLC|ETAT CONN CPDLC|DONNEES LOGON/);
+          if (info6Lpln !== null) {
+            fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+            //console.log(mylogCpdlc);
+          }
+
+          //Recuperation des infos DLK liees aux adresses Mode S et déposees ( de l aeroport d arrivee)
+          let info7Lpln = mylogCpdlc.match(/ADR. DEPOSEE|ADR MODE S INF|ADRESSE MODE S/);
+          if (info7Lpln !== null) {
+            fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+            //console.log(mylogCpdlc);
+          }
+
+          //Recuperation des infos liees a l aeroport de depart
+          let info8Lpln = mylogCpdlc.match(/AERODROME  DEP|AERODROME DEST/);
+          if (info8Lpln !== null) {
+            fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+            //console.log(mylogCpdlc);
+          }
+
+          //Recuperation du resume des tranferts DLK
+          let info5Lpln = mylogCpdlc.match("TRANSFERT DATA LINK");
+          if (info5Lpln !== null) {
+            let nbSep = 0;
+            do {
+
+              mylogCpdlc = this.readLine.fgets(r);
+              if (mylogCpdlc === false) { break; }
+
+              if (mylogCpdlc.match("--------------------------------") !== null) {
+                nbSep++;
+                //console.log("compteur : "+nbSep)
+              }
+              //
+              let info3Lpln = mylogCpdlc.match(/NOM   SECTEUR|NUMERO EO ASSOCIEE|ETAT  DATA  LINK/);
+              if (info3Lpln !== null) {
+                fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+                //console.log("b: "+mylogCpdlc);
+              }
+              else {
+                //console.log("match pas : "+mylogCpdlc);
+              }
+
+            } while (nbSep !== 2);
+          }
+
+          // Recuperation des echanges CPC
+          let info4Lpln = mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE");
+          if (info4Lpln !== null) {
+            fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+            do {
+              mylogCpdlc = this.readLine.fgets(r);
+              if (mylogCpdlc === false) { break; }
+
+              // let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|FPCRD   EVT ETATDL|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
+              let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|TRARTV|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
+              if (info3Lpln !== null) {
+                fs.writeSync(w, mylogCpdlc + "\n", null, 'utf8');
+                //console.log(mylogCpdlc);
+              }
+            } while ((mylogCpdlc.match("Separateur d'impression") == null) && (mylogCpdlc.match("FIN DES DEPOUILLEMENTS") == null)
+            && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)) && ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
+          }
 
 
-    /* Ouverture du fichier à analyser*/
+        } while ((mylogCpdlc.match("Separateur d'impression") == null) && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)) && ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
+      }
 
-    let r = this.readLine.fopen(source, "r");
-    if (r === false) {    // Test de l ouverture du fichier 
-      console.log("Error, can't open ", source);
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
+    fs.closeSync(w);
+  }
+
+  /**
+   * Fonction recuperant le créneau horaire du vol passé en paramètre à partir de son fichier de log LPLN
+   * @param arcid : arcid du vol étudié
+   * @param plnid : plnid du vol étudié
+   * @param fichierSourceLpln : nom du ficher LPLN contenant les logs du vol étudié
+   * @returns {dateMin:string,dateMax:string} où les dates sont au format('DD-MM HH mm ss'); 
+   */
+  public parseDatesLogLPLN(arcid: string, plnid: number, fichierSourceLpln: string): creneauHoraire {
+    console.log("Classe ParseurLPLN Fonction parseDatesLogLPLN", "plnid", plnid, "arcid", arcid);
+
+    let fichierSource = p.resolve(this.userPath, fichierSourceLpln);
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
+
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
       process.exit(1);
     }
 
-    /* Initialisation des variables */
-    let numeroLigne = 0; // Numero de la de lignes lue 
-    let monEtat = Etat.NonLogue; // Etat CPDLC par defaut 
+    let datesFichier = <creneauHoraire>{};
+    datesFichier.dateMin = "";
+    datesFichier.dateMax = "";
     let dateTemp: string = "";
     let mois: string = "";
     let jour: string = "";
-
-    let monvol = new Vol(arcid, plnid);
-
-    /* CREATION DU GRAPHE D ETAT */
-
+    //Traitement du fichier
     do {
-      //lecture d'une ligne du fichier 
+      //Test de la fin de fichier
       let mylogCpdlc = this.readLine.fgets(r);
-      //Test de fin de fichier 
       if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match("NUMERO PLN: " + plnid);
+      let info1Lplnbis = mylogCpdlc.match("NUMERO PLN:  " + Math.round(plnid));
+      let info2Lpln = mylogCpdlc.match("NOM SL: AIX");
+      if (((info1Lpln !== null) || (info1Lplnbis !== null)) && (info2Lpln !== null)) {
+        //Lecture des logs concernant le vol dans le SL AIX
+        do {
+          mylogCpdlc = this.readLine.fgets(r);
+          if (mylogCpdlc === false) { break; }
 
-
-      //Test si la ligne lue est une info générale CPDLC ou une information sur un etat CPDLC 
-      //TODO : faire un check plus complet sur le format attentu : * nombre date * 
-      if (mylogCpdlc.match(/\*/) !== null) {
-
-        //Recuperation de la date si c est la ligne  "EDITION DU CHAMP ARCHIVAGE" 
-        if (mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE") !== null) {
-          let motif = /(\*)(.*)(\*)(.*)(CHAMP)(.*)/;
-          //console.log(mylogCpdlc); 
-
-          dateTemp = mylogCpdlc.replace(motif, "$2").trim();
-          let motifDate = /(.*)( )(.*)/;
-          if (dateTemp.match(motifDate) !== null) {
-            jour = dateTemp.toString().replace(motifDate, "$1");
-            mois = this.dates.MonthLetterToNumber(dateTemp.toString().replace(motifDate, "$3"));
-          }
-
-        }
-        else {
-
-          //Recuperation du numero de ligne et de l'heure et du contenu CPDLC de la ligne lue 
-          let mylogCpdlcDecompose = this.split.splitString(mylogCpdlc, '*');
-          //Recuperation du numero de ligne et de l'heure de la ligne lue 
-          let infoGen = mylogCpdlcDecompose[1].trim();
-
-
-
-          infoGen = infoGen.replace(/\s+/g, " ");
-          //Recuperation du contenu CPDLC de la ligne lue 
-          let infoLog = mylogCpdlcDecompose[2];
-
-          //Creation de l objet logCpdlc et  
-          let log = new EtatCpdlc(numeroLigne);
-          log.setLog(infoLog);
-          //Stockage de la date/heure 
-
-          let motifDateHeure = /(.*)( )(.*)(H)(.*)/;
-          let dateHeure = infoGen.match(motifDateHeure);
-          if (dateHeure !== null) {
-            const heure = dateHeure.toString().replace(motifDateHeure, "$3");
-            const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
-            const dateToStore = jour + "-" + mois + " " + heure + " " + minutes + " OO";
-            const momentDate = moment(dateToStore, 'DD-MM HH mm ss');
-
-            log.setJour(moment(momentDate).format('DD-MM'));
-            log.setHeure(moment(momentDate).format('HH mm ss'));
-            log.setDate(moment(momentDate).format('DD-MM HH mm ss'));
-
-            if (monvol.getDate() == "") {
-              monvol.setDate(log.getJour());
+          // Recuperation des infos de date
+          let info4Lpln = mylogCpdlc.match("EDITION DU CHAMP ARCHIVAGE");
+          if (info4Lpln !== null) {
+            // Recuperation du jour et du mois
+            let motif = /(\*)(.*)(\*)(.*)(CHAMP)(.*)/;
+            dateTemp = mylogCpdlc.replace(motif, "$2").trim();
+            let motifDate = /(.*)( )(.*)/;
+            if (dateTemp.match(motifDate) !== null) {
+              jour = dateTemp.toString().replace(motifDate, "$1");
+              mois = this.dates.MonthLetterToNumber(dateTemp.toString().replace(motifDate, "$3"));
             }
+
+            do {
+              mylogCpdlc = this.readLine.fgets(r);
+              if (mylogCpdlc === false) { break; }
+
+              // let info3Lpln = mylogCpdlc.match(/RECEPTION MSG CPC|ENVOI MSG CPC|TRFDL|FPCRD   EVT TRFSEC|FPCRD   EVT ETATDL|TRARTV|VTR  SECTEUR|EVENEMENT DATE: FIN VOL|FPCLOSE EVT END/);
+              let info3Lpln = mylogCpdlc.match(/RECEPTION PLN ACTIVE|RECEPTION M|ENVOI/);
+              if (info3Lpln !== null) {
+                //Recuperation du numero de ligne et de l'heure et du contenu CPDLC de la ligne lue 
+                let mylogCpdlcDecompose = this.split.splitString(mylogCpdlc, '*');
+                //Recuperation du numero de ligne et de l'heure de la ligne lue 
+                let infoGen = mylogCpdlcDecompose[1].trim();
+                infoGen = infoGen.replace(/\s+/g, " ");
+                let motifDateHeure = /(.*)( )(.*)(H)(.*)/;
+                let dateHeure = infoGen.match(motifDateHeure);
+                if (dateHeure !== null) {
+                  const heure = dateHeure.toString().replace(motifDateHeure, "$3");
+                  const minutes = dateHeure.toString().replace(motifDateHeure, "$5");
+                  const dateToStore = jour + "-" + mois + " " + heure + " " + minutes + " OO";
+                  const momentDate = moment(dateToStore, 'DD-MM HH mm ss').format('DD-MM HH mm ss');
+
+                  // console.log("momentDate: ",momentDate);
+                  
+                  if (datesFichier.dateMin === "") {
+                    datesFichier.dateMin = momentDate;
+                    datesFichier.dateMax = momentDate;
+                  }
+                  if (this.dates.isDateSup(momentDate, datesFichier.dateMax)) {
+                    datesFichier.dateMax = momentDate;
+                  }
+                  //console.log("dateMin: ",datesFichier.dateMin," dateMax: ",datesFichier.dateMax);
+                }
+              }
+            } while ((mylogCpdlc.match("Separateur d'impression") == null) && (mylogCpdlc.match("FIN DES DEPOUILLEMENTS") == null)
+            && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)) && ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
           }
 
 
-          //Stockage des infos générales 
-          let myMap = this.recuperationCPC(infoLog);
-          log.setTitle(myMap['TITLE']);
-          log.setDetailLog(myMap);
-
-
-          if (log.getTitle().match("CPC")) {
-            log.setIsTypeCPC(true);
-          }
-          else {
-            log.setIsTypeCPC(false);
-          }
-
-          monvol.getListeLogs().push(log);
-
-
-          //automate a etat sur la variable etat 
-          if ((log.getTitle() == "CPCCLOSLNK") || (log.getTitle() == "CPCFREQ")) {
-            if (log.getDetaillog()["FREQ"] !== undefined) {
-              let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);
-              let detail = <DetailCpdlc>{};
-              detail.key = "FREQ";
-              detail.value = freq;
-              log.addDetail(detail);
-            }
-          }
-
-        }
-      }
-      else {
-
-        if (mylogCpdlc.match("AERODROME  DEP.:") !== null) {
-          let motif = /(.*)(AERODROME  DEP.:)(.*)(NIVEAU)(.*)/;
-          let transaction = mylogCpdlc.replace(motif, "$3").trim();
-         // console.log("info adep:", transaction);
-          monvol.setAdep(transaction);
-        }
-
-        if (mylogCpdlc.match("AERODROME DEST.:") !== null) {
-          let motif = /(.*)(AERODROME DEST.:)(.*)(RANG)(.*)/;
-          let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          //console.log("info ades:", transaction);
-          monvol.setAdes(transaction);
-        }
-
-        if (mylogCpdlc.match("ADRESSE MODE S :") !== null) {
-          let motif = /(.*)(ADRESSE MODE S :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
-          let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          //console.log("info adrModeS:", transaction);
-          monvol.setAdrModeS(transaction);
-        }
-
-        if (mylogCpdlc.match("ADR MODE S INF :") !== null) {
-          let motif = /(.*)(ADR MODE S INF :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
-          let transaction = mylogCpdlc.replace(motif, "$3").trim();
-          //console.log("info adrModeSInf:", transaction);
-          monvol.setAdrModeSInf(transaction);
-        }
-
-        if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) {
-          let motif = /(.*)(ADR. DEPOSEE   :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
-          let transaction = mylogCpdlc.replace(motif, "$3").trim();
-         // console.log("info adrDeposee:", transaction);
-          monvol.setAdrDeposee(transaction);
-        }
-
-        if (mylogCpdlc.match("EQUIPEMENT CPDLC") !== null) {
-          let motif = /(.*)(EQUIPEMENT CPDLC :)(.*)/;
-          let transaction = mylogCpdlc.replace(motif, "$3").trim();
-         // console.log("info equipement:", transaction);
-          monvol.setEquipementCpdlc(transaction);
-        }
-
+        } while ((mylogCpdlc.match("Separateur d'impression") == null) && ((mylogCpdlc.match("NOM SL:") == null) || (mylogCpdlc.match("AIX") !== null)) && ((mylogCpdlc.match("NUMERO PLN:") == null) || (mylogCpdlc.match("NUMERO PLN: " + plnid) !== null)));
       }
 
-      numeroLigne += 1;
     } while (!this.readLine.eof(r));
-
     this.readLine.fclose(r);
-    //fs.closeSync(w); 
 
-    return monvol;
+    return datesFichier;
   }
 
-  public isVolEquipeCpdlc(): boolean {
-    console.log("Classe ParseurLpln Fonction isVolEquipeCpdlc");
 
-    /* Ouverture du fichier à analyser*/
-    const source = p.resolve(this.grep.getUserPath(), "resultLPLN.htm"); //Fichier en entree a analyser     
-    let r = this.readLine.fopen(source, "r");
-    if (r === false) {    // Test de l ouverture du fichier 
-      console.log("Error, can't open ", source);
+  public grepArcidFromPlnid(plnid: number, fichierSourceLpln: string): string {
+    console.log("Classe ParseurLPLN Fonction grepArcidFromPlnid");
+
+    let fichierSource = fichierSourceLpln;
+    //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
+    //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
+    //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
+    let arcid = "";
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
       process.exit(1);
     }
-
-    let isEquipe: boolean = false;
+    //Traitement du fichier
     do {
-      //lecture d'une ligne du fichier 
-      let mylogCpdlc = this.readLine.fgets(r);
-      //Test de fin de fichier 
+      //Test de la fin de fichier
+      var mylogCpdlc = this.readLine.fgets(r);
       if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match(motif);
+      let info2Lpln = mylogCpdlc.match(Math.round(plnid));
+      if ((info1Lpln !== null) && (info2Lpln !== null)) {
+        arcid = mylogCpdlc.toString().replace(motif, "$5").trim();
 
-
-      if (mylogCpdlc.match("EQUIPEMENT CPDLC") !== null) {
-        let motif = /(.*)(EQUIPEMENT CPDLC :)(.*)/;
-        let transaction = mylogCpdlc.replace(motif, "$3").trim();
-      //  console.log("info equipement:", transaction);
-        if (transaction == "EQUIPE") {
-          isEquipe = true;
-        }
         break;
       }
+
     } while (!this.readLine.eof(r));
-
     this.readLine.fclose(r);
-    return isEquipe;
-  }
 
-  private recuperationCPC(infoLog: string): DetailCpdlc[] {
-    let mymap: DetailCpdlc[] = [];
-
-    if (infoLog.match("ENVOI MSG") !== null) {
-      let motif = /(ENVOI MSG )(.*)(AU SERVEUR AIR)/;
-      mymap['ORIGINE_MSG'] = 'STPV';
-      if (infoLog.match(motif) !== null) {
-        let cpcInfo = infoLog.replace(motif, "$2").trim();
-        cpcInfo = cpcInfo.replace(/\s+/g, " ");
-        let etatCpc = this.split.splitString(cpcInfo, " ");
-        let title = etatCpc[0];
-        mymap['TITLE'] = title;
-        switch (title) {
-          case 'CPCASRES': {
-        //    console.log("je rentre dans CPCASRES", etatCpc[1].trim());
-            if (etatCpc[1].trim() == "(S)") {
-              mymap['ATNASSOC'] = 'S';
-            }
-            else {
-              if (etatCpc[1].trim() == "(L)") {
-                mymap['ATNASSOC'] = 'L';
-              }
-              else {
-                mymap['ATNASSOC'] = 'F';
-                //TODO verifier quil ny a pas dautres valeurs possibles 
-              }
-            }
-            break;
-          }
-          case 'CPCCLOSELNK': {
-            mymap['TITLE'] = 'CPCCLOSLNK';
-            break;
-          }
-          case 'CPCFREQ': {
-            mymap['FREQ'] = etatCpc[2];
-            break;
-          }
-          case 'CPCNXTCNTR': {
-            if (etatCpc[1].trim() == "(G)") {
-              mymap['TFLOGONMODE'] = 'G';
-            }
-            if (etatCpc[1].trim() == "(A)") {
-              mymap['TFLOGONMODE'] = 'A';
-            }
-            break;
-          }
-          default: {
-            break;
-          }
-
-        }
-
-      }
-      else {
-        let motif = /(ENVOI MSG FPCRD   EVT)(.*)(POUR POSITION\(S\))(.*)/;
-        
-        let cpcInfo = infoLog.replace(motif, "$2").trim();
-        cpcInfo = cpcInfo.replace(/\s+/g, " ");
-        mymap['TITLE'] = cpcInfo;
-        mymap['EVT'] = "FPCRD";
-        cpcInfo = infoLog.replace(motif, "$4").trim();
-        cpcInfo = cpcInfo.replace(/\s+/g, " ");
-
-        mymap['POSITION'] = cpcInfo;
-
-
-      }
-    }
-
-    if (infoLog.match("RECEPTION MSG") !== null) {
-      mymap['ORIGINE_MSG'] = 'SA';
-      let motif = /(RECEPTION MSG )(.*)(DU SERVEUR AIR)/;
-      let cpcInfo = infoLog.replace(motif, "$2").trim();
-
-      cpcInfo = cpcInfo.replace(/\s+/g, " ");
-      let etatCpc = this.split.splitString(cpcInfo, " ");
-      let title = etatCpc[0];
-      mymap['TITLE'] = title;
-
-
-      switch (title) {
-        case 'CPCVNRES': {
-          if (etatCpc[1].trim() == "(A)") {
-            mymap['GAPPSTATUS'] = 'A';
-          }
-          if (etatCpc[1].trim() == "(F)") {
-            mymap['GAPPSTATUS'] = 'F';
-          }
-          break;
-        }
-        case 'CPCCOMSTAT': {
-          if (etatCpc[1].trim() == "(A)") {
-            mymap['CPDLCCOMSTATUS'] = 'A';
-          }
-          if (etatCpc[1].trim() == "(N)") {
-            mymap['CPDLCCOMSTATUS'] = 'N';
-          }
-          break;
-        }
-        case 'CPCMSGDOWN': {
-          if (etatCpc[1].trim() == "(WIL)") {
-            mymap['CPDLCMSGDOWN'] = 'WIL';
-          }
-          if (etatCpc[1].trim() == "(LCK)") {
-            mymap['CPDLCMSGDOWN'] = 'LCK';
-          }
-          if (etatCpc[1].trim() == "(UNA)") {
-            mymap['CPDLCMSGDOWN'] = 'UNA';
-          }
-          if (etatCpc[1].trim() == "(STB)") {
-            mymap['CPDLCMSGDOWN'] = 'STB';
-          }
-          break;
-        }
-        default: {
-          break;
-        }
-      }
-    }
-
-    if (infoLog.match("EVENEMENT DATE: FIN TRFDL") !== null) {
-      mymap['TITLE'] = 'FIN TRFDL';
-      mymap['ORIGINE_MSG'] = 'INTERNE';
-      let motif = /(.*)(HEURE:)(.*)/;
-      let heure = infoLog.replace(motif, "$3").trim();
-      mymap['HEURE'] = heure;
-    }
-
-    if (infoLog.match("EVENEMENT DATE: FIN VOL") !== null) {
-      mymap['TITLE'] = 'FIN VOL';
-      mymap['ORIGINE_MSG'] = 'INTERNE';
-      let motif = /(.*)(HEURE:)(.*)(AVEC)(.*)/;
-      let heure = infoLog.replace(motif, "$3").trim();
-      mymap['HEURE'] = heure;
-    }
-
-    if (infoLog.match("EVENEMENT DATE: TRANSFERT") !== null) {
-      mymap['TITLE'] = 'TRANSFERT';
-      mymap['ORIGINE_MSG'] = 'INTERNE';
-      let motif = /(.*)(HEURE:)(.*)(ETAT :)(.*)(SECTEUR:)(.*)(BALISE :)(.*)(RANG.*)/;
-      let heure = infoLog.replace(motif, "$3");
-      mymap['HEURE'] = heure;
-      let etat = infoLog.replace(motif, "$5");
-      mymap['ETAT'] = etat;
-      let secteur = infoLog.replace(motif, "$7");
-      mymap['SECTEUR'] = secteur;
-      let balise = infoLog.replace(motif, "$9");
-      mymap['BALISE'] = balise;
-
-    }
-
-
-    if (infoLog.match("TRANSACTION") !== null) {
-      mymap['TYPE_MSG'] = 'INTERNE';
-      let motif = /(.*)(TRANSACTION )(.*)(POSITION ORIGINE)(.*)/;
-      let transaction = infoLog.replace(motif, "$3").trim();
-      mymap['TITLE'] = transaction;
-      let position = infoLog.replace(motif, "$5");
-      mymap['POSITION'] = position.trim();
-    }
-
-    return mymap;
+    return arcid;
   }
 
 
-  private isFichierLisible(fichier: string): number {
-    let fd = this.readLine.fopen(fichier, "r");
-    //Test de l'ouverture du fichier 
-    if (fd === false) {
-      console.log("Error, can't open ", fichier);
+
+  public grepPlnidFromArcid(arcid: string, fichierSourceLpln: string): number {
+    console.log("Classe ParseurLPLN Fonction grepPlnidFromArcid");
+
+    let fichierSource = fichierSourceLpln;
+    //let fichierSource = "../Input/7183_6461_pb_datalink-180926-stpv3-OPP.log";
+    //let fichierSource = "../Input/VEMGSA1.EVP.stpv3_250918_2303_260918_0742";
+    //let source = "../Input/VEMGSA50.OPP.stpv3_310818_0649_010918_0714_ori";
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
+    let plnid = 0;
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
       process.exit(1);
     }
-    else {
-      return fd;
-    }
+    //Traitement du fichier
+    do {
+      //Test de la fin de fichier
+      var mylogCpdlc = this.readLine.fgets(r);
+      if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match(motif);
+      let info2Lpln = mylogCpdlc.match(arcid);
+      if ((info1Lpln !== null) && (info2Lpln !== null)) {
+        plnid = mylogCpdlc.toString().replace(motif, "$3").trim();
+        break;
+      }
+
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
+
+    return plnid;
   }
 
-} 
+  /**
+   * Fonction qui rechercher dans le fichier LPLN passé en paramètre 
+   * les identifiants (plnid, arcid) des vols loggés dans le fichier 
+   * @param fichierSource nom du fichier le log LPLN rentré par l'utilisateur
+   * @returns {[plnid,arcid]} un tableau des identifiants trouvés
+   */
+  public grepPlnidAndArcid(fichierSource: string): Identifiants[] {
+    console.log("Classe ParseurLPLN Fonction grepPlnidAndArcid");
+
+
+    let tabPlnid = [];
+    let tabArcid = [];
+    let tabId = [];
+
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
+    let arcidTemp;
+
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
+      process.exit(1);
+    }
+    //Traitement du fichier
+    do {
+      //Test de la fin de fichier
+      var mylogCpdlc = this.readLine.fgets(r);
+      if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match(motif);
+      if (info1Lpln !== null) {
+        let id = <Identifiants>{};
+        id.arcid = "";
+        id.plnid = 0;
+        arcidTemp = this.split.splitString(mylogCpdlc.toString().replace(motif, "$5").trim(), " ");
+        id.arcid = arcidTemp[0];
+        id.plnid = mylogCpdlc.toString().replace(motif, "$3").trim();
+
+        if (!(tabArcid.includes(id.arcid)) || !(tabPlnid.includes(id.plnid))) {
+
+          tabArcid.push(id.arcid);
+          tabPlnid.push(id.plnid);
+          tabId.push(id)
+        }
+      }
+
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
+
+
+    tabId.forEach(element => {
+      console.log("tabId finale : ", element.arcid, " ", element.plnid);
+    });
+
+
+
+    return tabId;
+  }
+
+
+
+  public isArcid(arcid: string, fichierSourceLpln: string): boolean {
+    console.log("Classe ParseurLPLN Fonction isArcid");
+
+    let result: boolean = false;
+    let fichierSource = fichierSourceLpln;
+
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
+    let plnid = 0;
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
+      process.exit(1);
+    }
+    //Traitement du fichier
+    do {
+      //Test de la fin de fichier
+      var mylogCpdlc = this.readLine.fgets(r);
+      if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match(motif);
+      let info2Lpln = mylogCpdlc.match(arcid);
+
+      if ((info1Lpln !== null) && (info2Lpln !== null)) {
+        let arcidTrouve: string;
+        arcidTrouve = mylogCpdlc.toString().replace(motif, "$5").trim();
+        if (arcid == arcidTrouve) {
+          result = true;
+          break;
+        }
+      }
+
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
+
+    return result;
+  }
+
+  public isPlnid(plnidSource: number, fichierSourceLpln: string): boolean {
+    console.log("Classe ParseurLPLN Fonction isPlnid");
+    console.log("plnidSource:", plnidSource);
+
+    let plnid = Math.round(plnidSource);
+    console.log("plnid:", plnid);
+    let result: boolean = false;
+    let fichierSource = fichierSourceLpln;
+
+    let r = this.readLine.fopen(p.resolve(this.userPath, fichierSource), "r");
+    let motif = /(.*)(NUMERO PLN: )(.*)(INDICATIF: )(.*)(NOM SL: AIX)(.*)/;
+    //Test de l'ouverture du fichier
+    if (r === false) {
+      console.log("Error, can't open ", fichierSource);
+      process.exit(1);
+    }
+    //Traitement du fichier
+    do {
+      //Test de la fin de fichier
+      var mylogCpdlc = this.readLine.fgets(r);
+      if (mylogCpdlc === false) { break; }
+      //Test du début des logs concernant le vol dans le SL AIX
+      let info1Lpln = mylogCpdlc.match(motif);
+      let info2Lpln = mylogCpdlc.match(plnid);
+      if ((info1Lpln !== null) && (info2Lpln !== null)) {
+
+        let plnidTrouve: number;
+        plnidTrouve = mylogCpdlc.toString().replace(motif, "$3").trim();
+        console.log("plnidTrouve", plnidTrouve);
+
+        if (plnid == plnidTrouve) {
+          result = true;
+          break;
+        }
+      }
+
+    } while (!this.readLine.eof(r));
+    this.readLine.fclose(r);
+
+    return result;
+  }
+}
+
+
+
+

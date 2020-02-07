@@ -1,6 +1,6 @@
 import { Vol } from '../Modele/vol';
-import { ParseurLPLN } from './parseurLPLN';
-import { ParseurVEMGSA } from './parseurVEMGSA';
+import { AnalyseLPLN } from './analyseLPLN';
+import { AnalyseVEMGSA } from './analyseVEMGSA';
 import { GrapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Dates, creneauHoraire } from './date';
@@ -245,11 +245,11 @@ export class MixInfos {
 
 
 
-  public InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, parseurLPLN: ParseurLPLN): Vol {
+  public InfosLpln(arcid: string, plnid: number, fichierSourceLpln: string, analyseLPLN: AnalyseLPLN): Vol {
     console.log("Classe MixInfos Fonction InfosLpln");
     //Initialisation du vol issu des donnees LPLN 
     let monvolLpln = new Vol(arcid, plnid);
-    monvolLpln = parseurLPLN.parseur(arcid, plnid);
+    monvolLpln = analyseLPLN.analyse(arcid, plnid);
 
 
     let nbLogsCpdlc: number = 0;
@@ -323,7 +323,7 @@ export class MixInfos {
 
   }
 
-  public InfosVemgsa(arcid: string, plnid: number, creneau: creneauHoraire, fichierSourceVemgsa: string[], ParseurVEMGSA: ParseurVEMGSA): Vol {
+  public InfosVemgsa(arcid: string, plnid: number, creneau: creneauHoraire, fichierSourceVemgsa: string[], analyseVEMGSA: AnalyseVEMGSA): Vol {
     console.log("Classe MixInfos Fonction InfosVemgsa");
 
 
@@ -333,7 +333,7 @@ export class MixInfos {
     let monvolVemgsa = new Vol(arcid, plnid);
     //pv.identification(arcid, plnid, fichierSourceVemgsa); 
 
-    monvolVemgsa = ParseurVEMGSA.parseur(arcid, plnid, creneau, fichierSourceVemgsa);
+    monvolVemgsa = analyseVEMGSA.analyse(arcid, plnid, creneau, fichierSourceVemgsa);
     let nbLogsCpdlc: number = 0;
     let hasCPASREQ: boolean = false;
     let hasCPCEND: boolean = false;

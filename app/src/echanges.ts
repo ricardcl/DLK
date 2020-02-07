@@ -1,17 +1,18 @@
-import { Contexte } from './Modele/enumContexte';
 var SocketIOFileUpload = require("socketio-file-upload");
+
+import { Contexte } from './Modele/enumContexte';
 import { checkAnswer } from './Modele/checkAnswer';
 import { Vol } from './Modele/vol';
 import { UsersRepository } from './Users';
-import { GrepVEMGSA } from './Parseur/grepVEMGSA';
-import { GrepLPLN } from './Parseur/grepLPLN';
+import { ParseurVEMGSA } from './Parseur/parseurVEMGSA';
+import { ParseurLPLN } from './Parseur/parseurLPLN';
 import { Path } from './Modele/path';
-import { Check } from './Parseur/check';
+import { Controles } from './Parseur/controles';
 import { MixInfos } from './Parseur/MixInfos';
 import { Frequences } from './Parseur/frequences';
 import { creneauHoraire, Dates } from './Parseur/date';
-import { ParseurLPLN } from './Parseur/parseurLPLN';
-import { ParseurVEMGSA } from './Parseur/parseurVEMGSA';
+import { AnalyseLPLN } from './Parseur/analyseLPLN';
+import { AnalyseVEMGSA } from './Parseur/analyseVEMGSA';
 import { LogBook } from './logBook';
 import { Database } from './database';
 import { Identifiants, inputData } from './Modele/identifiants';
@@ -20,16 +21,16 @@ import { Split } from './Parseur/split';
 
 
 
-export class Formulaire {
+export class Echanges {
     private app = require('http').createServer();
     private io = require('socket.io')(this.app);
     private users: UsersRepository;
     private contexte: Contexte;
-    private grepVEMGSA: GrepVEMGSA;
-    private grepLPLN: GrepLPLN;
-    private parseurLPLN: ParseurLPLN;
     private parseurVEMGSA: ParseurVEMGSA;
-    private check: Check;
+    private parseurLPLN: ParseurLPLN;
+    private analyseLPLN: AnalyseLPLN;
+    private analyseVEMGSA: AnalyseVEMGSA;
+    private controles: Controles;
     private mixInfos: MixInfos;
     private frequences: Frequences;
     private logBook: LogBook;
@@ -41,7 +42,7 @@ export class Formulaire {
 
 
     constructor() {
-        console.log("Je rentre dans le constructor Formulaire ");
+        console.log("Je rentre dans le constructor Echanges ");
 
         this.users = new UsersRepository(Path.userPath);
         this.users.deleteAllUsers();
@@ -51,7 +52,7 @@ export class Formulaire {
         this.split = new Split();
         this.dates = new Dates(this.split);
         this.frequences = new Frequences();
-        this.check = new Check(this.dates);
+        this.controles = new Controles(this.dates);
         this.mixInfos = new MixInfos(this.dates, this.frequences);
 
         this.logBook = LogBook.getInstance();
@@ -86,10 +87,10 @@ export class Formulaire {
 
             let clientId: string = socket.id;
             this.users.createUser(clientId);
-            this.grepVEMGSA = new GrepVEMGSA(Path.userPath + "/" + clientId, this.dates);
-            this.grepLPLN = new GrepLPLN(Path.userPath + "/" + clientId, this.dates, this.split);
-            this.parseurLPLN = new ParseurLPLN(this.grepLPLN, this.dates, this.split, this.frequences);
-            this.parseurVEMGSA = new ParseurVEMGSA(this.grepVEMGSA, this.dates, this.split, this.frequences);
+            this.parseurVEMGSA = new ParseurVEMGSA(Path.userPath + "/" + clientId, this.dates);
+            this.parseurLPLN = new ParseurLPLN(Path.userPath + "/" + clientId, this.dates, this.split);
+            this.analyseLPLN = new AnalyseLPLN(this.parseurLPLN, this.dates, this.split, this.frequences);
+            this.analyseVEMGSA = new AnalyseVEMGSA(this.parseurVEMGSA, this.dates, this.split, this.frequences);
             let uploader = new SocketIOFileUpload();
             uploader.dir = Path.userPath + "/" + clientId;
             uploader.listen(socket);
@@ -128,15 +129,15 @@ export class Formulaire {
                 console.log("analyseDataInput", "plnid", plnid);
                 let plageVemgsa = new Array;
                 if (listVemgsaInput.length >= 2) {
-                    plageVemgsa = this.grepVEMGSA.orderVemgsa(listVemgsaInput);
+                    plageVemgsa = this.parseurVEMGSA.orderVemgsa(listVemgsaInput);
                 }
                 else if (listVemgsaInput.length == 1) {
                     plageVemgsa[0] = listVemgsaInput[0];
                 }
 
-                this.contexte = this.check.evaluationContexte(lpln, plageVemgsa);
+                this.contexte = this.controles.evaluationContexte(lpln, plageVemgsa);
                 let resultCheck = <checkAnswer>{};
-                resultCheck = this.check.check(arcid, plnid, lpln, plageVemgsa, this.contexte, this.grepLPLN, this.grepVEMGSA);
+                resultCheck = this.controles.controle(arcid, plnid, lpln, plageVemgsa, this.contexte, this.parseurLPLN, this.parseurVEMGSA);
                 socket.emit("check", resultCheck);
 
             });
@@ -168,7 +169,7 @@ export class Formulaire {
                     case Contexte.LPLN:
 
                         console.log("analysedVol Contexte.LPLN");
-                        volLpln = this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN);
+                        volLpln = this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN);
                         socket.emit("analysedVol", "LPLN", inputData, volLpln, null, null);
 
                         /**  Traitement bdd */
@@ -179,7 +180,7 @@ export class Formulaire {
 
                         break;
                     case Contexte.VEMGSA:
-                        volVemgsa = this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA);
+                        volVemgsa = this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA);
 
                         console.log("analysedVol Contexte.VEMGSA");
                         socket.emit("analysedVol", "VEMGSA", inputData, null, volVemgsa, null);
@@ -189,9 +190,9 @@ export class Formulaire {
                         break;
                     case Contexte.LPLNVEMGSA:
                         console.log("analysedVol Contexte.LPLN et VEMGSA");
-                        volLpln = this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN);
-                        volVemgsa = this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA);
-                        volMix = this.mixInfos.mixInfos(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.parseurLPLN), this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.parseurVEMGSA), id.arcid, id.plnid, id.dates);
+                        volLpln = this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN);
+                        volVemgsa = this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA);
+                        volMix = this.mixInfos.mixInfos(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN), this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA), id.arcid, id.plnid, id.dates);
 
 
                         if ((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 2)) {

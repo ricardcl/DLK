@@ -2,8 +2,8 @@ import { Identifiants } from '../Modele/identifiants';
 import { Contexte } from '../Modele/enumContexte';
 import { checkAnswer, checkAnswerInitial } from '../Modele/checkAnswer';
 import { Dates, creneauHoraire, arrayCreneauHoraire } from './date';
-import { GrepVEMGSA } from './grepVEMGSA';
-import { GrepLPLN } from './grepLPLN';
+import { ParseurVEMGSA } from './parseurVEMGSA';
+import { ParseurLPLN } from './parseurLPLN';
 
 
 /**
@@ -13,12 +13,12 @@ import { GrepLPLN } from './grepLPLN';
  * 
  * et renvoie les identifiants complets trouvés 
  */
-export class Check {
+export class Controles {
     /**Lien vers l'objet dates pour pouvoir appeler les fonction de la classe Dates*/
     private dates: Dates;
 
     constructor(dates: Dates) {
-        console.log("Je rentre dans le constructor Check ");
+        console.log("Je rentre dans le constructor Controles ");
         this.dates = dates;
     }
     /** 
@@ -35,7 +35,7 @@ export class Check {
      * NONE sinon 
      */
     public evaluationContexte(fichierSourceLpln: string, fichierSourceVemgsa: string[]): Contexte {
-        console.log("Classe check Fonction evaluationContexte");
+        console.log("Classe controle Fonction evaluationContexte");
 
         let contexte: Contexte = Contexte.NONE;
 
@@ -64,7 +64,7 @@ export class Check {
      * @param arcid Arcid rentré par l'utilisateur ("" par défaut) 
      * @param plnid Plnid rentré par l'utilisateur (0 par défaut) 
      * @param fichierSourceLpln Fichier LPLN rentré par l'utilisateur  
-     * @param grepLPLN L'objet grepLPLN du fichier LPLN
+     * @param parseurLPLN Le parseurLPLN du fichier LPLN
      * @returns  
      * Si le vol est trouvé renvoie : 
      * identifie = true,
@@ -77,9 +77,9 @@ export class Check {
      * tabId = l'ensemble des autres couples (plnid, arcid )
      * 
      */
-    public identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Identifiants {
+    public identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string, parseurLPLN: ParseurLPLN): Identifiants {
         //Initialisation du vol issu des donnees LPLN 
-        console.log("Classe check Fonction identificationLpln");
+        console.log("Classe controle Fonction identificationLpln");
 
 
         let tabId: Identifiants[];
@@ -89,7 +89,7 @@ export class Check {
         id.identifie = false;
         id.dates = <creneauHoraire>{};
 
-        tabId = grepLPLN.grepPlnidAndArcid(fichierSourceLpln);
+        tabId = parseurLPLN.grepPlnidAndArcid(fichierSourceLpln);
         tabId.forEach(element => {
             if (element.arcid == arcid) {
                 id.arcid = arcid;
@@ -103,7 +103,7 @@ export class Check {
             }
         });
         if (id.identifie) {
-            id.dates = grepLPLN.grepDatesLogLPLN(id.arcid, id.plnid, fichierSourceLpln);
+            id.dates = parseurLPLN.parseDatesLogLPLN(id.arcid, id.plnid, fichierSourceLpln);
         }
         else {
             id.tabId = tabId;
@@ -126,11 +126,11 @@ export class Check {
      * @param plnid Plnid rentré par l'utilisateur (0 par défaut) 
      * @param fichierSourceVemgsa Fichier(s) VEMGSA rentré par l'utilisateur  
      * @param creneau Le creneau horaire lié à l'identifiant choisi par l'utilisateur
-     * @param grepVEMGSA L'objet grepVEMGSA du fichier VEMGSA
+     * @param parseurVEMGSA Le parseurVEMGSA du fichier VEMGSA
      * @param creneaux Les différents creneaux horaires de l'identifiant rentré par l'utilisateur 
      * @returns  La liste des {plnid, arcid, dates} trouvés pour l'identifiants rentré par l'utilisateur
      */
-    private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneaux: arrayCreneauHoraire): Identifiants {
+    private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], parseurVEMGSA: ParseurVEMGSA, creneaux: arrayCreneauHoraire): Identifiants {
         //Initialisation du vol issu des donnees VEMGSA  
         console.log("Classe check Fonction identificationVemgsa");
         let creneau = new Array(<creneauHoraire>{});
@@ -154,7 +154,7 @@ export class Check {
                 idLocal.identifie = false;
                 for (let fichier of fichierSourceVemgsa) {
                     console.log("fichier ", fichier);
-                    idLocal.arcid = grepVEMGSA.grepArcidFromPlnid(plnid, fichier, creneauLocal);
+                    idLocal.arcid = parseurVEMGSA.grepArcidFromPlnid(plnid, fichier, creneauLocal);
                     console.log("arcid trouve : " + idLocal.arcid);
                     if (idLocal.arcid !== "") {
                         idLocal.identifie = true;
@@ -172,7 +172,7 @@ export class Check {
                 idLocal.identifie = false;
                 for (let fichier of fichierSourceVemgsa) {
 
-                    idLocal.plnid = grepVEMGSA.grepPlnidFromArcid(arcid, fichier, creneauLocal);
+                    idLocal.plnid = parseurVEMGSA.grepPlnidFromArcid(arcid, fichier, creneauLocal);
                     console.log("plnid trouve : " + idLocal.plnid);
                     if (idLocal.plnid !== 0) {
                         idLocal.identifie = true;
@@ -208,7 +208,7 @@ export class Check {
      * @param plnid Plnid rentré par l'utilisateur (0 par défaut) 
      * @param fichierSourceLpln Fichier LPLN rentré par l'utilisateur ("" par défaut) 
      * @param contexte Le contexte d'exécution lié aux types de fichiers logs en entrée 
-     * @param grepLPLN  L'objet grepLPLN du fichier LPLN
+     * @param parseurLPLN  Le parseurLPLN du fichier LPLN
      * @returns
      *   La valeurRetour indique si le checkInitial s'est bien déroulé : 
      *   0 : LPLN OK : arcid et plnid identifies ,
@@ -220,8 +220,8 @@ export class Check {
      * 
      * tabId : l'ensemble des autres couples (plnid, arcid ) si le vol n'est pas trouvé
      */
-    private checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, contexte: Contexte, grepLPLN: GrepLPLN): checkAnswerInitial {
-        console.log("Classe check Fonction checkLPLN");
+    private controleLPLN(arcid: string, plnid: number, fichierSourceLpln: string, contexte: Contexte, parseurLPLN: ParseurLPLN): checkAnswerInitial {
+        console.log("Classe controles Fonction controleLPLN");
 
 
         let regexpPlnid: RegExp = /^\d{1,4}$/;
@@ -243,11 +243,11 @@ export class Check {
             if ((arcid !== "") && (plnid == 0)) {
                 answer.arcid = arcid;
 
-                id = this.identificationLpln(arcid, plnid, fichierSourceLpln, grepLPLN);
+                id = this.identificationLpln(arcid, plnid, fichierSourceLpln, parseurLPLN);
                 if (id.identifie) { // SI COUPLE PLNID ARCID TROUVE A PARTIR DE L ARCID 
 
                     //RECUPERATION DES LOGS CPDLC 
-                    grepLPLN.grepLogLPLN(arcid, id.plnid, fichierSourceLpln);
+                    parseurLPLN.parseLogLPLN(arcid, id.plnid, fichierSourceLpln);
                     // TEST VOL DECLARE CPDLC 
                     //TODO 
                     answer.plnid = id.plnid;
@@ -263,11 +263,11 @@ export class Check {
             }
             if ((arcid == "") && (plnid !== 0)) {
                 answer.plnid = plnid;
-                id = this.identificationLpln(arcid, plnid, fichierSourceLpln, grepLPLN);
+                id = this.identificationLpln(arcid, plnid, fichierSourceLpln, parseurLPLN);
                 if (id.identifie) {
                     //RECUPERATION DES LOGS CPDLC 
                     answer.creneauHoraire = id.dates;
-                    grepLPLN.grepLogLPLN(id.arcid, plnid, fichierSourceLpln);
+                    parseurLPLN.parseLogLPLN(id.arcid, plnid, fichierSourceLpln);
                     // TEST VOL DECLARE CPDLC 
                     //TODO 
                     answer.arcid = id.arcid;
@@ -295,10 +295,10 @@ export class Check {
     /** 
      * Fonction permettant de déterminer la validité des données VEMGSA rentrées par l'utilisateur  
      * Elle vérifie que les fichiers donnés en entree existent et s'ouvrent et les valeurs rentrees (arcid, plnid ) existent dans le fichier 
-     * @param arcid : arcid rentré par l'utilisateur ("" par défaut) 
-     * @param plnid : plnid rentré par l'utilisateur (0 par défaut) 
-     * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max) 
-     * @param grepVEMGSA L'objet grepVEMGSA du fichier VEMGSA
+     * @param arcid Arcid rentré par l'utilisateur ("" par défaut) 
+     * @param plnid Plnid rentré par l'utilisateur (0 par défaut) 
+     * @param fichierSourceVemgsa Fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max) 
+     * @param parseurVEMGSA Le parseurVEMGSA du fichier VEMGSA
      * @returns 
      *   La valeurRetour indique si le checkInitial s'est bien déroulé : 
      *   0: VEMGSA complet, 
@@ -312,8 +312,8 @@ export class Check {
      * 
      *   Le messageRetour donne une explication en cas d'echec 
      */
-    public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA): checkAnswerInitial {
-        console.log("Classe check Fonction checkVEMGSA");
+    public controleVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], parseurVEMGSA: ParseurVEMGSA): checkAnswerInitial {
+        console.log("Classe controle Fonction controleVEMGSA");
         //TODO gérer le contexte passé en entrée
         let regexpPlnid: RegExp = /^\d{1,4}$/;
         let regexpArcid: RegExp = /^[a-z][a-z|0-9]{1,6}$/i;
@@ -335,12 +335,12 @@ export class Check {
                 //TODO cas 3 ou 4 à analyse !!! 
                 answer.arcid = arcid;
                 //Recherche de l'ARCID dans le fichier VEMGSA 
-                plageHoraire = grepVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
+                plageHoraire = parseurVEMGSA.isArcidAndPlageHoraire(arcid, fichierSourceVemgsa);
                 //  console.log(" result   :", result);
                 if (plageHoraire.existe == true) {
                     answer.valeurRetour = 0;
                     //  console.log(" check VEMGSA A");
-                    id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, plageHoraire);
+                    id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, parseurVEMGSA, plageHoraire);
                     // console.log("id.tabId.length ", id.tabId.length);
                     id.tabId.forEach(element => {
                         if (!element.identifie) {
@@ -361,12 +361,12 @@ export class Check {
                 //TODO cas 3 ou 4 à analyse !!! 
                 answer.plnid = plnid;
                 //console.log(" check VEMGSA E");
-                plageHoraire = grepVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
+                plageHoraire = parseurVEMGSA.isPlnidAndPlageHoraire(plnid, fichierSourceVemgsa);
                 //console.log(" result   :", result);
                 if (plageHoraire.existe == true) {
                     answer.valeurRetour = 0;
                     //  console.log(" check VEMGSA F");
-                    id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, grepVEMGSA, plageHoraire);
+                    id = this.identificationVemgsa(arcid, plnid, fichierSourceVemgsa, parseurVEMGSA, plageHoraire);
                     //console.log("id.tabId.length ", id.tabId.length);
                     id.tabId.forEach(element => {
                         if (!element.identifie) {
@@ -402,8 +402,8 @@ export class Check {
      * @param fichierSourceLpln Fichier LPLN rentré par l'utilisateur ("" par défaut) 
      * @param fichierSourceVemgsa Fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max) 
      * @param contexte Le contexte d'exécution lié aux types de fichiers logs en entrée 
-     * @param grepLPLN L'objet grepLPLN du fichier LPLN
-     * @param grepVEMGSA L'objet grepVEMGSA du fichier VEMGSA
+     * @param parseurLPLN Le parseurLPLN du fichier LPLN
+     * @param parseurVEMGSA Le parseurVEMGSA du fichier VEMGSA
      * @returns {valeurRetour,messageRetour }  
      *   où valeurRetour indique si le checkInitial s'est bien déroulé : 
      *   0: LPLN ET VEMGSA OK 
@@ -414,8 +414,8 @@ export class Check {
      *   5 : LPLN NOK ET VEMGSA NOK 
      *   et où messageRetour donne une explication en cas d'echec 
      */
-    public check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN: GrepLPLN, grepVEMGSA: GrepVEMGSA): checkAnswer {
-        console.log("Classe check Fonction check");
+    public controle(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, parseurLPLN: ParseurLPLN, parseurVEMGSA: ParseurVEMGSA): checkAnswer {
+        console.log("Classe controle Fonction controle");
 
         let answer = <checkAnswer>{};
         answer.analysePossible = false;
@@ -425,7 +425,7 @@ export class Check {
         switch (contexte) {
             case Contexte.LPLN:
                 answer.checkLPLN = <checkAnswerInitial>{};
-                answer.checkLPLN = this.checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
+                answer.checkLPLN = this.controleLPLN(arcid, plnid, fichierSourceLpln, contexte, parseurLPLN);
 
                 if (answer.checkLPLN.valeurRetour == 0) {
                     let idLocal = <Identifiants>{};
@@ -446,7 +446,7 @@ export class Check {
                 break;
             case Contexte.VEMGSA:
                 answer.checkVEMGSA = <checkAnswerInitial>{};
-                answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, grepVEMGSA);
+                answer.checkVEMGSA = this.controleVEMGSA(arcid, plnid, fichierSourceVemgsa, parseurVEMGSA);
                 answer.listeIdentifiants = answer.checkVEMGSA.tabId;
                 if (answer.checkVEMGSA.valeurRetour <= 2) {
                     answer.analysePossible = true;
@@ -466,8 +466,8 @@ export class Check {
             case Contexte.LPLNVEMGSA:
                 answer.checkLPLN = <checkAnswerInitial>{};
                 answer.checkVEMGSA = <checkAnswerInitial>{};
-                answer.checkLPLN = this.checkLPLN(arcid, plnid, fichierSourceLpln, contexte, grepLPLN);
-                answer.checkVEMGSA = this.checkVEMGSA(arcid, plnid, fichierSourceVemgsa, grepVEMGSA);
+                answer.checkLPLN = this.controleLPLN(arcid, plnid, fichierSourceLpln, contexte, parseurLPLN);
+                answer.checkVEMGSA = this.controleVEMGSA(arcid, plnid, fichierSourceVemgsa, parseurVEMGSA);
 
                 console.log("Contexte LPLN et VEMGSA");
                 //si couple trouvé entier dans LPLN ou trouvé au moins en partie dans VEMGSA
@@ -548,11 +548,11 @@ export class Check {
      * c'est à dire si le plan de vol est terminé pour le centre d'AIX
      * @param arcid arcid du vol
      * @param plnid plnid du vol
-     * @param grepLPLN Objet grepLPLN du fichier LPLN
+     * @param parseurLPLN Le parseurLPLN du fichier LPLN
      * @returns true si le plan est terminé, false sinon
      */
-    public isFileLPLNComplete(arcid: string, plnid: number, grepLPLN: GrepLPLN): boolean {
-        console.log("Classe check Fonction isFileLPLNComplete");
+    public isFileLPLNComplete(arcid: string, plnid: number, parseurLPLN: ParseurLPLN): boolean {
+        console.log("Classe controle Fonction isFileLPLNComplete");
 
         //TO DO
         return true;

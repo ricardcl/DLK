@@ -1,4 +1,4 @@
-import { Formulaire } from "./Formulaire";
+import { Echanges } from "./echanges";
 import { Path } from './Modele/path';
 const fs = require('fs');
 
@@ -14,4 +14,4 @@ if (!fs.existsSync(Path.logBookPath)) {
 }
 
 // Start application :
-new Formulaire();
+new Echanges();
