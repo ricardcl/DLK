@@ -3,3 +3,4 @@ app/dist
 node_modules
 app/src/ftp.ts
 app/src/database.ts
+documentation
