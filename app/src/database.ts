@@ -1,40 +1,65 @@
 
 import { Vol } from './Modele/vol';
 import { Identifiants } from './Modele/identifiants';
-import { Contexte } from './Modele/enumContexte';
-const { Client } = require('pg')
 const mysql = require('mysql');
 
+/**
+ * La Classe Database gère l'accès à la base de données des vols Data Link
+ * 
+ * Elle définit les fonctions de lecture et d'écriture de la base de données.
+ */
 export class Database {
-    //private client;
+
+    /**
+     * pool: Lien vers la base de données
+     */
     private pool;
+
+    /**
+     * Constructeur de la classe Database 
+     * 
+     * Les paramètres suivants permettent de définir la base de donnée mysql 
+     * 
+     * host: nom du serveur bureautique hébergeant la base de donnée
+     * 
+     * user: utilisateur autorisé à s'y connecter
+     * 
+     * password: mot de passe utilisateur
+     * 
+     * database : nom de la base de donnée
+     * 
+     * connectionLimit : nombre de connexions mamximum autorisées simultanément
+     */
     constructor() {
-        // Add the credentials to access your database
         this.pool = mysql.createPool({
-            connectionLimit: 10,
             host: 'localhost', //'crna-se-07-1',
             user: 'serveur_dlk', //vdlink
-            database: 'bdd_vols_datalink',// 'vdlink',//'bdd_vols_datalink',
             // password: 'vdlink-sql',
-
+            database: 'bdd_vols_datalink',// 'vdlink',//'bdd_vols_datalink',
+            connectionLimit: 10,
         });
     }
 
-    public query(sql) {
+    /**
+     * Cette fonction exétute la requête passée en paramètres sur la base données
+     * @param sql Requête de lecture ou d'écriture 
+     */
+    public query(sql):Promise<{}> {
         return new Promise((resolve, reject) => {
             this.pool.getConnection(function (err, connection) {
                 if (err) return reject(err);
                 connection.query(sql, function (err, rows, fields) {
                     connection.release();
-                    // Handle error after the release.
-                    //  console.log("Query read succesfully executed: ", rows);
                     resolve(rows);
                 });
             });
         });
     }
 
-    public close() {
+    /**
+     * Cette fonction termine la connexion à la base de données des vols
+     */
+    public close(): Promise<{}> {
         return new Promise((resolve, reject) => {
             this.pool.end(function () {
                 // The connection has been closed
@@ -44,26 +69,12 @@ export class Database {
     }
 
 
-    public read(): void | never {
-        console.log("Fonction read database");
-
-        // Perform a query : LECTURE 
-        let query = 'SELECT * from vol';
-        this.pool.getConnection(function (err, connection) {
-            if (err) throw err; // not connected!
-            connection.query(query, function (err, rows, fields) {
-                connection.release();
-                // Handle error after the release.
-                if (err) {
-                    console.log("An error ocurred performing the query read.");
-                    return;
-                }
-                //  console.log("Query read succesfully executed: ", rows);
-                return rows;
-            });
-        });
-    }
-
+    /**
+     * Cette fonction récupère la liste des vols stockés dans la table "VOL"
+     * Pour chaque vol les paramètres remontés sont [date_de_début, date_de_fin, plnid, arcid, contexte ]
+     * 
+     * @param socket la socket permettant de générer un événement "database" vers le client
+     */
     public readAllVol(socket): void | never {
         console.log("Fonction readAllVol database");
 
@@ -78,6 +89,13 @@ export class Database {
             });
     }
 
+    /**
+     * Cette fonction récupère un des vols stockés dans la table "VOL_DATA" à partir de l'identifiant passé en paramètre
+     * Le vol récupéré est au format JSON dans la base de donnée est converti en Objet avant d'être envoyéF 
+     * 
+     * @param socket la socket permettant de générer un événement "analysedVol" vers le client
+     * @param id identifiant du vol à extraire de la base de données
+    */
     public readVol(socket, id?: string): void | never {
         console.log("Fonction readVol database idcomplet ", id);
         //let DATE_DEBUT = JSON.stringify(id.entree_date);
@@ -124,7 +142,18 @@ export class Database {
 
     //regarder la version mysql, > 5.7.8 ??
     //https://dev.mysql.com/doc/refman/5.7/en/json.html
-    public writeVol(id: Identifiants, contexte: string, volLPLN: Vol, volVEMGSA: Vol, volMIX: Vol) {
+
+    /**
+     * Cette fonction stocke dans la base de donnée le vol passé en paramètre
+     * Les informations essentielles du vol ( date_de_debut, date_de_fin, plnid, arcid, contexte) sont stockés dans la table "VOL"
+     *
+     * @param id identifiants complets du vol 
+     * @param contexte contexte du vol ( LPLN, VEMGSA, ou MIX)
+     * @param volLPLN L'objet vol issu de l'analyse du fichier LPLN
+     * @param volVEMGSA L'objet vol issu de l'analyse du fichier VEMGSA
+     * @param volMIX L'objet vol issu de l'analyse des fichiers LPLN et VEMGSA
+     */
+    public writeVol(id: Identifiants, contexte: string, volLPLN: Vol, volVEMGSA: Vol, volMIX: Vol): Promise<{}> {
         return new Promise((resolve, reject) => {
             console.log("Fonction writeVol");
             // Perform a query : ECRITURE 
@@ -173,12 +202,7 @@ export class Database {
         });
     }
 
-    public disconnectionDatabase(): void | never {
-        // Close the connection
-        this.pool.end(function () {
-            // The connection has been closed
-        });
-    }
+
 
 }
 

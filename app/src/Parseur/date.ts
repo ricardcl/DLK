@@ -11,7 +11,12 @@ export interface arrayCreneauHoraire {
     dates: string[];
 }
 
-
+/**
+ * Cette classe regroupe toutes les fonctions de manipulation de dates 
+ * 
+ * Il s'agit d'une boite à outils permettant de comparer des dates au format LPLN et/ou VEMGSA
+ * 
+ */
 export class Dates {
 
     private split: Split;
@@ -27,6 +32,12 @@ export class Dates {
         this.troisHeures = 3 * this.uneHeure;
     }
 
+    /**
+     * Fonction qui traduit un mois [JANVIER ...DECEMBRE] en numéro de moi s[1....12]
+     * 
+     * @param month mois à convertir
+     * @return Le mois convertit
+     */
     public MonthLetterToNumber(month: string): string {
 
         let monthNumber: string = "00";
@@ -48,8 +59,12 @@ export class Dates {
         return monthNumber;
     }
 
-    //Fonction pour comparer des heures VEMGSA et des heures LPLN uniquement !!!!
-    //Pas pour comparer des heures LPLN entre elles ou des heures VEMGSA entre elles
+    /**
+     * Cette fonction compare une heure issu du fichier VEMGSA à une heure issue du fichier LPLN uniquement !
+     * @param hV heure issu du fichier VEMGSA
+     * @param hL heure issu du fichier LPLN
+     * @return true si la différence entre les deux est inférieure à une minute, false sinon
+     */
     public isHeuresLplnVemgsaEgales(hV: string, hL: string): boolean {
 
 
@@ -67,24 +82,41 @@ export class Dates {
         else { return false; }
     }
 
-    //Fonction pour comparer des heures LPLN  entre elles : renvoie la difference de temps entre les deux
+
+    /**
+     * Fonction comparant des heures LPLN  entre elles  
+     * @param hL1 Première heure LPLN 
+     * @param hL2 Deuxième heure LPLN
+     * @returns La difference de temps entre les deux en ms
+     */
     public diffHeuresLplnEgales(hL1: string, hL2: string): number {
         const momentDateL1 = moment(hL1, 'HH mm');
         const momentDateL2 = moment(hL2, 'HH mm');
-        const diff: number = Math.abs(momentDateL1.diff(momentDateL2)); //Rmq : diff renvoie un resultat en ms
+        const diff: number = Math.abs(momentDateL1.diff(momentDateL2)); 
         return diff;
 
 
     }
 
-    //Fonction pour comparer des heures VEMGSA  entre elles : renvoie la difference de temps entre les deux
+    /**
+     * Fonction comparant des heures VEMGSA  entre elles  
+     * @param hV1 Première heure VEMGSA
+     * @param hV2 Deuxième heure VEMGSA
+     * @returns La difference de temps entre les deux en ms
+     */
     public diffHeuresVemgsaEgales(hV1: string, hV2: string): number {
         const momentDateV1 = moment(hV1, 'DD-MM-YYYY HH mm ss');
         const momentDateV2 = moment(hV2, 'DD-MM-YYYY HH mm ss');
-        const diff: number = Math.abs(momentDateV1.diff(momentDateV2)); //Rmq : diff renvoie un resultat en ms
+        const diff: number = Math.abs(momentDateV1.diff(momentDateV2));
         return diff;
     }
 
+    /**
+     * Fonction comparant des heures XXXX  entre elles  
+     * @param h1 
+     * @param h2 
+     * @returns True si h1 est plus grande que h2, False sinon
+     */
     public isHeureSup(h1: string, h2: string): boolean {
         const momentDate1 = moment(h1, 'HH mm ss');
         const momentDate2 = moment(h2, 'HH mm ss');
@@ -93,6 +125,12 @@ export class Dates {
         else { return false; }
     }
 
+    /**
+     * Fonction comparant des heures XXXX  entre elles  
+     * @param h1 
+     * @param h2 
+     * @returns True si h1 est plus petite que h2, False sinon
+     */
     public isHeureInf(h1: string, h2: string): boolean {
         const momentDate1 = moment(h1, 'HH mm ss');
         const momentDate2 = moment(h2, 'HH mm ss');
@@ -101,7 +139,13 @@ export class Dates {
         else { return false; }
     }
 
-    //Renvoie true si d1 > d2 
+
+    /**
+     * Fonction comparant des dates LPLN et/ou VEMGSA entre elles  
+     * @param d1 Première date
+     * @param d2 Deuxième date
+     * @returns True si d1 est après d2
+     */
     public isDateSup(d1: string, d2: string): boolean {
         let momentDate1 = moment(d1, 'DD-MM HH mm ss');
         if (!momentDate1.isValid()) {
@@ -118,11 +162,11 @@ export class Dates {
     }
 
     /**
-     * Fonction qui compare la date d'un  log VEMGSA et d'un date VEMGSA  au format DD-MM-YYYY HH mm ss
-     * @param log  : date brut d'un log VEMGSA
-     * @param creneauLimite : date VEMGSA  au format DD-MM-YYYY HH mm ss
-     * @param diff : la différence en minutes
-     * @returns true si (Date log - creneau limite) >= diff
+     * Fonction qui compare [la date d'un  log VEMGSA] et [une date VEMGSA au format DD-MM-YYYY HH mm ss]
+     * @param log  Date brut d'un log VEMGSA
+     * @param creneauLimite Date VEMGSA  au format DD-MM-YYYY HH mm ss
+     * @param diff La différence en minutes
+     * @returns True si (Date log - creneau limite) >= diff, false sinon
      */
     public diffDateV(log: string, creneauLimite: string, diff: number): boolean {
         let result: boolean = false;
@@ -151,43 +195,16 @@ export class Dates {
         return result;
     }
 
-    public diffDateVTest(log: string, creneauLimite: string, diff: number): boolean {
-        let result: boolean = false;
-        const momentDateCreneau = moment(creneauLimite, 'DD-MM-YYYY HH mm ss');
+   
 
-        let motif = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d")(\s.*-[A-Z]+\s+[A-Z|\d]+)/;
-        let motifDateHeure = /(.*)( )(.*)(H)(.*)(')(.*)(")(.*)/;
-        //console.log("log:",log);
 
-        if (log.toString().match(motif) !== null) {
-            let date = log.toString().replace(motif, "$1");
-            // console.log("date", date);
-            if (date.match(motifDateHeure) !== null) {
-                const momentDateLog = moment(this.vlogtoString(date), 'DD-MM-YYYY HH mm ss');
-                const diffMoment: number = momentDateLog.diff(momentDateCreneau);
-
-                const diffMS = diff * this.uneMinute;
-                console.log("diffMS", diffMS, "diffMoment", diffMoment);
-
-                if (diffMoment >= diffMS) {
-                    result = true;
-                    console.log("log", momentDateLog, "c", momentDateCreneau, "diffMoment", diffMoment, "result", result);
-
-                }
-
-            }
-        }
-
-        return result;
-    }
-
-    /**
- * Fonction qui compare la date d'un  log VEMGSA et d'un date VEMGSA  au format DD-MM-YYYY HH mm ss
- * @param log  : date brut d'un log VEMGSA
- * @param creneauLimite : date VEMGSA  au format DD-MM-YYYY HH mm ss
- * @param diff : la différence en minutes
- * @returns true si (Date log - creneau limite) > diff
- */
+     /**
+      * Fonction qui compare strictement [la date d'un  log VEMGSA] et [une date VEMGSA  au format DD-MM-YYYY HH mm ss]
+      * @param log  Date brut d'un log VEMGSA
+      * @param creneauLimite Date VEMGSA  au format DD-MM-YYYY HH mm ss
+      * @param diff Da différence en minutes
+      * @returns True si (Date log - creneau limite) > diff, False sinon
+      */
     public diffDateVstrict(log: string, creneauLimite: string, diff: number): boolean {
         let result: boolean = false;
         const momentDateCreneau = moment(creneauLimite, 'DD-MM-YYYY HH mm ss');
@@ -213,18 +230,20 @@ export class Dates {
     }
     /**
      * Fonction qui renvoie la valeur absolue de la difference de temps en ms entre deux dates passées en paramètre
-     * @param d1 
-     * @param d2 
+     * @param d1 Première date
+     * @param d2 Deuxième date
+     * @returns La différence de temps absolue en ms
      */
     public diffDatesAbs(d1: string, d2: string): number {
         return Math.abs(this.diffDates(d1, d2));
     }
 
     /**
- * Fonction qui renvoie la difference de temps en ms entre deux dates passées en paramètre
- * @param d1 
- * @param d2 
- */
+     * Fonction qui renvoie la difference de temps en ms entre deux dates passées en paramètre
+     * @param d1  Première date
+     * @param d2 Deuxième date
+     * @returns La différence de temps en ms
+     */
     public diffDates(d1: string, d2: string): number {
         let momentDate1 = moment(d1, 'DD-MM HH mm ss');
         if (!momentDate1.isValid()) {

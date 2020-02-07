@@ -206,6 +206,7 @@ export class ParseurLPLN {
   }
 
   public isVolEquipeCpdlc(): boolean {
+    console.log("Classe ParseurLpln Fonction isVolEquipeCpdlc");
 
     /* Ouverture du fichier à analyser*/
     const source = p.resolve(this.grep.getUserPath(), "resultLPLN.htm"); //Fichier en entree a analyser     

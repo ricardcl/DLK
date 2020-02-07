@@ -31,6 +31,7 @@ Parametres en entrée :
 fichierSource : le  fichier gbdi STPV a traiter
 */
 public GbdiToFreq(fichierSource) {
+  console.log("Classe Frequences Fonction GbdiToFreq");
 
 
 
@@ -97,6 +98,7 @@ Parametres en entrée :
 freq : une frequence de transfert
 */
 public freqToSecteur(freq) {
+  console.log("Classe Frequences Fonction freqToSecteur");
 
 
 
@@ -131,6 +133,7 @@ ex : 135930 devient 135.930
 freq : une frequence de transfert
 */
 public conversionFreq(freq: string): string {
+  console.log("Classe Frequences Fonction conversionFreq");
 
 
 

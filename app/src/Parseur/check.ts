@@ -6,9 +6,15 @@ import { GrepVEMGSA } from './grepVEMGSA';
 import { GrepLPLN } from './grepLPLN';
 
 
-
+/**
+ * Cette classe stocke toutes les fonctions permettant de s'assurer de la validité des données rentrées par l'utilisateur
+ * 
+ * Elle permet nottament de vérifier que les identifiants rentrés sont présents dans les fichiers de logs fournis 
+ * 
+ * et renvoie les identifiants complets trouvés 
+ */
 export class Check {
-
+    /**Lien vers l'objet dates pour pouvoir appeler les fonction de la classe Dates*/
     private dates: Dates;
 
     constructor(dates: Dates) {
@@ -17,14 +23,17 @@ export class Check {
     }
     /** 
      * Fonction permettant de déterminer le contexte d'étude en fonction des fichiers de logs fournis 
-     * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut) 
-     * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max) 
-     * @returns :   LPLN si uniquement le fichier LPLN est fourni 
-     *              VEMGSA si uniquement un ou deux fichiers VEMGSA sont fournis 
-     *              LPLNVEMGSA si le fichier LPLN est fourni avec un ou deux fichiers VEMGSA  
-     *              NONE sinon 
+     * 
+     * @param fichierSourceLpln Fichier LPLN rentré par l'utilisateur ("" par défaut) 
+     * @param fichierSourceVemgsa Fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max) 
+     * @returns LPLN si uniquement le fichier LPLN est fourni 
+     * 
+     * VEMGSA si uniquement un ou deux fichiers VEMGSA sont fournis 
+     * 
+     * LPLNVEMGSA si le fichier LPLN est fourni avec un ou deux fichiers VEMGSA  
+     * 
+     * NONE sinon 
      */
-
     public evaluationContexte(fichierSourceLpln: string, fichierSourceVemgsa: string[]): Contexte {
         console.log("Classe check Fonction evaluationContexte");
 
@@ -51,19 +60,21 @@ export class Check {
 
     /** 
      * Fonction permettant d'identifier le couple (arcid,plnid) dans le fichier LPLN fourni 
-     * @param arcid : arcid rentré par l'utilisateur ("" par défaut) 
-     * @param plnid : plnid rentré par l'utilisateur (0 par défaut) 
-     * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur  
-     * @returns    {plnid,arcid,dates, identifie,tabId} 
-     *  Si le vol est trouvé 
-     * identifie = true
-     * plnid = plnid trouvé
-     * arcid = arcid trouvé
+     * 
+     * @param arcid Arcid rentré par l'utilisateur ("" par défaut) 
+     * @param plnid Plnid rentré par l'utilisateur (0 par défaut) 
+     * @param fichierSourceLpln Fichier LPLN rentré par l'utilisateur  
+     * @param grepLPLN L'objet grepLPLN du fichier LPLN
+     * @returns  
+     * Si le vol est trouvé renvoie : 
+     * identifie = true,
+     * plnid = plnid trouvé,
+     * arcid = arcid trouvé,
      * dates = créneau horaire du vol
      * 
-     * Si le vol n'est pas trouvé
-     * identifie = false
-     * tabId = l'ensemble des autres couples (plnid, arcid )  si le vol n'est pas trouvé
+     * Si le vol n'est pas trouvé : 
+     * identifie = false,
+     * tabId = l'ensemble des autres couples (plnid, arcid )
      * 
      */
     public identificationLpln(arcid: string, plnid: number, fichierSourceLpln: string, grepLPLN: GrepLPLN): Identifiants {
@@ -111,11 +122,13 @@ export class Check {
     /** 
      * Fonction permettant d'identifier dans le fichier VEMGSA fourni 
      * les vols (arcid, plnid, dates) liés à l'identifiant rentré par l'utilisateur 
-     * @param arcid : arcid rentré par l'utilisateur ("" par défaut) 
-     * @param plnid : plnid rentré par l'utilisateur (0 par défaut) 
-     * @param fichierSourceVemgsa : fichier(s) VEMGSA rentré par l'utilisateur  
-     * @param creneau : le creneau horaire lié à l'identifiant choisi par l'utilisateur
-     * @returns { tabId } : tabId contient la liste des {plnid, arcid, dates} trouvés pour l'identifiants rentré 
+     * @param arcid Arcid rentré par l'utilisateur ("" par défaut) 
+     * @param plnid Plnid rentré par l'utilisateur (0 par défaut) 
+     * @param fichierSourceVemgsa Fichier(s) VEMGSA rentré par l'utilisateur  
+     * @param creneau Le creneau horaire lié à l'identifiant choisi par l'utilisateur
+     * @param grepVEMGSA L'objet grepVEMGSA du fichier VEMGSA
+     * @param creneaux Les différents creneaux horaires de l'identifiant rentré par l'utilisateur 
+     * @returns  La liste des {plnid, arcid, dates} trouvés pour l'identifiants rentré par l'utilisateur
      */
     private identificationVemgsa(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA, creneaux: arrayCreneauHoraire): Identifiants {
         //Initialisation du vol issu des donnees VEMGSA  
@@ -189,18 +202,22 @@ export class Check {
 
     /** 
      * Fonction permettant de déterminer la validité des données LPLN rentrées par l'utilisateur  
+     * 
      * Elle vérifie que les fichiers donnés en entree existent et s'ouvrent et les valeurs rentrees (arcid, plnid ) existent dans le fichier 
-     * @param arcid : arcid rentré par l'utilisateur ("" par défaut) 
-     * @param plnid : plnid rentré par l'utilisateur (0 par défaut) 
-     * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut) 
-     * @param contexte : le contexte d'exécution lié aux types de fichiers logs en entrée 
-     * @returns {valeurRetour,arcid, plnid,tabId,creneauHoraire}  
-     *   où valeurRetour indique si le checkInitial s'est bien déroulé : 
-     *   0 : LPLN OK : arcid et plnid identifies 
-     *   1 : LPLN incomplet , arcid ou plnid non trouve 
-     *   2 : format arcid ou plnid invalide 
+     * @param arcid Arcid rentré par l'utilisateur ("" par défaut) 
+     * @param plnid Plnid rentré par l'utilisateur (0 par défaut) 
+     * @param fichierSourceLpln Fichier LPLN rentré par l'utilisateur ("" par défaut) 
+     * @param contexte Le contexte d'exécution lié aux types de fichiers logs en entrée 
+     * @param grepLPLN  L'objet grepLPLN du fichier LPLN
+     * @returns
+     *   La valeurRetour indique si le checkInitial s'est bien déroulé : 
+     *   0 : LPLN OK : arcid et plnid identifies ,
+     *   1 : LPLN incomplet , arcid ou plnid non trouve ,
+     *   2 : format arcid ou plnid invalide ,
      *   3 : erreur a louverture du fichier LPLN 
+     * 
      * creneauHoraire: creneau Horaire du vol si le couple (arcid,plnid) est identifié
+     * 
      * tabId : l'ensemble des autres couples (plnid, arcid ) si le vol n'est pas trouvé
      */
     private checkLPLN(arcid: string, plnid: number, fichierSourceLpln: string, contexte: Contexte, grepLPLN: GrepLPLN): checkAnswerInitial {
@@ -281,18 +298,19 @@ export class Check {
      * @param arcid : arcid rentré par l'utilisateur ("" par défaut) 
      * @param plnid : plnid rentré par l'utilisateur (0 par défaut) 
      * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max) 
-     * @param contexte : le contexte d'exécution lié aux types de fichiers logs en entrée 
-     * @returns {valeurRetour,messageRetour }  
-     *   où valeurRetour indique si le checkInitial s'est bien déroulé : 
-     *   0: VEMGSA complet 
-     *   1 : VEMGSA incomplet ( arcid trouvé mais plnid non trouve ) 
-     *   2 : VEMGSA incomplet ( plnid trouvé mais arcid non trouve) 
-     *   3 : VEMGSA incomplet ( plnid non trouve car connexion refusee ) 
-     *   4 : VEMGSA incomplet ( arcid non trouve car ...) 
-     *   5 : VEMGSA NOK ( pas d'info trouvé pour l'id donné) 
-     *   6 : VEMGSA NOK ( erreur format identifiant) 
+     * @param grepVEMGSA L'objet grepVEMGSA du fichier VEMGSA
+     * @returns 
+     *   La valeurRetour indique si le checkInitial s'est bien déroulé : 
+     *   0: VEMGSA complet, 
+     *   1 : VEMGSA incomplet ( arcid trouvé mais plnid non trouve ), 
+     *   2 : VEMGSA incomplet ( plnid trouvé mais arcid non trouve), 
+     *   3 : VEMGSA incomplet ( plnid non trouve car connexion refusee ), 
+     *   4 : VEMGSA incomplet ( arcid non trouve car ...), 
+     *   5 : VEMGSA NOK ( pas d'info trouvé pour l'id donné), 
+     *   6 : VEMGSA NOK ( erreur format identifiant), 
      *   7 : VEMGSA NOK ( pbm ouverture du fichier) 
-     *   et où messageRetour donne une explication en cas d'echec 
+     * 
+     *   Le messageRetour donne une explication en cas d'echec 
      */
     public checkVEMGSA(arcid: string, plnid: number, fichierSourceVemgsa: string[], grepVEMGSA: GrepVEMGSA): checkAnswerInitial {
         console.log("Classe check Fonction checkVEMGSA");
@@ -379,11 +397,13 @@ export class Check {
     /** 
      * Fonction permettant de déterminer la validité des données rentrées par l'utilisateur  
      * Elle vérifie que les fichiers donnés en entree existent et s'ouvrent et les valeurs rentrees (arcid, plnid ) existent dans le fichier 
-     * @param arcid : arcid rentré par l'utilisateur ("" par défaut) 
-     * @param plnid : plnid rentré par l'utilisateur (0 par défaut) 
-     * @param fichierSourceLpln : fichier LPLN rentré par l'utilisateur ("" par défaut) 
-     * @param fichierSourceVemgsa : fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max) 
-     * @param contexte : le contexte d'exécution lié aux types de fichiers logs en entrée 
+     * @param arcid Arcid rentré par l'utilisateur ("" par défaut) 
+     * @param plnid Plnid rentré par l'utilisateur (0 par défaut) 
+     * @param fichierSourceLpln Fichier LPLN rentré par l'utilisateur ("" par défaut) 
+     * @param fichierSourceVemgsa Fichier VEMGSA rentré par l'utilisateur ("" par défaut, et deux fichiers max) 
+     * @param contexte Le contexte d'exécution lié aux types de fichiers logs en entrée 
+     * @param grepLPLN L'objet grepLPLN du fichier LPLN
+     * @param grepVEMGSA L'objet grepVEMGSA du fichier VEMGSA
      * @returns {valeurRetour,messageRetour }  
      *   où valeurRetour indique si le checkInitial s'est bien déroulé : 
      *   0: LPLN ET VEMGSA OK 
@@ -394,7 +414,6 @@ export class Check {
      *   5 : LPLN NOK ET VEMGSA NOK 
      *   et où messageRetour donne une explication en cas d'echec 
      */
-
     public check(arcid: string, plnid: number, fichierSourceLpln: string, fichierSourceVemgsa: string[], contexte: Contexte, grepLPLN: GrepLPLN, grepVEMGSA: GrepVEMGSA): checkAnswer {
         console.log("Classe check Fonction check");
 
@@ -524,7 +543,17 @@ export class Check {
 
 
 
+    /**
+     * Fonction qui détermine si le fichier LPLN rentré par l'utilisateur est complet - 
+     * c'est à dire si le plan de vol est terminé pour le centre d'AIX
+     * @param arcid arcid du vol
+     * @param plnid plnid du vol
+     * @param grepLPLN Objet grepLPLN du fichier LPLN
+     * @returns true si le plan est terminé, false sinon
+     */
     public isFileLPLNComplete(arcid: string, plnid: number, grepLPLN: GrepLPLN): boolean {
+        console.log("Classe check Fonction isFileLPLNComplete");
+
         //TO DO
         return true;
     }

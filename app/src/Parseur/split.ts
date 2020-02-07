@@ -16,6 +16,8 @@ export class Split {
   separateur : le caractere delimiteur
   */
   public splitString(stringToSplit: string, separator: string): string[] {
+  //  console.log("classe Split Fonction splitString ");
+
     var arrayOfStrings = new Array();
     arrayOfStrings = stringToSplit.toString().split(separator);
     /*for (var i=0; i < arrayOfStrings.length; i++)
@@ -61,6 +63,8 @@ Parametres en entrée :
 stringToSplit : la chaine de caractere a separer
 */
   public stringToDetailCpdlc(stringToSplit: string): DetailCpdlc[] {
+    //console.log("classe Split Fonction stringToDetailCpdlc ");
+
     let chaine_espace: string = " ";
     let mymap: DetailCpdlc[] = new Array();
 

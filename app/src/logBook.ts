@@ -16,6 +16,8 @@ export class LogBook {
     }
 
     private constructor() {
+        console.log("Je rentre dans constructeur LogBook");
+
         this.fichierLog = fs.openSync(p.resolve(Path.logBookPath + "/logBook_" + moment().format("DD_MM_YYYY_hh_mm_s") + ".txt"), "a+");
 
         //TO DO : creer singleton pour les frequences
@@ -23,7 +25,7 @@ export class LogBook {
     }
 
     public writeLogBook(user: string, log: string): void {
-        console.log("writeLogBook");
+        console.log("classe LogBook Fonction writeLogBook");
         fs.writeSync(this.fichierLog, String(moment().format()) + " user: " + user + " log: " + log + "\n", null, 'utf8');
     }
 
