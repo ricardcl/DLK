@@ -1,6 +1,6 @@
 import { EtatCpdlc } from './etatCpdlc';
 import moment = require('moment');
-import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee, erreurVol } from './interfaces'
+import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee, erreurVol } from './interfacesControles'
 import { Etat } from './enumEtat';
 
 export class Vol {
@@ -347,12 +347,12 @@ export class Vol {
                 case 'CPCASRES': {
                     if ((log.getDetaillog()["ATNASSOC"] == "S") || (log.getDetaillog()["ATNASSOC"] == "L")) {
                         etatLogonConnexion.etat = Etat.NonLogue;
-                        etatLogonConnexion.infoEtat = "DemandeLogonEncoursAutoriseeParStpv";
+                        etatLogonConnexion.infoEtat = "DemandeLogonEncoursAutoriséeParStpv";
                         infoSupp = true;
                     }
                     else if (log.getDetaillog()["ATNASSOC"] == "F") {
                         etatLogonConnexion.etat = Etat.NonLogue;
-                        etatLogonConnexion.infoEtat = "DemandeLogonRefuseeParStpv";
+                        etatLogonConnexion.infoEtat = "DemandeLogonRefuséeParStpv";
                         infoSupp = true;
                     }
                     break;
@@ -360,7 +360,7 @@ export class Vol {
                 case 'CPCVNRES': {
                     if (log.getDetaillog()["GAPPSTATUS"] == "A") {
                         etatLogonConnexion.etat = Etat.Logue;
-                        etatLogonConnexion.infoEtat = "LogonAcceptee";
+                        etatLogonConnexion.infoEtat = "LogonAccepté";
                         infoSupp = true;
                     }
                     else if (log.getDetaillog()["GAPPSTATUS"] == "F") {
@@ -381,12 +381,17 @@ export class Vol {
                     //console.log('CPCCOMSTAT'); 
                     if (log.getDetaillog()["CPDLCCOMSTATUS"] == "A") {
                         etatLogonConnexion.etat = Etat.Connecte;
-                        etatLogonConnexion.infoEtat = "Connecte";
+                        etatLogonConnexion.infoEtat = "Connecté";
                         infoSupp = true
                     }
                     else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
+                        if (etatLogonConnexion.etat == Etat.Connecte) {
+                            etatLogonConnexion.infoEtat = "Déconnexion";
+                        }
+                        else {
+                            etatLogonConnexion.infoEtat = "NonConnecté";
+                        }
                         etatLogonConnexion.etat = Etat.Logue;
-                        etatLogonConnexion.infoEtat = "Deconnexion";
                         infoSupp = true
                     }
                     break;
@@ -401,7 +406,7 @@ export class Vol {
                 case 'CPCCLOSLNK': {
                     //console.log('CPCCLOSLNK'); 
                     etatLogonConnexion.etat = Etat.Logue;
-                    etatLogonConnexion.infoEtat = "DemandeDeconnexion";
+                    etatLogonConnexion.infoEtat = "DemandeDéconnexion";
                     infoSupp = true
                     break;
                 }

@@ -1,7 +1,7 @@
 var SocketIOFileUpload = require("socketio-file-upload");
 
 import { Contexte } from './Modele/enumContexte';
-import { checkAnswer } from './Modele/interfaces';
+import { checkAnswer } from './Modele/interfacesControles';
 import { Vol } from './Modele/vol';
 import { UsersRepository } from './Users';
 import { ParseurVEMGSA } from './Parseur/parseurVEMGSA';

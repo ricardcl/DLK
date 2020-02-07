@@ -4,7 +4,7 @@ import { AnalyseVEMGSA } from './analyseVEMGSA';
 import { GrapheEtat } from './grapheEtat';
 import { EtatCpdlc } from '../Modele/etatCpdlc';
 import { Dates, creneauHoraire } from './date';
-import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee } from '../Modele/interfaces';
+import { etatTransfertFrequence } from '../Modele/interfacesControles';
 import { Frequences } from './frequences';
 import * as moment from 'moment';
 
