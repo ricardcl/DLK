@@ -8,7 +8,7 @@ import { ParseurVEMGSA } from './Parseur/parseurVEMGSA';
 import { ParseurLPLN } from './Parseur/parseurLPLN';
 import { Path } from './Modele/path';
 import { Controles } from './Parseur/controles';
-import { MixInfos } from './Parseur/MixInfos';
+import { Conception } from './Parseur/conceptionVol';
 import { Frequences } from './Parseur/frequences';
 import { creneauHoraire, Dates } from './Parseur/date';
 import { AnalyseLPLN } from './Parseur/analyseLPLN';
@@ -31,7 +31,7 @@ export class Echanges {
     private analyseLPLN: AnalyseLPLN;
     private analyseVEMGSA: AnalyseVEMGSA;
     private controles: Controles;
-    private mixInfos: MixInfos;
+    private conception: Conception;
     private frequences: Frequences;
     private logBook: LogBook;
     private database: Database;
@@ -53,7 +53,7 @@ export class Echanges {
         this.dates = new Dates(this.split);
         this.frequences = new Frequences();
         this.controles = new Controles(this.dates);
-        this.mixInfos = new MixInfos(this.dates, this.frequences);
+        this.conception = new Conception(this.dates, this.frequences);
 
         this.logBook = LogBook.getInstance();
 
@@ -169,7 +169,7 @@ export class Echanges {
                     case Contexte.LPLN:
 
                         console.log("analysedVol Contexte.LPLN");
-                        volLpln = this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN);
+                        volLpln = this.conception.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN);
                         socket.emit("analysedVol", "LPLN", inputData, volLpln, null, null);
 
                         /**  Traitement bdd */
@@ -180,7 +180,7 @@ export class Echanges {
 
                         break;
                     case Contexte.VEMGSA:
-                        volVemgsa = this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA);
+                        volVemgsa = this.conception.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA);
 
                         console.log("analysedVol Contexte.VEMGSA");
                         socket.emit("analysedVol", "VEMGSA", inputData, null, volVemgsa, null);
@@ -190,9 +190,9 @@ export class Echanges {
                         break;
                     case Contexte.LPLNVEMGSA:
                         console.log("analysedVol Contexte.LPLN et VEMGSA");
-                        volLpln = this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN);
-                        volVemgsa = this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA);
-                        volMix = this.mixInfos.mixInfos(this.mixInfos.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN), this.mixInfos.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA), id.arcid, id.plnid, id.dates);
+                        volLpln = this.conception.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN);
+                        volVemgsa = this.conception.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA);
+                        volMix = this.conception.mixInfos(this.conception.InfosLpln(id.arcid, id.plnid, lplnfilename, this.analyseLPLN), this.conception.InfosVemgsa(id.arcid, id.plnid, id.dates, vemgsafilename, this.analyseVEMGSA), id.arcid, id.plnid, id.dates);
 
 
                         if ((checkanswer.checkLPLN.valeurRetour <= 1) && (checkanswer.checkVEMGSA.valeurRetour <= 2)) {

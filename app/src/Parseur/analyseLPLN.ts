@@ -11,6 +11,9 @@ import { ReadLine } from '../scripts/node-readline/node-readline';
 import { Frequences } from './frequences';
 const p = require('path');
 
+/**
+ * Classe regroupant les fonctions qui analysent les données extraites du fichier LPLN
+ */
 export class AnalyseLPLN {
 
   private parseurLPLN: ParseurLPLN;

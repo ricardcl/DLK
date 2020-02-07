@@ -19,6 +19,9 @@ export class AnalyseVEMGSA {
   private readLine: ReadLine;
   private dates: Dates;
 
+  /**
+ * Classe regroupant les fonctions qui analysent les données extraites des fichiers VEMGSA
+ */
   constructor(parseurVEMGSA: ParseurVEMGSA,dates:Dates,split:Split,frequences:Frequences) {
     console.log("Je rentre dans le constructor AnalyseVEMGSA ");
     this.parseurVEMGSA = parseurVEMGSA;

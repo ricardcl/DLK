@@ -8,7 +8,13 @@ import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifie
 import { Frequences } from './frequences';
 import * as moment from 'moment';
 
-export class MixInfos {
+
+/**
+ * Classe regroupant les fonctions permettant d'élaborer les informations du vol final à envoyer a client
+ * 
+ * Les fonctions permettent de calculer le vol final à partir de fichiers de logs LPN, VEMGSA, ou les deux
+ */
+export class Conception {
 
   private dates: Dates;
   private grapheEtat: GrapheEtat;

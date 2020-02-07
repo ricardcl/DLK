@@ -2,6 +2,9 @@ import { Vol } from '../Modele/vol';
 import { Etat } from '../Modele/enumEtat';
 import { Frequences } from './frequences';
 
+/**
+ * Classe regroupant les fonctions permettant de déterminer les différents état Data Link d'un vol
+ */
 export class GrapheEtat {
 
     private frequences: Frequences;
