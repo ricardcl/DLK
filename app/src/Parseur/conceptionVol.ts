@@ -535,7 +535,9 @@ export class Conception {
           if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp,-this.timeout ,0))) {
             console.log("3 etatCpdlcTemp", etatCpdlcTemp);
             console.log("dateFreq", dateFreq, "dateTemp", dateTemp, "diff",this.dates.diffDates(dateFreq, dateTemp),"diff boolean", this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout ,0));
-
+            if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB"){
+              etatTransfertFreq.isStandby = true;
+             }
             // console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
             etatTransfertFreq.isTransfertAcq = false;
@@ -608,7 +610,9 @@ export class Conception {
 
           if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout ,0)) && (!isCPDLCMSGDOWN)) {
             console.log("4 etatCpdlcTemp", etatCpdlcTemp);
-
+            if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB"){
+              etatTransfertFreq.isStandby = true;
+             }
             // console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
             etatTransfertFreq.isTransfertAcq = false;
