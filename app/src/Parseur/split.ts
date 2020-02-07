@@ -1,5 +1,5 @@
 import { TSMap } from "typescript-map";
-import { DetailCpdlc } from "../Modele/detailCpdlc";
+import { DetailCpdlc } from "../Modele/etatCpdlc";
 
 export class Split {
   

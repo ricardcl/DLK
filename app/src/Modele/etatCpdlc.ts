@@ -1,5 +1,10 @@
 import { Etat } from './enumEtat';
-import { DetailCpdlc } from "./detailCpdlc";
+
+
+export interface DetailCpdlc {
+  key: string ;
+  value: string;
+}
 
 export class EtatCpdlc {
   private id: number;

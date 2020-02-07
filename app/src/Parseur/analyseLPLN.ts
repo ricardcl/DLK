@@ -1,9 +1,8 @@
 import { Vol } from '../Modele/vol';
-import { EtatCpdlc } from '../Modele/etatCpdlc';
+import { EtatCpdlc,DetailCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
 import { Split } from './split';
 import * as moment from 'moment';
-import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { ParseurLPLN} from './parseurLPLN';
 import { Path } from '../Modele/path';
 import { Dates } from './date';

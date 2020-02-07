@@ -1,10 +1,9 @@
 
 import { Vol } from '../Modele/vol';
-import { EtatCpdlc } from '../Modele/etatCpdlc';
+import { EtatCpdlc,DetailCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
 import * as moment from 'moment';
 import { Split } from './split';
-import { DetailCpdlc } from '../Modele/detailCpdlc';
 import { ParseurVEMGSA } from './parseurVEMGSA';
 import { Path } from '../Modele/path';
 import { Frequences } from './frequences';

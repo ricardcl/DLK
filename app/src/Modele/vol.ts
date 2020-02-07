@@ -1,6 +1,6 @@
 import { EtatCpdlc } from './etatCpdlc';
 import moment = require('moment');
-import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee, erreurVol } from './checkAnswer'
+import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee, erreurVol } from './interfaces'
 import { Etat } from './enumEtat';
 
 export class Vol {

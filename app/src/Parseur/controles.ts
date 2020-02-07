@@ -1,6 +1,6 @@
 import { Identifiants } from '../Modele/identifiants';
 import { Contexte } from '../Modele/enumContexte';
-import { checkAnswer, checkAnswerInitial } from '../Modele/checkAnswer';
+import { checkAnswer, checkAnswerInitial } from '../Modele/interfaces';
 import { Dates, creneauHoraire, arrayCreneauHoraire } from './date';
 import { ParseurVEMGSA } from './parseurVEMGSA';
 import { ParseurLPLN } from './parseurLPLN';

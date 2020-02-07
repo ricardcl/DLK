@@ -1,7 +1,7 @@
 var SocketIOFileUpload = require("socketio-file-upload");
 
 import { Contexte } from './Modele/enumContexte';
-import { checkAnswer } from './Modele/checkAnswer';
+import { checkAnswer } from './Modele/interfaces';
 import { Vol } from './Modele/vol';
 import { UsersRepository } from './Users';
 import { ParseurVEMGSA } from './Parseur/parseurVEMGSA';
@@ -10,7 +10,7 @@ import { Path } from './Modele/path';
 import { Controles } from './Parseur/controles';
 import { Conception } from './Parseur/conceptionVol';
 import { Frequences } from './Parseur/frequences';
-import { creneauHoraire, Dates } from './Parseur/date';
+import { Dates } from './Parseur/date';
 import { AnalyseLPLN } from './Parseur/analyseLPLN';
 import { AnalyseVEMGSA } from './Parseur/analyseVEMGSA';
 import { LogBook } from './logBook';
