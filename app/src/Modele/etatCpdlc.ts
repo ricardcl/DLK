@@ -18,7 +18,14 @@ export class EtatCpdlc {
   private detailLog: DetailCpdlc[];
   private explication: string;
   private isTypeCPC: boolean; // VAUT 1 si CPDLC et 0 si  STPV 
-
+  private  infoEtat:string;
+  
+  public setInfoEtat(infoEtat){
+this.infoEtat = infoEtat;
+  }
+  public getInfoEtat(){
+    return this.infoEtat;
+  }
 
 
   constructor(id: number) {
@@ -33,6 +40,7 @@ export class EtatCpdlc {
     this.detailLog = [];
     this.explication = "";
     this.isTypeCPC = false;
+    this.infoEtat= "";
   }
 
   /*getLogCpdlc() {
