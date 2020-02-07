@@ -67,6 +67,7 @@ export interface checkAnswer {
  * isTransfertAcq : true si le contrôleur a acquitté un retour à la voix,false sinon ,
  * dateTranfertAcq: date de l'acquittement du retour à la voix,
  * delaT : valeur du timeout en cas de timeout
+ * isStandby : indique si le pilote a répondu standby à la demande de transfert de fréquence
  */
 export interface etatTransfertFrequence { 
     frequence: string; 
@@ -79,6 +80,7 @@ export interface etatTransfertFrequence {
     isTransfertAcq?: boolean; 
     dateTranfertAcq ?:string;  
     deltaT?:number;
+    isStandby?:boolean;
 }
 
 

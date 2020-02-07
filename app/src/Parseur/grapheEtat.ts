@@ -106,7 +106,12 @@ export class GrapheEtat {
                         }
                         else if ((etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "UNA") || (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "STB")) {
                             monEtat = Etat.RetourALaVoix;
-                            explication = "Echec de transfert: Retour à la voix"
+                            if (etatCpdlc.getDetaillog()["CPDLCMSGDOWN"] == "STB"){
+                                explication = "Echec de transfert car Réponse Standby du pilote : Retour à la voix"
+                            }
+                            else{
+                                explication = "Echec de transfert: Retour à la voix"
+                            }
 
                         }
                     }

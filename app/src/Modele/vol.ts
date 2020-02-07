@@ -638,15 +638,22 @@ export class Vol {
 
         //ERREURS DE TRANSFERT DE FREQUENCE
         this.getListeEtatTransfertFrequence().forEach(element => {
+            let infos: string = "timeout";
+
             if (element.isTransfertAcq !== true) {
-                let infos: string = "timeout";
-                let deltaTSecondes: number = element.deltaT / 1000;
-                if ((deltaTSecondes > 0) && (deltaTSecondes < 60)) {
-                    infos += " delta T: " + deltaTSecondes + " secondes" + " hyp : délai de reception par le bord";
+                if (element.isStandby){
+                    infos= "Réponse standby du pilote";
                 }
-                else if ((deltaTSecondes >= 60) && (deltaTSecondes < 100)) {
-                    infos += " delta T: " + deltaTSecondes + " secondes" + " hyp : délai reception réponse bord";
+                else {
+                    let deltaTSecondes: number = element.deltaT / 1000;
+                    if ((deltaTSecondes > 0) && (deltaTSecondes < 60)) {
+                        infos += " delta T: " + deltaTSecondes + " secondes" + " hyp : délai de reception par le bord";
+                    }
+                    else if ((deltaTSecondes >= 60) && (deltaTSecondes < 100)) {
+                        infos += " delta T: " + deltaTSecondes + " secondes" + " hyp : délai reception réponse bord";
+                    }
                 }
+
                 this.listeErreurs.push({ date: element.dateTransfert, type: "echec de transfert", infos: infos });
             }
         });

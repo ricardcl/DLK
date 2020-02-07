@@ -714,6 +714,9 @@ export class Conception {
 
           //attention : le message CPCMSGDOWN doit etre post daté au transfert de fréquence
           if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp,-this.timeout ,0))) {
+           if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB"){
+            etatTransfertFreq.isStandby = true;
+           }
             console.log("1 etatCpdlcTemp", etatCpdlcTemp);
 
             // console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
