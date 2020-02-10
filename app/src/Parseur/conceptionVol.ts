@@ -46,17 +46,14 @@ export class Conception {
       monvolFinal.setDate(volLpln.getDate());
     }
 
-    if (volLpln.getAdep() == volVemgsa.getAdep()) {
-      monvolFinal.setAdep(volLpln.getAdep());
-      monvolFinal.setCmpAdep(true);
-    }
-    else { monvolFinal.setCmpAdep(false); }
+    monvolFinal.setAdep(volLpln.getAdep());
+    monvolFinal.setAdepBord(volVemgsa.getAdepBord());
+    monvolFinal.setCmpAdep((volLpln.getAdep() == volVemgsa.getAdepBord()));
 
-    if (volLpln.getAdes() == volVemgsa.getAdes()) {
-      monvolFinal.setAdes(volLpln.getAdes());
-      monvolFinal.setCmpAdes(true);
-    }
-    else { monvolFinal.setCmpAdes(false); }
+    monvolFinal.setAdes(volLpln.getAdes());
+    monvolFinal.setAdesBord(volVemgsa.getAdesBord());
+    monvolFinal.setCmpAdes((volLpln.getAdes() == volVemgsa.getAdesBord()));
+
 
     if (volLpln.getArcid() == volVemgsa.getArcid()) {
       monvolFinal.setCmpArcid(true);
@@ -70,14 +67,14 @@ export class Conception {
       monvolFinal.setEquipementCpdlc("NON EQUIPE");
     }
 
-    if (volLpln.getAdrDeposee() == volLpln.getAdrModeSInf()) {
+    if (volLpln.getAdrDeposee() == volLpln.getAdrModeSBord()) {
       monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
-      monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
+      monvolFinal.setAdrModeSBord(volLpln.getAdrModeSBord());
       monvolFinal.setCmpAdrModeS(true);
     }
     else {
       monvolFinal.setAdrDeposee(volLpln.getAdrDeposee());
-      monvolFinal.setAdrModeSInf(volLpln.getAdrModeSInf());
+      monvolFinal.setAdrModeSBord(volLpln.getAdrModeSBord());
       monvolFinal.setCmpAdrModeS(false);
     }
 
@@ -108,7 +105,13 @@ export class Conception {
       monvolFinal.setIslogCpdlcComplete(true);
     }
 
+    if (monvolFinal.getLogonAccepte() == true) {
+      monvolFinal.setCmpAdep(true);
+      monvolFinal.setCmpAdes(true);
+      monvolFinal.setCmpArcid(true);
+      monvolFinal.setCmpAdrModeS(true);
 
+    }
     //RECUPERATION DES LOGS 
     volVemgsa.getListeLogs().forEach((elt, key) => {
       let heureTransfert = "";
@@ -128,7 +131,7 @@ export class Conception {
 
           if ((((eltL.getTitle() == 'CPCFREQ') || (eltL.getTitle() == 'CPCCLOSLNK')) && !isLplnParcouru)
             && this.dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
-              // console.log("comparaison lpln, vemgsa", " heure lpln: ", eltL.getHeure(), " heure vemgsa: ", elt.getHeure());
+            // console.log("comparaison lpln, vemgsa", " heure lpln: ", eltL.getHeure(), " heure vemgsa: ", elt.getHeure());
 
             //if (this.dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
             // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ")); 
@@ -140,7 +143,7 @@ export class Conception {
             volLpln.getListeLogs().forEach((eltL, keyL) => {
 
               // console.log("eltL", eltL.getTitle(),"eltL.getHeure()",eltL.getHeure(),"heureTransfert",heureTransfert,"elt position", eltL.getDetaillog()['POSITION'] ,'positionTransfert', positionTransfert );
-               //console.log("!!! eltL", eltL.getDetaillog());
+              //console.log("!!! eltL", eltL.getDetaillog());
               if ((eltL.getTitle() == 'TRFDL')
                 && (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= this.uneMinute)) {
                 //  console.log("eltL TRFDL", eltL.getTitle());
@@ -161,7 +164,7 @@ export class Conception {
               if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
                 //console.log("eltL TRARTV", eltL.getTitle(), "positionTransfert", positionTransfert);
                 // console.log("eltL TRARTV", eltL.getTitle());
-               // console.log("eltL", eltL.getHeure(), "heureTransfert", heureTransfert);
+                // console.log("eltL", eltL.getHeure(), "heureTransfert", heureTransfert);
                 if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 3 * this.uneMinute) {
                   // console.log("eltL TRARTV", eltL.getTitle());
                   //console.log("eltL", eltL); 
@@ -272,14 +275,10 @@ export class Conception {
 
     //RECUPERATION DES ATTRIBUTS 
 
-    if (monvolLpln.getAdrDeposee() == monvolLpln.getAdrModeSInf()) {
+    if (monvolLpln.getAdrDeposee() == monvolLpln.getAdrModeSBord()) {
       monvolLpln.setCmpAdrModeS(true);
     } else { monvolLpln.setCmpAdrModeS(false); }
 
-
-    if (monvolLpln.getLogonAccepte() == true) {
-      monvolLpln.setConditionsLogon(true);
-    }
 
 
 
@@ -294,9 +293,11 @@ export class Conception {
 
       if ((etatCpdlc.getTitle() == 'CPCASRES') && ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L'))) {
         monvolLpln.setLogonAccepte(true);
+        monvolLpln.setLogonInitie(true);
 
       }
       if ((etatCpdlc.getTitle() == 'CPCASRES') && (etatCpdlc.getDetaillog()['ATNASSOC'] == 'F')) {
+        monvolLpln.setLogonInitie(true);
         monvolLpln.setLogonAccepte(false);
       }
       if (etatCpdlc.getTitle() == 'CPCEND') {
@@ -318,7 +319,16 @@ export class Conception {
       monvolLpln.setIslogCpdlcComplete(true);
     }
 
+    if (monvolLpln.getLogonAccepte() == true) {
+      monvolLpln.setConditionsLogon(true);
+    }
 
+    if (monvolLpln.getLogonAccepte() == true) {
+      monvolLpln.setCmpAdep(true);
+      monvolLpln.setCmpAdes(true);
+      monvolLpln.setCmpArcid(true);
+      monvolLpln.setCmpAdrModeS(true);
+    }
     /** Recuperation des infos de transfert de frequence */
 
     monvolLpln.setListeEtatTransfertFrequence(this.evaluationEtatsTransfertsFrequenceLPLN(monvolLpln.getListeLogs()));
@@ -360,12 +370,19 @@ export class Conception {
 
     monvolVemgsa.getListeLogs().forEach(etatCpdlc => {
       if (etatCpdlc.getTitle() == 'CPCASREQ') {
-        monvolVemgsa.setAdep(etatCpdlc.getDetaillog()['ADEP']);
-        monvolVemgsa.setAdes(etatCpdlc.getDetaillog()['ADES']);
-        monvolVemgsa.setAdrDeposee(etatCpdlc.getDetaillog()['ARCADDR']);
+        monvolVemgsa.setAdrModeSBord(etatCpdlc.getDetaillog()['ARCADDR']);
+        monvolVemgsa.setAdepBord(etatCpdlc.getDetaillog()['ADEP']);
+        monvolVemgsa.setAdesBord(etatCpdlc.getDetaillog()['ADES']);
         monvolVemgsa.setArcid(etatCpdlc.getDetaillog()['ARCID']);
         monvolVemgsa.setLogonInitie(true);
         hasCPASREQ = true;
+      }
+
+      if ((etatCpdlc.getTitle() == 'CPCASRES') && !hasCPASREQ) {
+        monvolVemgsa.setAdrModeSBord(etatCpdlc.getDetaillog()['ARCADDR']);
+        monvolVemgsa.setAdepBord(etatCpdlc.getDetaillog()['ADEP']);
+        monvolVemgsa.setAdesBord(etatCpdlc.getDetaillog()['ADES']);
+        monvolVemgsa.setArcid(etatCpdlc.getDetaillog()['ARCID']);
       }
 
       if (etatCpdlc.getTitle() == 'CPCEND') {
@@ -380,6 +397,7 @@ export class Conception {
       }
 
       if (etatCpdlc.getTitle() == 'CPCASRES') {
+        monvolVemgsa.setLogonInitie(true);
         if ((etatCpdlc.getDetaillog()['ATNASSOC'] == 'S') || (etatCpdlc.getDetaillog()['ATNASSOC'] == 'L')) {
           monvolVemgsa.setLogonAccepte(true);
         }
@@ -409,10 +427,18 @@ export class Conception {
     if (hasCPASREQ && hasCPCEND) {
       monvolVemgsa.setIslogCpdlcComplete(true);
     }
+console.log("isLogue",isLogue);
 
     if (isLogue) {
+      monvolVemgsa.setLogonInitie(true);
+      monvolVemgsa.setConditionsLogon(true);
       monvolVemgsa.setLogonAccepte(true);
+      monvolVemgsa.setCmpAdep(true);
+      monvolVemgsa.setCmpAdes(true);
+      monvolVemgsa.setCmpArcid(true);
+      monvolVemgsa.setCmpAdrModeS(true);
     }
+
 
     //console.log("ARCADDR: ", monvolVemgsa.getAdrDeposee(), "\nARCID: ", monvolVemgsa.getArcid(),"\nAdep: ", monvolVemgsa.getAdep(), "\nAdes: ", monvolVemgsa.getAdes(), "\nLogonInitie: ",monvolVemgsa.getLogonInitie(), "\nLogonAccepte: ", monvolVemgsa.getLogonAccepte()); 
 
@@ -519,7 +545,7 @@ export class Conception {
           }
 
           if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0))) {
-           // console.log("2 etatCpdlcTemp", etatCpdlcTemp);
+            // console.log("2 etatCpdlcTemp", etatCpdlcTemp);
             //console.log("date FIN TRFDL timeout:", dateTemp);
             //console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
@@ -541,8 +567,8 @@ export class Conception {
           }
 
           if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0))) {
-          //  console.log("3 etatCpdlcTemp", etatCpdlcTemp);
-          //  console.log("dateFreq", dateFreq, "dateTemp", dateTemp, "diff", this.dates.diffDates(dateFreq, dateTemp), "diff boolean", this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0));
+            //  console.log("3 etatCpdlcTemp", etatCpdlcTemp);
+            //  console.log("dateFreq", dateFreq, "dateTemp", dateTemp, "diff", this.dates.diffDates(dateFreq, dateTemp), "diff boolean", this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0));
             if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB") {
               etatTransfertFreq.isStandby = true;
             }
@@ -617,7 +643,7 @@ export class Conception {
           dateTemp = etatCpdlcTemp.getDate();
 
           if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0)) && (!isCPDLCMSGDOWN)) {
-           // console.log("4 etatCpdlcTemp", etatCpdlcTemp);
+            // console.log("4 etatCpdlcTemp", etatCpdlcTemp);
             if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB") {
               etatTransfertFreq.isStandby = true;
             }
@@ -729,7 +755,7 @@ export class Conception {
             if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB") {
               etatTransfertFreq.isStandby = true;
             }
-           // console.log("1 etatCpdlcTemp", etatCpdlcTemp);
+            // console.log("1 etatCpdlcTemp", etatCpdlcTemp);
 
             // console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;

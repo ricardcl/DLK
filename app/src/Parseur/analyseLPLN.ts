@@ -172,14 +172,14 @@ export class AnalyseLPLN {
           let motif = /(.*)(ADRESSE MODE S :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           //console.log("info adrModeS:", transaction);
-          monvol.setAdrModeS(transaction);
+         // monvol.setAdrModeS(transaction);
         }
 
         if (mylogCpdlc.match("ADR MODE S INF :") !== null) {
           let motif = /(.*)(ADR MODE S INF :)(.*)(EVT|EVEIL|FIN|IMP)(.*)/;
           let transaction = mylogCpdlc.replace(motif, "$3").trim();
           //console.log("info adrModeSInf:", transaction);
-          monvol.setAdrModeSInf(transaction);
+          monvol.setAdrModeSBord(transaction);
         }
 
         if (mylogCpdlc.match("ADR. DEPOSEE   :") !== null) {

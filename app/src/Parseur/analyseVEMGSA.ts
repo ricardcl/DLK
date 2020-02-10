@@ -1,6 +1,6 @@
 
 import { Vol } from '../Modele/vol';
-import { EtatCpdlc,DetailCpdlc } from '../Modele/etatCpdlc';
+import { EtatCpdlc, DetailCpdlc } from '../Modele/etatCpdlc';
 import { Etat } from '../Modele/enumEtat';
 import * as moment from 'moment';
 import { Split } from './split';
@@ -21,7 +21,7 @@ export class AnalyseVEMGSA {
   /**
  * Classe regroupant les fonctions qui analysent les données extraites des fichiers VEMGSA
  */
-  constructor(parseurVEMGSA: ParseurVEMGSA,dates:Dates,split:Split,frequences:Frequences) {
+  constructor(parseurVEMGSA: ParseurVEMGSA, dates: Dates, split: Split, frequences: Frequences) {
     console.log("Je rentre dans le constructor AnalyseVEMGSA ");
     this.parseurVEMGSA = parseurVEMGSA;
     this.dates = dates;
@@ -84,13 +84,13 @@ export class AnalyseVEMGSA {
         let dateHeure = infoGen.toString().replace(motifDateHeure, "$1");
         // console.log("date brute: ",dateHeure);
         //const dateToStore = this.dates.vlogtoString(dateHeure.toString());
-       // console.log("date brute string: ", dateHeure.toString());
+        // console.log("date brute string: ", dateHeure.toString());
         const momentDate = moment(dateHeure, 'DD-MM-YYYY HH mm ss');
-       // console.log("date momentDate: ", momentDate);
+        // console.log("date momentDate: ", momentDate);
         log.setJour(moment(momentDate).format('DD-MM-YYYY'));
         log.setHeure(moment(momentDate).format('HH mm ss'));
         log.setDate(moment(momentDate).format('DD-MM-YYYY HH mm ss'));
-       // console.log("date set date : ", moment(momentDate).format('DD-MM-YYYY HH mm ss'));
+        // console.log("date set date : ", moment(momentDate).format('DD-MM-YYYY HH mm ss'));
         log.setAssociable(Boolean(infoGen.toString().replace(motifDateHeure, "$8")));
         if (monvol.getDate() == "") {
           monvol.setDate(log.getJour());
@@ -104,7 +104,6 @@ export class AnalyseVEMGSA {
       log.setIsTypeCPC(true);
       monvol.getListeLogs().push(log);
 
-      //automate a etat sur la variable etat 
       if ((log.getTitle() == "CPCCLOSLNK") || (log.getTitle() == "CPCFREQ")) {
         if (log.getDetaillog()["FREQ"] !== undefined) {
           let freq = this.frequences.conversionFreq(log.getDetaillog()["FREQ"]);

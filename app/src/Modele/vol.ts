@@ -14,9 +14,9 @@ export class Vol {
     private plnid: number;
     /**nom du secteur logique traverse */
     private sl: string;
-    /**Aeroport de depart*/
+    /**Aeroport de depart déposé dans le plan de vol*/
     private adep: string;
-    /**Aeroport de destination*/
+    /**Aeroport de destination déposé dans le plan de vol*/
     private ades: string;
     /**Date du vol */
     private date: string;
@@ -35,9 +35,9 @@ export class Vol {
 
     // PARAMETRES LIES AU LOGON 
     /**Adresse  Mode S vide si route ifps = NON ... inutile a traiter -> a supprimer */
-    private adrModeS: string;
+    //private adrModeS: string;
     /**Adresse Mode S envoyee par l'equipement bord */
-    private adrModeSInf: string;
+    private adrModeSBord: string;
     /**Adresse deposee par le pilote dans son plan de vol */
     private adrDeposee: string;
     /**Indique si le vol est declare equipe cpdlc */
@@ -46,6 +46,10 @@ export class Vol {
     private logonInitie: boolean;   //0: NA, 1:true , 2:false 
     /**Acceptation du logon par le STPV*/
     private logonAccepte: boolean;
+    /**Aeroport de depart envoyé par le Bord*/
+    private adepBord: string;
+    /**Aeroport de depart envoyé par le Bord*/
+    private adesBord: string;
     /**adrDeposee et cmpAdrModeSInf identique (entre Lpln et Vemgsa)  */
     private cmpAdrModeS: boolean;
     /**adep identique entre Lpln et Vemgsa  */
@@ -87,11 +91,11 @@ export class Vol {
         this.isConnexionEtablie = false;
         this.isConnexionPerdue = false;
         this.cmpAdrModeS = false;
-        this.cmpAdep = false,
-            this.cmpAdes = false,
-            this.cmpArcid = false,
-            this.conditionsLogon = false,
-            this.haslogCpdlc = false;
+        this.cmpAdep = false;
+        this.cmpAdes = false;
+        this.cmpArcid = false;
+        this.conditionsLogon = false;
+        this.haslogCpdlc = false;
         this.islogCpdlcComplete = false;
         this.listeEtatTransfertFrequence = [];
         this.listeEtatLogonConnexion = [];
@@ -102,12 +106,12 @@ export class Vol {
 
 
     //SETTERS 
-    public setAdrModeS(adrModeS: string): void {
+    /*public setAdrModeS(adrModeS: string): void {
         this.adrModeS = adrModeS;
-    }
+    }*/
 
-    public setAdrModeSInf(adrModeSInf: string): void {
-        this.adrModeSInf = adrModeSInf;
+    public setAdrModeSBord(adrModeSBord: string): void {
+        this.adrModeSBord = adrModeSBord;
     }
 
     public setAdrDeposee(adrDeposee: string): void {
@@ -126,6 +130,13 @@ export class Vol {
         this.ades = ades;
     }
 
+    public setAdepBord(adepBord: string): void {
+        this.adepBord = adepBord;
+    }
+
+    public setAdesBord(adesBord: string): void {
+        this.adesBord = adesBord;
+    }
     public setDate(date: string): void {
         this.date = date;
     }
@@ -229,12 +240,12 @@ export class Vol {
     public getPlnid(): number {
         return this.plnid;
     }
-    public getAdrModeS(): string {
-        return this.adrModeS;
-    }
+    /* public getAdrModeS(): string {
+         return this.adrModeS;
+     }*/
 
-    public getAdrModeSInf(): string {
-        return this.adrModeSInf;
+    public getAdrModeSBord(): string {
+        return this.adrModeSBord;
     }
 
     public getAdrDeposee(): string {
@@ -251,6 +262,14 @@ export class Vol {
 
     public getAdes(): string {
         return this.ades;
+    }
+
+    public getAdepBord(): string {
+        return this.adepBord;
+    }
+
+    public getAdesBord(): string {
+        return this.adesBord;
     }
 
     public getDate(): string {
@@ -641,8 +660,8 @@ export class Vol {
             let infos: string = "timeout";
 
             if (element.isTransfertAcq !== true) {
-                if (element.isStandby){
-                    infos= "Réponse standby du pilote";
+                if (element.isStandby) {
+                    infos = "Réponse standby du pilote";
                 }
                 else {
                     let deltaTSecondes: number = element.deltaT / 1000;
@@ -684,7 +703,7 @@ export class Vol {
                 }
                 else {
                     explication = "l'un des paramètres déclarés dans le plan de vol n'est pas cohérent avec celui envoyé par le bord ";
-                    explication += "adep: " + this.getAdep() + "ades: " + this.getAdes() + "arcid: " + this.getArcid() + "adrDeposee: " + this.getAdrDeposee() + "adrModeS: " + this.getAdrModeSInf();
+                    explication += "adep: " + this.getAdep() + "ades: " + this.getAdes() + "arcid: " + this.getArcid() + "adrDeposee: " + this.getAdrDeposee() + "adrModeS: " + this.getAdrModeSBord();
                 }
             }
         }
