@@ -111,6 +111,8 @@ export class Dates {
         return diff;
     }
 
+    
+
     /**
      * Fonction comparant des heures XXXX  entre elles  
      * @param h1 

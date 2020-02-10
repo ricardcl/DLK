@@ -113,48 +113,56 @@ export class Conception {
     volVemgsa.getListeLogs().forEach((elt, key) => {
       let heureTransfert = "";
       let positionTransfert = "";
-      let isLplnParcouru: boolean = false;
+      let isLplnParcouru: boolean = false; /* Le fichier LPLN peut contenir deux CPCLOSLINK pour un seul côté VEMGSA, 
+      pour éviter qu'il soit traité deux fois, la variable isLplnParcouru permet de s'assure qu'on associe qu'une fois 
+      les infos LPLN à un transfert VEMGSA
+      */
       monvolFinal.addElt(elt);
-      console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure());
+      //   console.log("elt VEMGSA", elt.getTitle(), "date : ", elt.getHeure());
 
       //Si transfert Datalink Initié, recherche dans les logs LPLN de la fréquence et des information associées 
       if ((elt.getTitle() == 'CPCFREQ') || ((elt.getTitle() == 'CPCCLOSLNK') && (elt.getDetaillog()["FREQ"] !== undefined))) {
 
-        let isLplnParcouru: boolean = false;
+        isLplnParcouru = false;
         volLpln.getListeLogs().forEach((eltL, keyL) => {
 
-          if (((eltL.getTitle() == 'CPCFREQ') || (eltL.getTitle() == 'CPCCLOSLNK')) && !isLplnParcouru) {
-            if (this.dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
-              // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ")); 
-              heureTransfert = eltL.getHeure();
-              // console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert); 
-            }
+          if ((((eltL.getTitle() == 'CPCFREQ') || (eltL.getTitle() == 'CPCCLOSLNK')) && !isLplnParcouru)
+            && this.dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
+              // console.log("comparaison lpln, vemgsa", " heure lpln: ", eltL.getHeure(), " heure vemgsa: ", elt.getHeure());
+
+            //if (this.dates.isHeuresLplnVemgsaEgales(elt.getHeure(), eltL.getHeure())) {
+            // console.log("date vemgsa : ", elt.getDate(), "date lpln : ", eltL.getDate(), "freq vemgsa: ", elt.getDetail("FREQ")); 
+            heureTransfert = eltL.getHeure();
+            //console.log("freq lpln: ", eltL.getDetaillog()["FREQ"], " heure lpln: ", heureTransfert, " heure vemgsa: ", elt.getHeure());
+            // }
 
             //si une frequence a bien ete trouvee a cette heure là on recupere le nom de la position et les infos suivantes 
             volLpln.getListeLogs().forEach((eltL, keyL) => {
 
               // console.log("eltL", eltL.getTitle(),"eltL.getHeure()",eltL.getHeure(),"heureTransfert",heureTransfert,"elt position", eltL.getDetaillog()['POSITION'] ,'positionTransfert', positionTransfert );
-              // console.log("!!! eltL", eltL.getDetaillog());
-              if (eltL.getTitle() == 'TRFDL') {
-                if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= this.uneMinute) {
-                  //  console.log("eltL TRFDL", eltL.getTitle());
-                  positionTransfert = eltL.getDetaillog()['POSITION'];
-                  // console.log("Position", positionTransfert);
-                  //console.log(" heure de transfert: ", heureTransfert); 
-                  monvolFinal.addElt(eltL); //TODO?? Vérifier que ce n'est pas utile : raisonnement : redondant avec le CPCFREQ ??
-                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
+               //console.log("!!! eltL", eltL.getDetaillog());
+              if ((eltL.getTitle() == 'TRFDL')
+                && (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= this.uneMinute)) {
+                //  console.log("eltL TRFDL", eltL.getTitle());
+                positionTransfert = eltL.getDetaillog()['POSITION'];
+                // console.log("Position", positionTransfert);
+                //console.log(" heure de transfert: ", heureTransfert); 
+                // console.log("Log TRFDL - heureTransfert", heureTransfert);
+                monvolFinal.addElt(eltL); //TODO?? Vérifier que ce n'est pas utile : raisonnement : redondant avec le CPCFREQ ??
+                //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
+              }
+              if ((eltL.getTitle() == 'FIN TRFDL')
+                && (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute)) {
+                //   console.log("eltL FIN TRFDL", eltL.getTitle());
+                //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
+                monvolFinal.addElt(eltL);
+              }
 
-                }
-              }
-              if (eltL.getTitle() == 'FIN TRFDL') {
-                if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
-                  //   console.log("eltL FIN TRFDL", eltL.getTitle());
-                  //console.log("eltL", eltL.getTitle(), "date : ", eltL.getHeure()); 
-                  monvolFinal.addElt(eltL);
-                }
-              }
               if ((eltL.getTitle() == 'TRARTV') && (eltL.getDetaillog()['POSITION'] == positionTransfert)) {
-                if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 2 * this.uneMinute) {
+                //console.log("eltL TRARTV", eltL.getTitle(), "positionTransfert", positionTransfert);
+                // console.log("eltL TRARTV", eltL.getTitle());
+               // console.log("eltL", eltL.getHeure(), "heureTransfert", heureTransfert);
+                if (this.dates.diffHeuresLplnEgales(eltL.getHeure(), heureTransfert) <= 3 * this.uneMinute) {
                   // console.log("eltL TRARTV", eltL.getTitle());
                   //console.log("eltL", eltL); 
                   monvolFinal.addElt(eltL);
@@ -477,8 +485,8 @@ export class Conception {
 
   private evaluationEtatsTransfertsFrequenceLPLN(listeLogs: EtatCpdlc[]): etatTransfertFrequence[] {
     //TODO vérifier l'algo pour les focntion  evaluationEtatsTransfertsFrequence LPLN VEMGSA et MIX
-     //TODO vérifier que les creneaux de dates sont bons cf cas du TRFDL doit etre entre et 0 et 2 min apres le CPCPFREQ
-     //utiliser pour ca la fonction diffDatesInBornes
+    //TODO vérifier que les creneaux de dates sont bons cf cas du TRFDL doit etre entre et 0 et 2 min apres le CPCPFREQ
+    //utiliser pour ca la fonction diffDatesInBornes
     let dateFreq: string;
     let dateTemp: string;
     let tabEtatsTransfertFrequences: etatTransfertFrequence[] = [];
@@ -510,8 +518,8 @@ export class Conception {
 
           }
 
-          if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout ,0))) {
-            console.log("2 etatCpdlcTemp", etatCpdlcTemp);
+          if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0))) {
+           // console.log("2 etatCpdlcTemp", etatCpdlcTemp);
             //console.log("date FIN TRFDL timeout:", dateTemp);
             //console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
@@ -532,12 +540,12 @@ export class Conception {
             //console.log("etatTransfertFreq.dateTRARTV", etatTransfertFreq.dateTRARTV);
           }
 
-          if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp,-this.timeout ,0))) {
-            console.log("3 etatCpdlcTemp", etatCpdlcTemp);
-            console.log("dateFreq", dateFreq, "dateTemp", dateTemp, "diff",this.dates.diffDates(dateFreq, dateTemp),"diff boolean", this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout ,0));
-            if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB"){
+          if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0))) {
+          //  console.log("3 etatCpdlcTemp", etatCpdlcTemp);
+          //  console.log("dateFreq", dateFreq, "dateTemp", dateTemp, "diff", this.dates.diffDates(dateFreq, dateTemp), "diff boolean", this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0));
+            if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB") {
               etatTransfertFreq.isStandby = true;
-             }
+            }
             // console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
             etatTransfertFreq.isTransfertAcq = false;
@@ -608,11 +616,11 @@ export class Conception {
         listeLogs.forEach(etatCpdlcTemp => {
           dateTemp = etatCpdlcTemp.getDate();
 
-          if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout ,0)) && (!isCPDLCMSGDOWN)) {
-            console.log("4 etatCpdlcTemp", etatCpdlcTemp);
-            if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB"){
+          if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0)) && (!isCPDLCMSGDOWN)) {
+           // console.log("4 etatCpdlcTemp", etatCpdlcTemp);
+            if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB") {
               etatTransfertFreq.isStandby = true;
-             }
+            }
             // console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
             etatTransfertFreq.isTransfertAcq = false;
@@ -692,8 +700,8 @@ export class Conception {
           }
 
 
-          if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDates(dateFreq, dateTemp) <= this.timeout)) {
-            console.log("5 etatCpdlcTemp", etatCpdlcTemp);
+          if ((etatCpdlcTemp.getTitle() == "FIN TRFDL") && (this.dates.diffDatesAbs(dateFreq, dateTemp) <= this.timeout)) {
+            //console.log("5 etatCpdlcTemp", etatCpdlcTemp);
 
             // console.log("date FIN TRFDL timeout:", dateTemp);
             // console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
@@ -717,11 +725,11 @@ export class Conception {
 
 
           //attention : le message CPCMSGDOWN doit etre post daté au transfert de fréquence
-          if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp,-this.timeout ,0))) {
-           if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB"){
-            etatTransfertFreq.isStandby = true;
-           }
-            console.log("1 etatCpdlcTemp", etatCpdlcTemp);
+          if ((etatCpdlcTemp.getTitle() == "CPCMSGDOWN") && (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] !== "WIL") && (this.dates.diffDatesInBornes(dateFreq, dateTemp, -this.timeout, 0))) {
+            if (etatCpdlcTemp.getDetaillog()["CPDLCMSGDOWN"] === "STB") {
+              etatTransfertFreq.isStandby = true;
+            }
+           // console.log("1 etatCpdlcTemp", etatCpdlcTemp);
 
             // console.log("diff de temps:", this.dates.diffDatesAbs(dateFreq, dateTemp));
             etatTransfertFreq.isFinTRFDL = true;
