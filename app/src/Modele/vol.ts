@@ -732,11 +732,11 @@ export class Vol {
             }
             else if (!this.getIsConnexionEtablie()) {
                 connexion = false;
-                explication = "Echec de connexion avec l'aeronef ";
+                explication = "Echec de connexion avec l aeronef ";
             }
             else if (this.getIsConnexionPerdue()) {
                 connexion = false;
-                explication = "Perte de connexion avec l'aeronef ";
+                explication = "Perte de connexion avec l aeronef ";
             }
 
         }
