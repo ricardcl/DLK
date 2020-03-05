@@ -3,6 +3,7 @@ import moment = require('moment');
 import { etatTransfertFrequence, etatLogonConnexion, etatLogonConnexionSimplifiee, erreurVol } from './interfacesControles'
 import { Etat } from './enumEtat';
 
+
 export class Vol {
     /** identifiant unique d'un vol (heure en ms ?) */
     private id: string;
@@ -72,7 +73,8 @@ export class Vol {
     private isConnexionEtablie: boolean;
     /**Perte de connexion avec l aeronef  */
     private isConnexionPerdue: boolean;
-
+    /**Heures de perte de connexion avec l aeronef  */
+    private datesConnexionPerdue: string[];
 
     /**Attributs utilisés côté client */
     private listeErreurs: erreurVol[];
@@ -90,6 +92,7 @@ export class Vol {
         this.isConnexionInitiee = false;
         this.isConnexionEtablie = false;
         this.isConnexionPerdue = false;
+        this.datesConnexionPerdue = [];
         this.cmpAdrModeS = false;
         this.cmpAdep = false;
         this.cmpAdes = false;
@@ -159,6 +162,10 @@ export class Vol {
 
     public setIsConnexionPerdue(isConnexionPerdue: boolean): void {
         this.isConnexionPerdue = isConnexionPerdue;
+    }
+
+    public setDatesConnexionPerdue(datesConnexionPerdue: string[]): void {
+        this.datesConnexionPerdue = datesConnexionPerdue;
     }
 
     public setArcid(arcid: string): void {
@@ -296,6 +303,9 @@ export class Vol {
         return this.isConnexionPerdue;
     }
 
+    public getDatesConnexionPerdue(): string[] {
+        return this.datesConnexionPerdue;
+    }
     public getCmpAdrModeS(): boolean {
         return this.cmpAdrModeS;
     }
@@ -359,28 +369,23 @@ export class Vol {
             infoSupp = false;
             //automate a etat sur la variable etat 
             switch (log.getTitle()) {
-                
+
                 case 'CPCASREQ': {
-                    let LogonPendantVolLogue:boolean = false;
+                    let LogonPendantVolLogue: boolean = false;
+                    //Traitement du cas ou l'avion envoie des nouvelles demandes de logon alors qu'il est déjà) logué
                     if (!log.getAssociable()) {
                         if (index !== 0) {
-                            const previousState = tabEtatLogonConnexionTemp[tabEtatLogonConnexionTemp.length-1].etat;
-                            console.log("je passe dedans elementPrevious",previousState);
-
+                            const previousState = tabEtatLogonConnexionTemp[tabEtatLogonConnexionTemp.length - 1].etat;
                             if ((previousState == Etat.Logue) || (previousState == Etat.Connecte)) {
                                 LogonPendantVolLogue = true;
                                 etatLogonConnexion.etat = previousState;
                                 etatLogonConnexion.infoEtat = "DemandeLogonRefuséeParStpv";
                                 infoSupp = true;
-                                console.log("je passe dedans");
-                                
                             }
                         }
                     }
-                    console.log("!!!!test: ","associable",log.getAssociable(), );
-
-
-                    if (!LogonPendantVolLogue){
+                    //Traitement des autres cas
+                    if (!LogonPendantVolLogue) {
                         etatLogonConnexion.etat = Etat.NonLogue;
                         etatLogonConnexion.infoEtat = "DemandeLogonEnCours";
                         infoSupp = true;
@@ -429,14 +434,25 @@ export class Vol {
                         infoSupp = true
                     }
                     else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
-                        if (etatLogonConnexion.etat == Etat.Connecte) {
-                            etatLogonConnexion.infoEtat = "Déconnexion";
+                        if (index !== 0) {
+                            const previousState = tabEtatLogonConnexionTemp[tabEtatLogonConnexionTemp.length - 1].etat;
+                            console.log("!! CPDLCCOMSTATUS N- previousState", previousState);
+
+                            if (previousState == Etat.Connecte) {
+                                etatLogonConnexion.infoEtat = "Déconnexion";
+                            }
+                            else {
+                                etatLogonConnexion.infoEtat = "NonConnecté";
+                            }
                         }
                         else {
                             etatLogonConnexion.infoEtat = "NonConnecté";
+
                         }
                         etatLogonConnexion.etat = Etat.Logue;
                         infoSupp = true
+                        console.log("!! CPDLCCOMSTATUS N-  etatLogonConnexion.infoEtat", etatLogonConnexion.infoEtat);
+
                     }
                     break;
                 }
@@ -477,7 +493,6 @@ export class Vol {
 
             }
             // log.setEtat( etatLogonConnexion.etat);
-            console.log("je passe dedans elementPrevious",log.getTitle(),etatLogonConnexion.etat);
         };
         /**console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");
         tabEtatLogonConnexionTemp.forEach(element => {
@@ -504,11 +519,10 @@ export class Vol {
             }
 
         }
-        /**console.log("AFTER array tabEtatLogonConnexionLPLNs: ");
+        console.log("AFTER array tabEtatLogonConnexionLPLNs: ");
         tabEtatLogonConnexion.forEach(element => {
-          console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
-        });*/
-
+            console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
+        });
         this.setListeEtatLogonConnexion(tabEtatLogonConnexion);
 
 
@@ -676,7 +690,7 @@ export class Vol {
                 this.listeErreurs.push({ date: this.getDate(), type: "Connexion impossible", infos: resultConnexion.explication });
             }
             else {
-                this.listeErreurs.push({ date: this.getDate(), type: "Vol non connecté", infos: resultConnexion.explication });
+                this.listeErreurs.push({  date: this.getDate(),heure: this.getDatesConnexionPerdue(), type: "Vol non connecté", infos: resultConnexion.explication });
             }
         }
 
@@ -700,13 +714,20 @@ export class Vol {
                     }
                 }
 
-                this.listeErreurs.push({ date: element.dateTransfert, type: "echec de transfert", infos: infos });
+
+                this.listeErreurs.push({ date: this.getJourFromDateJJMMHH(element.dateTransfert), heure:[this.getHeureFromDateJJMMHH(element.dateTransfert)], type: "echec de transfert", infos: infos });
             }
         });
         console.log("nb erreurs : ", this.getListeErreurs().length);
 
     }
 
+    public getJourFromDateJJMMHH(dateTransfert: string): string {
+        return moment(dateTransfert, 'DD-MM HH mm ss').format('DD[/]MM')
+    }
+    public getHeureFromDateJJMMHH(dateTransfert: string): string {
+        return moment(dateTransfert, 'DD-MM HH mm ss').format('HH[H]mm[\']ss')
+    }
 
 
     /**
@@ -782,6 +803,7 @@ export class Vol {
         let isConnexionInitiee: boolean = false;
         let isConnexionEtablie: boolean = false;
         let isConnexionPerdue: boolean = false;
+        let datesConnexionPerdue:string[]= [];
         let isDeconnexionDemandee: boolean = false;
 
         this.listeLogs.forEach(log => {
@@ -800,6 +822,9 @@ export class Vol {
                     else if (log.getDetaillog()["CPDLCCOMSTATUS"] == "N") {
                         if (isConnexionEtablie && !isDeconnexionDemandee) {
                             isConnexionPerdue = true;
+                            console.log("!!!!! log.getDetaillog()",log.getDate(),log.getHeure(),log.getDetaillog());
+                            datesConnexionPerdue.push(log.getHeure());
+                            
                         }
                     }
                     break;
@@ -820,6 +845,7 @@ export class Vol {
         this.setIsConnexionInitiee(isConnexionInitiee);
         this.setIsConnexionEtablie(isConnexionEtablie);
         this.setIsConnexionPerdue(isConnexionPerdue);
+        this.setDatesConnexionPerdue(datesConnexionPerdue);
     }
 
     /**
