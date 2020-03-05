@@ -76,7 +76,7 @@ export class AnalyseVEMGSA {
       log.setLog(infoLog);
       //Stockage de la date/heure 
       //  let motifDateHeure = /(\d\d\/\d\d\/\d\d\d\d)( )(\d\d)(H)(\d\d)(')(\d\d)(.*)/; 
-      let motifDateHeure = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(.*)/;
+      let motifDateHeure = /(\d\d\/\d\d\/\d\d\d\d \d\dH\d\d'\d\d)(")(.*)/;
 
 
 
@@ -91,7 +91,8 @@ export class AnalyseVEMGSA {
         log.setHeure(moment(momentDate).format('HH mm ss'));
         log.setDate(moment(momentDate).format('DD-MM-YYYY HH mm ss'));
         // console.log("date set date : ", moment(momentDate).format('DD-MM-YYYY HH mm ss'));
-        log.setAssociable(Boolean(infoGen.toString().replace(motifDateHeure, "$8")));
+
+        log.setAssociable(Boolean(infoGen.toString().replace(motifDateHeure, "$3").trim()=="ASSOCIABLE  -"));
         if (monvol.getDate() == "") {
           monvol.setDate(log.getJour());
         }
