@@ -92,7 +92,7 @@ export class Dates {
     public diffHeuresLplnEgales(hL1: string, hL2: string): number {
         const momentDateL1 = moment(hL1, 'HH mm');
         const momentDateL2 = moment(hL2, 'HH mm');
-        const diff: number = Math.abs(momentDateL1.diff(momentDateL2)); 
+        const diff: number = Math.abs(momentDateL1.diff(momentDateL2));
         return diff;
 
 
@@ -111,7 +111,7 @@ export class Dates {
         return diff;
     }
 
-    
+
 
     /**
      * Fonction comparant des heures XXXX  entre elles  
@@ -197,16 +197,16 @@ export class Dates {
         return result;
     }
 
-   
 
 
-     /**
-      * Fonction qui compare strictement [la date d'un  log VEMGSA] et [une date VEMGSA  au format DD-MM-YYYY HH mm ss]
-      * @param log  Date brut d'un log VEMGSA
-      * @param creneauLimite Date VEMGSA  au format DD-MM-YYYY HH mm ss
-      * @param diff Da différence en minutes
-      * @returns True si (Date log - creneau limite) > diff, False sinon
-      */
+
+    /**
+     * Fonction qui compare strictement [la date d'un  log VEMGSA] et [une date VEMGSA  au format DD-MM-YYYY HH mm ss]
+     * @param log  Date brut d'un log VEMGSA
+     * @param creneauLimite Date VEMGSA  au format DD-MM-YYYY HH mm ss
+     * @param diff Da différence en minutes
+     * @returns True si (Date log - creneau limite) > diff, False sinon
+     */
     public diffDateVstrict(log: string, creneauLimite: string, diff: number): boolean {
         let result: boolean = false;
         const momentDateCreneau = moment(creneauLimite, 'DD-MM-YYYY HH mm ss');
@@ -260,22 +260,22 @@ export class Dates {
         return diff;
     }
 
-        /**
- * Fonction qui indique si la difference en ms entre deux dates est bien dans les limites passees en paramètre
- * renvoie true si diffMin <= d1-d2 <= diffMax
- * @param d1 
- * @param d2 
- * @param diffMin 
- * @param diffMax 
- * 
- */
-public diffDatesInBornes(d1: string, d2: string, diffMin:number, diffMax:number ): boolean {
-    let result:boolean=false;
-   if ( (this.diffDates(d1,d2) <= diffMax) && (this.diffDates(d1,d2) >= diffMin)){
-    result= true;   
-   }
-   return result;
-}
+    /**
+* Fonction qui indique si la difference en ms entre deux dates est bien dans les limites passees en paramètre
+* renvoie true si diffMin <= d1-d2 <= diffMax
+* @param d1 
+* @param d2 
+* @param diffMin 
+* @param diffMax 
+* 
+*/
+    public diffDatesInBornes(d1: string, d2: string, diffMin: number, diffMax: number): boolean {
+        let result: boolean = false;
+        if ((this.diffDates(d1, d2) <= diffMax) && (this.diffDates(d1, d2) >= diffMin)) {
+            result = true;
+        }
+        return result;
+    }
 
 
     /**
@@ -498,4 +498,6 @@ public diffDatesInBornes(d1: string, d2: string, diffMin:number, diffMax:number 
 
 
     }
+
+
 }
