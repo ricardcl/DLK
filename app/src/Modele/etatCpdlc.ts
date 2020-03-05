@@ -127,6 +127,10 @@ this.infoEtat = infoEtat;
     return this.explication;
   }
 
+  getAssociable():boolean{
+    return this.associable;
+  }
+
   //SETTERS
   setTitle(title: string) {
     this.title = title;

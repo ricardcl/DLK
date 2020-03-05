@@ -349,7 +349,9 @@ export class Vol {
         let tabEtatLogonConnexionTemp: etatLogonConnexion[] = [];
         let infoSupp: boolean;
 
-        this.listeLogs.forEach(log => {
+        for (let index = 0; index < this.listeLogs.length; index++) {
+            const log = this.listeLogs[index];
+
             // log.setEtat(Etat.Unknown);
             let etatLogonConnexion = <etatLogonConnexion>{};
             etatLogonConnexion.dateChgtEtat = log.getDate();
@@ -357,10 +359,33 @@ export class Vol {
             infoSupp = false;
             //automate a etat sur la variable etat 
             switch (log.getTitle()) {
+                
                 case 'CPCASREQ': {
-                    etatLogonConnexion.etat = Etat.NonLogue;
-                    etatLogonConnexion.infoEtat = "DemandeLogonEnCours";
-                    infoSupp = true;
+                    let LogonPendantVolLogue:boolean = false;
+                    if (!log.getAssociable()) {
+                        if (index !== 0) {
+                            const previousState = tabEtatLogonConnexionTemp[tabEtatLogonConnexionTemp.length-1].etat;
+                            console.log("je passe dedans elementPrevious",previousState);
+
+                            if ((previousState == Etat.Logue) || (previousState == Etat.Connecte)) {
+                                LogonPendantVolLogue = true;
+                                etatLogonConnexion.etat = previousState;
+                                etatLogonConnexion.infoEtat = "DemandeLogonRefuséeParStpv";
+                                infoSupp = true;
+                                console.log("je passe dedans");
+                                
+                            }
+                        }
+                    }
+                    console.log("!!!!test: ","associable",log.getAssociable(), );
+
+
+                    if (!LogonPendantVolLogue){
+                        etatLogonConnexion.etat = Etat.NonLogue;
+                        etatLogonConnexion.infoEtat = "DemandeLogonEnCours";
+                        infoSupp = true;
+                    }
+
                     break;
                 }
                 case 'CPCASRES': {
@@ -452,8 +477,8 @@ export class Vol {
 
             }
             // log.setEtat( etatLogonConnexion.etat);
-
-        });
+            console.log("je passe dedans elementPrevious",log.getTitle(),etatLogonConnexion.etat);
+        };
         /**console.log("BEFORE array tabEtatLogonConnexionLPLNs: ");
         tabEtatLogonConnexionTemp.forEach(element => {
           console.log(element.dateChgtEtat, element.etat, element.infoEtat, element.log);
@@ -665,6 +690,8 @@ export class Vol {
                 }
                 else {
                     let deltaTSecondes: number = element.deltaT / 1000;
+                    console.log("deltaTSecondes", deltaTSecondes);
+
                     if ((deltaTSecondes > 0) && (deltaTSecondes < 60)) {
                         infos += " delta T: " + deltaTSecondes + " secondes" + " hyp : délai de reception par le bord";
                     }
