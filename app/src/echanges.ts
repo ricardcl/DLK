@@ -174,7 +174,7 @@ export class Echanges {
 
                         /**  Traitement bdd */
                         // Mise à jour de la  bdd avec le vol analysé
-                        this.database.writeVol(id, "LPLN", volLpln, null, null);
+                        this.database.writeVol(id, "LPLN",inputData, volLpln, null, null);
                         //  Traitement bdd : Envoi au client de la liste des vols actualisée 
                         this.database.readAllVol(socket);
 
@@ -185,7 +185,7 @@ export class Echanges {
                         console.log("analysedVol Contexte.VEMGSA");
                         socket.emit("analysedVol", "VEMGSA", inputData, null, volVemgsa, null);
                         /**  Traitement bdd */
-                        this.database.writeVol(id, "VEMGSA", null, volVemgsa, null);
+                        this.database.writeVol(id, "VEMGSA",inputData, null, volVemgsa, null);
                         this.database.readAllVol(socket);;
                         break;
                     case Contexte.LPLNVEMGSA:
@@ -207,7 +207,7 @@ export class Echanges {
                                 volMix
                             );
                             /**  Traitement bdd */
-                            this.database.writeVol(id, "MIX", volLpln, volVemgsa, volMix);
+                            this.database.writeVol(id, "MIX",inputData, volLpln, volVemgsa, volMix);
                             this.database.readAllVol(socket);
 
 
@@ -217,12 +217,12 @@ export class Echanges {
                                 console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 2 ");
 
                                 socket.emit("analysedVol", "LPLN", inputData, volLpln, null, null);
-                                this.database.writeVol(id, "LPLN", volLpln, null, null);
+                                this.database.writeVol(id, "LPLN",inputData, volLpln, null, null);
                             }
                             else {
                                 console.log("analysedVol Contexte.LPLN et VEMGSA :  CAS 3 ");
                                 socket.emit("analysedVol", "VEMGSA", inputData, null, volVemgsa, null);
-                                this.database.writeVol(id, "LPLN", null, volVemgsa, null);
+                                this.database.writeVol(id, "LPLN",inputData, null, volVemgsa, null);
                             }
                         }
 
