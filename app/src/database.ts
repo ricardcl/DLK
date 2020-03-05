@@ -80,7 +80,7 @@ export class Database {
 
         this.query('SELECT * from vol')
             .then(rows => {
-                console.log("je rentre database vol", rows);
+                //console.log("je rentre database vol", rows);
                 //Generation d'un evenement vers le client avec la liste de tous les vols
                 socket.emit('database', rows);
             })
