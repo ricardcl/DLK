@@ -679,6 +679,7 @@ export class Vol {
 
         //ERREURS DE LOGON
         if (this.getLogonAccepte() !== true) {
+            
             this.listeErreurs.push({ date: this.getDate(), type: "Logon impossible", infos: this.evaluateEtatLogon() });
         }
 
@@ -690,7 +691,9 @@ export class Vol {
                 this.listeErreurs.push({ date: this.getDate(), type: "Connexion impossible", infos: resultConnexion.explication });
             }
             else {
-                this.listeErreurs.push({  date: this.getDate(),heure: this.getDatesConnexionPerdue(), type: "Vol non connecté", infos: resultConnexion.explication });
+                this.getDatesConnexionPerdue().forEach(element => {                   
+                    this.listeErreurs.push({  date: this.getDate(),heure: [element], type: "Vol non connecté", infos: resultConnexion.explication });
+                });
             }
         }
 
@@ -715,19 +718,15 @@ export class Vol {
                 }
 
 
-                this.listeErreurs.push({ date: this.getJourFromDateJJMMHH(element.dateTransfert), heure:[this.getHeureFromDateJJMMHH(element.dateTransfert)], type: "echec de transfert", infos: infos });
+                this.listeErreurs.push({ date: moment(element.dateTransfert, 'DD-MM HH mm ss').format('DD-MM'),
+                 heure:[ moment(element.dateTransfert, 'DD-MM HH mm ss').format('HH mm ss')], type: "echec de transfert", infos: infos });
             }
         });
         console.log("nb erreurs : ", this.getListeErreurs().length);
 
     }
 
-    public getJourFromDateJJMMHH(dateTransfert: string): string {
-        return moment(dateTransfert, 'DD-MM HH mm ss').format('DD[/]MM')
-    }
-    public getHeureFromDateJJMMHH(dateTransfert: string): string {
-        return moment(dateTransfert, 'DD-MM HH mm ss').format('HH[H]mm[\']ss')
-    }
+
 
 
     /**
