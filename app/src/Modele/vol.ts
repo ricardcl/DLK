@@ -485,6 +485,14 @@ export class Vol {
                 }
                 default: {
                     // console.log("je passe dans default",log.getTitle()); 
+                   if ( index ==  this.listeLogs.length -1 ){
+                    const previousState = tabEtatLogonConnexionTemp[tabEtatLogonConnexionTemp.length - 1].etat;
+                    etatLogonConnexion.etat = previousState;
+                    etatLogonConnexion.infoEtat = "Fin des logs";
+
+                    infoSupp = true
+                   }
+
                     break;
                 }
             }
@@ -602,7 +610,11 @@ export class Vol {
                 if ((elementPrevious.etat !== element.etat) && (element.etat == Etat.Connecte)) {
                     tabEtatConnexion.push(newElement);
                 }
-                else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.Connecte)) {
+                else if ((elementPrevious.etat !== element.etat) && (elementPrevious.etat == Etat.Connecte)
+                ||
+                //si à la fin des logs le vol est toujours connecté, il faut prendre en compte la date du dernier log
+                (elementPrevious.etat == element.etat) && (elementPrevious.etat == Etat.Connecte) && (element.infoEtat == "Fin des logs")
+                ) {
                     tabEtatConnexion[tabEtatConnexion.length - 1].toDate = element.dateChgtEtat;
                 }
             }
