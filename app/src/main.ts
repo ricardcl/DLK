@@ -3,15 +3,15 @@ import { Path } from './Modele/path';
 const fs = require('fs');
 
 console.log("debut main");
-// Init the server user path :
+// Creation du dossier utilisateur où seront stockés les sessions temporaires des utilisateurs
 if (!fs.existsSync(Path.userPath)) {
     fs.mkdirSync(Path.userPath);
 }
 
-// Init the log folder :
+// Creation du dossier de logs où seront stockés les logs de toutes les actions utilisateur
 if (!fs.existsSync(Path.logBookPath)) {
     fs.mkdirSync(Path.logBookPath);
 }
 
-// Start application :
+// Lancement de l'application
 new Echanges();
